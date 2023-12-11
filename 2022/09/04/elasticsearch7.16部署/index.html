@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="Able Wong">
+
+
+
+  <meta name="description" content="Able的个人博客">
+
+
+  <meta name="keywords" content="Able,运维，博客，IT男，匹敌">
+
+
+<title>Elasticsearch7.16.1和kibana集群部署 | PiDi</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+    $("#toggle-dark").click(toggleDark);
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
+          PiDi
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        Elasticsearch7.16.1和kibana集群部署
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        Elasticsearch7.16.1和kibana集群部署
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2023-11-28</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>6 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>1.2k words</span>
+          </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/ELK/">ELK</a>
+            </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><p>本次使用es版本为7.16.3, kibana版本也是7.16.3</p>
+<p>好像7.10版本就自带jdk了。值得注意的是，elasticsearch不支持root用户启动，自己需创建一个普通用户启动。</p>
+<p>master: 192.168.2.232</p>
+<p>node: 192.168.2.231, 192.168.2.233</p>
+<h4 id="二、部署elasticsearch"><a href="#二、部署elasticsearch" class="headerlink" title="二、部署elasticsearch"></a>二、部署elasticsearch</h4><p>下载es7.16.3版本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.3-linux-x86_64.tar.gz</span><br><span class="line">tar -xzf elasticsearch-7.16.3-linux-x86_64.tar.gz</span><br><span class="line">mv elasticsearch-7.16.3/ elasticsearch7.16</span><br></pre></td></tr></table></figure>
+
+<p>master节点配置,  master节点比node节点多了cluster.initial_master_nodes参考，意思是集群初始化主节点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">cluster.name: able-es</span><br><span class="line">node.name: able232</span><br><span class="line">node.master: true</span><br><span class="line">node.data: true</span><br><span class="line">bootstrap.memory_lock: true</span><br><span class="line">network.host: 192.168.2.232</span><br><span class="line">http.port: 9200</span><br><span class="line">discovery.seed_hosts: [&quot;192.168.2.231&quot;, &quot;192.168.2.232&quot;,&quot;192.168.2.233&quot;]</span><br><span class="line">cluster.initial_master_nodes: [&quot;able231&quot;,&quot;able232&quot;,&quot;able233&quot;]</span><br><span class="line">xpack.security.enabled: true</span><br><span class="line">xpack.security.transport.ssl.enabled: true</span><br><span class="line">xpack.security.transport.ssl.verification_mode: certificate</span><br><span class="line">xpack.security.transport.ssl.keystore.path: certs/elastic-certificates.p12</span><br><span class="line">xpack.security.transport.ssl.truststore.path: certs/elastic-certificates.p12</span><br><span class="line">xpack.monitoring.enabled: true</span><br><span class="line">xpack.monitoring.collection.enabled: true</span><br><span class="line">xpack.sql.enabled: true</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line">xpack.ilm.enabled: true</span><br><span class="line">xpack.ml.enabled: false</span><br><span class="line">xpack.graph.enabled: false</span><br><span class="line">xpack.watcher.enabled: false</span><br></pre></td></tr></table></figure>
+
+<p>node节点两个配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">cluster.name: able-es</span><br><span class="line">node.name: able231</span><br><span class="line">bootstrap.memory_lock: true</span><br><span class="line">network.host: 192.168.2.231</span><br><span class="line">http.port: 9200</span><br><span class="line">discovery.seed_hosts: [&quot;192.168.2.231&quot;, &quot;192.168.2.232&quot;,&quot;192.168.2.233&quot;]</span><br><span class="line">cluster.initial_master_nodes: [&quot;able231&quot;,&quot;able232&quot;,&quot;able233&quot;]</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">security</span></span><br><span class="line">xpack.security.enabled: true</span><br><span class="line">xpack.security.transport.ssl.enabled: true</span><br><span class="line">xpack.security.transport.ssl.verification_mode: certificate</span><br><span class="line">xpack.security.transport.ssl.keystore.path: certs/elastic-certificates.p12</span><br><span class="line">xpack.security.transport.ssl.truststore.path: certs/elastic-certificates.p12</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">monitoring</span></span><br><span class="line">xpack.monitoring.enabled: true</span><br><span class="line">xpack.monitoring.collection.enabled: true</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">various</span></span><br><span class="line">xpack.sql.enabled: true</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="literal">false</span></span></span><br><span class="line">xpack.ilm.enabled: true</span><br><span class="line">xpack.ml.enabled: false</span><br><span class="line">xpack.graph.enabled: false</span><br><span class="line">xpack.watcher.enabled: false</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">cluster.name: able-es</span><br><span class="line">node.name: able233</span><br><span class="line">bootstrap.memory_lock: true</span><br><span class="line">network.host: 192.168.2.233</span><br><span class="line">http.port: 9200</span><br><span class="line">discovery.seed_hosts: [&quot;192.168.2.231&quot;, &quot;192.168.2.232&quot;,&quot;192.168.2.233&quot;]</span><br><span class="line">cluster.initial_master_nodes: [&quot;able231&quot;,&quot;able232&quot;,&quot;able233&quot;]</span><br><span class="line">xpack.security.enabled: true</span><br><span class="line">xpack.security.transport.ssl.enabled: true</span><br><span class="line">xpack.security.transport.ssl.verification_mode: certificate</span><br><span class="line">xpack.security.transport.ssl.keystore.path: certs/elastic-certificates.p12</span><br><span class="line">xpack.security.transport.ssl.truststore.path: certs/elastic-certificates.p12</span><br><span class="line">xpack.monitoring.enabled: true</span><br><span class="line">xpack.monitoring.collection.enabled: true</span><br><span class="line">xpack.sql.enabled: true</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line">xpack.ilm.enabled: true</span><br><span class="line">xpack.ml.enabled: false</span><br><span class="line">xpack.graph.enabled: false</span><br><span class="line">xpack.watcher.enabled: false</span><br></pre></td></tr></table></figure>
+
+<p>xpack ssl</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch-certutil --help</span><br><span class="line">    csr - generate certificate signing requests</span><br><span class="line">    cert - generate X.509 certificates and keys</span><br><span class="line">    ca - generate a new local certificate authority</span><br><span class="line"></span><br><span class="line">bin/elasticsearch-certutil ca //创建集群节点安全认证机构</span><br><span class="line">bin/elasticsearch-certutil cert --ca elastic-stack-ca.p12  //为节点颁发证书</span><br><span class="line"></span><br><span class="line">//如果在创建证书期间设置密码需要把认证密码存储器起来，方便es节点认证</span><br><span class="line">bin/elasticsearch-keystore add xpack.security.transport.ssl.keystore.secure_password</span><br><span class="line">bin/elasticsearch-keystore add xpack.security.transport.ssl.truststore.secure_password</span><br><span class="line">mkdir config/certs</span><br><span class="line">mv elastic-* config/certs</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>#jvm.options</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-Xms8g  //memory half</span><br><span class="line">-Xmx8g</span><br><span class="line"></span><br><span class="line">10-:-XX:+UseG1GC //openjdk10+</span><br><span class="line">10-:-XX:G1ReservePercent=25</span><br><span class="line">10-:-XX:InitiatingHeapOccupancyPercent=30</span><br></pre></td></tr></table></figure>
+
+
+
+<p>证书配置文件位置 xpack.security.transport.ssl.keystore.path: certs&#x2F;elastic-certificates.p12 是配置文件目录下的certs， 也就是&#x2F;opt&#x2F;elasticsearch7.16&#x2F;config&#x2F;certs&#x2F; 目录下</p>
+<p>把证书拷备到另外两台相同的位置。</p>
+<p>证书放后就可以启动三台es了。注意最先启动master节点。这样方便观察加入状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./bin/elasticsearch -d -p pid  </span><br><span class="line">pkill -F pid</span><br></pre></td></tr></table></figure>
+
+<p>查看日志节点加入情况</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -n 40 -f logs/able-es.log</span><br></pre></td></tr></table></figure>
+
+<p>看节点都加入集群后，配置账号密码。按y确认生成密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch-setup-passwords auto -u &quot;http://192.168.2.232:9200&quot;  //自动设置内置账户密码</span><br><span class="line"></span><br><span class="line">Changed password for user apm_system</span><br><span class="line">PASSWORD apm_system = Auga3k2BTmasts5MNckN</span><br><span class="line"></span><br><span class="line">Changed password for user kibana_system</span><br><span class="line">PASSWORD kibana_system = AzbVPrk23neLgOTbfoad</span><br><span class="line"></span><br><span class="line">Changed password for user kibana</span><br><span class="line">PASSWORD kibana = AzbVPrk23neLgOTbfoad</span><br><span class="line"></span><br><span class="line">Changed password for user logstash_system</span><br><span class="line">PASSWORD logstash_system = zT6JXjRZzxvXcytO7FCB</span><br><span class="line"></span><br><span class="line">Changed password for user beats_system</span><br><span class="line">PASSWORD beats_system = nawfMxLpoXRJnjOxwxue</span><br><span class="line"></span><br><span class="line">Changed password for user remote_monitoring_user</span><br><span class="line">PASSWORD remote_monitoring_user = JcoCf7EFA7D31U4s7gHR</span><br><span class="line"></span><br><span class="line">Changed password for user elastic</span><br><span class="line">PASSWORD elastic = pZ54axgmlU7QPZSB9qAg</span><br></pre></td></tr></table></figure>
+
+<p>有账号密码后就方面查看状态了cat&#x2F;nodes?v 可看到三台es, master节点有标识出来。</p>
+<p>curl -u elastic:pZ54axgmlU7QPZSB9qAg -XGET <a target="_blank" rel="noopener" href="http://192.168.2.232:9200/_cat/nodes?v">http://192.168.2.232:9200/_cat/nodes?v</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[jumpadmin@able232 elasticsearch7.16]$ curl -u elastic:pZ54axgmlU7QPZSB9qAg  -XGET http://192.168.2.231:9200/_cat/health?v</span><br><span class="line">epoch      timestamp cluster status node.total node.data shards pri relo init unassign pending_tasks max_task_wait_time active_shards_percent</span><br><span class="line">1657699621 08:07:01  able-es green           3         3     36  18    0    0        0             0                  -                100.0%</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果其中配置有错误导致集群启动不了或其他情况，可删除掉data&#x2F;nodes目录。清除数据重新来。</p>
+<h4 id="三、kibana部署"><a href="#三、kibana部署" class="headerlink" title="三、kibana部署"></a>三、kibana部署</h4><p>下载</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://artifacts.elastic.co/downloads/kibana/kibana-7.16.3-linux-x86_64.tar.gz</span><br><span class="line">tar xzf kibana-7.16.3-linux-x86_64.tar.gz</span><br><span class="line">mv kibana-7.16.3 kibana</span><br></pre></td></tr></table></figure>
+
+<p>修改配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">server.port: 5601</span><br><span class="line">server.host: &quot;192.168.2.232&quot;</span><br><span class="line">server.name: &quot;kibana-able-acdata&quot;</span><br><span class="line">pid.file: ./kibana.pid</span><br><span class="line"></span><br><span class="line">elasticsearch.hosts: [&quot;http://192.168.2.231:9200&quot;,&quot;http://192.168.2.232:9200&quot;,&quot;http://192.168.2.233:9200&quot;]</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">elasticsearch.username: <span class="string">&quot;elastic&quot;</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">elasticsearch.password: <span class="string">&quot;pass&quot;</span></span></span><br><span class="line"></span><br><span class="line">kibana.defaultAppId: &quot;home&quot;</span><br><span class="line">i18n.locale: &quot;en&quot;</span><br><span class="line"></span><br><span class="line">xpack.security.encryptionKey: &quot;386400e4862228d0683bc6df52c570c6&quot;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">various ui</span></span><br><span class="line">xpack.apm.enabled: false</span><br><span class="line">xpack.infra.enabled: false</span><br><span class="line">xpack.ml.enabled: false</span><br><span class="line">xpack.reporting.enabled: false</span><br><span class="line">xpack.graph.enabled: false</span><br></pre></td></tr></table></figure>
+
+<p>启动kibana， kibana-keystore可以创建账号密码记在里面。配置文件中就可以注释掉elasticsearch.username和elasticsearch.password</p>
+<p>这样配置文件中就没有明文密码记录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">./bin/kibana-keystore list</span><br><span class="line">./bin/kibana-keystore create</span><br><span class="line">./bin/kibana-keystore add elasticsearch.username</span><br><span class="line">./bin/kibana-keystore add elasticsearch.password</span><br><span class="line">./bin/kibana-keystore list</span><br><span class="line"></span><br><span class="line">./bin/kibana  #启动kibana</span><br></pre></td></tr></table></figure>
+
+
+
+<p>浏览器打开 <a target="_blank" rel="noopener" href="http://192.168.2.232:5601/">http://192.168.2.232:5601/</a> 输入账号密码就可登陆。</p>
+
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/elasticsearch-elk-es/">elasticsearch;elk;es</a>
+        </span>
+      
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+        <a href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
+          Elasticsearch7.8.1 和 kibana集群部署
+        </a>
+      
+    </div>
+    <div>
+      
+        <a href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          jenkins部署及插件安装
+          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
+        </a>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "default",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>
