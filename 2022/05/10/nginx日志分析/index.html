@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="Able Wong">
+
+
+
+  <meta name="description" content="Able的个人博客">
+
+
+  <meta name="keywords" content="Able,运维，博客，IT男，匹敌">
+
+
+<title>nginx日志分析 | PiDi</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+    $("#toggle-dark").click(toggleDark);
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
+          PiDi
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        nginx日志分析
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        nginx日志分析
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2023-12-11</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>3 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>733 words</span>
+          </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <h2 id="NGINX-日志统计分析"><a href="#NGINX-日志统计分析" class="headerlink" title="NGINX 日志统计分析"></a>NGINX 日志统计分析</h2><h3 id="常用分析命令"><a href="#常用分析命令" class="headerlink" title="常用分析命令"></a>常用分析命令</h3><h4 id="1、根据访问IP统计UV"><a href="#1、根据访问IP统计UV" class="headerlink" title="1、根据访问IP统计UV"></a>1、根据访问IP统计UV</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print $1&#125;&#x27; paycenteraccess.log | sort -n | uniq | wc -l</span><br></pre></td></tr></table></figure>
+<h4 id="2、查询访问最频繁的IP-前10"><a href="#2、查询访问最频繁的IP-前10" class="headerlink" title="2、查询访问最频繁的IP(前10)"></a>2、查询访问最频繁的IP(前10)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log | sort -n |uniq -c | sort -rn | head -n 10</span><br></pre></td></tr></table></figure>
+<h4 id="3、查看某一时间段的IP访问量-1-8点"><a href="#3、查看某一时间段的IP访问量-1-8点" class="headerlink" title="3、查看某一时间段的IP访问量(1-8点)"></a>3、查看某一时间段的IP访问量(1-8点)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;$4 &gt;=&quot;[25/Mar/2020:01:00:00&quot; &amp;&amp; $4 &lt;=&quot;[25/Mar/2020:08:00:00&quot;&#x27; /var/log/nginx/access.log | awk &#x27;&#123;print $1&#125;&#x27; | sort | uniq -c| sort -nr |wc -l</span><br></pre></td></tr></table></figure>
+<h4 id="4、查看访问100次以上的IP"><a href="#4、查看访问100次以上的IP" class="headerlink" title="4、查看访问100次以上的IP"></a>4、查看访问100次以上的IP</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log | sort -n |uniq -c |awk &#x27;&#123;if($1 &gt;100) print $0&#125;&#x27;|sort -rn</span><br></pre></td></tr></table></figure>
+<h4 id="5、查看指定ip访问过的url和访问次数"><a href="#5、查看指定ip访问过的url和访问次数" class="headerlink" title="5、查看指定ip访问过的url和访问次数"></a>5、查看指定ip访问过的url和访问次数</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep &quot;39.105.67.140&quot; /var/log/nginx/access.log|awk &#x27;&#123;print $7&#125;&#x27; |sort |uniq -c |sort -n -k 1 -r</span><br></pre></td></tr></table></figure>
+<h4 id="6、根据访问URL统计PV"><a href="#6、根据访问URL统计PV" class="headerlink" title="6、根据访问URL统计PV"></a>6、根据访问URL统计PV</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /var/log/nginx/access.log |awk &#x27;&#123;print $7&#125;&#x27; |wc -l</span><br></pre></td></tr></table></figure>
+<h4 id="7、查询访问最频繁的URL-前10"><a href="#7、查询访问最频繁的URL-前10" class="headerlink" title="7、查询访问最频繁的URL(前10)"></a>7、查询访问最频繁的URL(前10)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print $7&#125;&#x27; /var/log/nginx/access.log | sort |uniq -c | sort -rn | head -n 10</span><br></pre></td></tr></table></figure>
+<h4 id="8、查看访问最频的URL-排除-api-appid-前10"><a href="#8、查看访问最频的URL-排除-api-appid-前10" class="headerlink" title="8、查看访问最频的URL([排除&#x2F;api&#x2F;appid])(前10)"></a>8、查看访问最频的URL([排除&#x2F;api&#x2F;appid])(前10)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -v &#x27;/api/appid&#x27; /var/log/nginx/access.log|awk &#x27;&#123;print $7&#125;&#x27; | sort |uniq -c | sort -rn | head -n 10</span><br></pre></td></tr></table></figure>
+<h4 id="9、查看页面访问次数超过100次的页面"><a href="#9、查看页面访问次数超过100次的页面" class="headerlink" title="9、查看页面访问次数超过100次的页面"></a>9、查看页面访问次数超过100次的页面</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /var/log/nginx/access.log | cut -d &#x27; &#x27; -f 7 | sort |uniq -c | awk &#x27;&#123;if ($1 &gt; 100) print $0&#125;&#x27; | less</span><br></pre></td></tr></table></figure>
+<h4 id="10、查看最近1000条记录，访问量最高的页面"><a href="#10、查看最近1000条记录，访问量最高的页面" class="headerlink" title="10、查看最近1000条记录，访问量最高的页面"></a>10、查看最近1000条记录，访问量最高的页面</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -1000 /var/log/nginx/access.log |awk &#x27;&#123;print $7&#125;&#x27;|sort|uniq -c|sort -nr|less</span><br></pre></td></tr></table></figure>
+<h4 id="11、统计每小时的请求数-top10的时间点-精确到小时"><a href="#11、统计每小时的请求数-top10的时间点-精确到小时" class="headerlink" title="11、统计每小时的请求数,top10的时间点(精确到小时)"></a>11、统计每小时的请求数,top10的时间点(精确到小时)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print $4&#125;&#x27; /var/log/nginx/access.log |cut -c 14-15|sort|uniq -c|sort -nr|head -n 10</span><br></pre></td></tr></table></figure>
+<h4 id="12、统计每分钟的请求数-top10的时间点-精确到分钟"><a href="#12、统计每分钟的请求数-top10的时间点-精确到分钟" class="headerlink" title="12、统计每分钟的请求数,top10的时间点(精确到分钟)"></a>12、统计每分钟的请求数,top10的时间点(精确到分钟)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print $4&#125;&#x27; /var/log/nginx/access.log |cut -c 14-18|sort|uniq -c|sort -nr|head -n 10</span><br></pre></td></tr></table></figure>
+<h4 id="13、统计每秒的请求数-top10的时间点-精确到秒"><a href="#13、统计每秒的请求数-top10的时间点-精确到秒" class="headerlink" title="13、统计每秒的请求数,top10的时间点(精确到秒)"></a>13、统计每秒的请求数,top10的时间点(精确到秒)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print $4&#125;&#x27; /var/log/nginx/access.log |cut -c 14-21|sort|uniq -c|sort -nr|head -n 10</span><br></pre></td></tr></table></figure>
+<h4 id="14、查找指定时间段的日志"><a href="#14、查找指定时间段的日志" class="headerlink" title="14、查找指定时间段的日志"></a>14、查找指定时间段的日志</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;$4 &gt;=&quot;[25/Mar/2020:01:00:00&quot; &amp;&amp; $4 &lt;=&quot;[25/Mar/2020:08:00:00&quot;&#x27; /var/log/nginx/access.log</span><br></pre></td></tr></table></figure>
+<h4 id="15、列出传输时间超过-0-6-秒的url，显示前10条"><a href="#15、列出传输时间超过-0-6-秒的url，显示前10条" class="headerlink" title="15、列出传输时间超过 0.6 秒的url，显示前10条"></a>15、列出传输时间超过 0.6 秒的url，显示前10条</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /var/log/nginx/access.log |awk &#x27;(substr($NF,2,5) &gt; 0.6)&#123;print $4,$7,substr($NF,2,5)&#125;&#x27; | awk -F &#x27;&quot;&#x27; &#x27;&#123;print $1,$2,$3&#125;&#x27; |sort -k3 -rn | head -10</span><br></pre></td></tr></table></figure>
+<h4 id="16、列出-api-appid请求时间超过0-6秒的时间点"><a href="#16、列出-api-appid请求时间超过0-6秒的时间点" class="headerlink" title="16、列出&#x2F;api&#x2F;appid请求时间超过0.6秒的时间点"></a>16、列出&#x2F;api&#x2F;appid请求时间超过0.6秒的时间点</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /var/log/nginx/access.log |awk &#x27;(substr($NF,2,5) &gt; 0.6 &amp;&amp; $7~/\/api\/appid/)&#123;print $4,$7,substr($NF,2,5)&#125;&#x27; | awk -F &#x27;&quot;&#x27; &#x27;&#123;print $1,$2,$3&#125;&#x27; |sort -k3 -rn | head -10</span><br></pre></td></tr></table></figure>
+<h4 id="17、获取前10条最耗时的请求时间、url、耗时"><a href="#17、获取前10条最耗时的请求时间、url、耗时" class="headerlink" title="17、获取前10条最耗时的请求时间、url、耗时"></a>17、获取前10条最耗时的请求时间、url、耗时</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /var/log/nginx/access.log |awk &#x27;&#123;print $4,$7,substr($NF,2,5)&#125;&#x27; | awk -F &#x27;&quot;&#x27; &#x27;&#123;print $1,$2,$3&#125;&#x27; | sort -k3 -rn | head -10</span><br></pre></td></tr></table></figure>
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+        <a href="/2022/05/10/Spring-boot-gateway%E6%BC%8F%E6%B4%9E/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
+          Spring_boot_gateway漏洞
+        </a>
+      
+    </div>
+    <div>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "default",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>

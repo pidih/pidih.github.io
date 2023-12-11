@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="Able Wong">
+
+
+
+  <meta name="description" content="Able的个人博客">
+
+
+  <meta name="keywords" content="Able,运维，博客，IT男，匹敌">
+
+
+<title>版本上线操作规范 | PiDi</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+    $("#toggle-dark").click(toggleDark);
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
+          PiDi
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        版本上线操作规范
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        版本上线操作规范
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2023-12-11</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>8 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>2.1k words</span>
+          </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <blockquote>
+<p>基础架构部发布</p>
+</blockquote>
+<h2 id="规范说明："><a href="#规范说明：" class="headerlink" title="规范说明："></a>规范说明：</h2><p>此规范用于深圳创巧数据技术有限公司（下称：创巧数据）版本上线规范填写标准上线文档、上线流程、上线备份还原等上线操作规范。如有文档填写不标准一律要求重新填写上传，填写标准再上线。为了避免填写上线文档人员依赖审核人员当测试上线文档工具，同样问题超三次后不予说明退回重新填写。发版人员也必须按照上线流程规范自己安标准流程执行。</p>
+<h3 id="一、上线文档SVN目录"><a href="#一、上线文档SVN目录" class="headerlink" title="一、上线文档SVN目录"></a>一、上线文档SVN目录</h3><p>上线文档规范每次版本上线提交到SVN目录。SVN目录如下：</p>
+<p>​	svn:&#x2F;&#x2F;192.168.2.183&#x2F;warehouse_receipt&#x2F;创巧动产数字化服务平台&#x2F;08运维部署&#x2F;</p>
+<p>例如：此次上线为v1.3.0版本</p>
+<p>​	SVN目录为： svn:&#x2F;&#x2F;192.168.2.183&#x2F;warehouse_receipt&#x2F;创巧动产数字化服务平台&#x2F;08运维部署&#x2F;v1.3.0</p>
+<h3 id="二、上线流程"><a href="#二、上线流程" class="headerlink" title="二、上线流程"></a>二、上线流程</h3><h4 id="1、UAT环境上线测试"><a href="#1、UAT环境上线测试" class="headerlink" title="1、UAT环境上线测试"></a>1、UAT环境上线测试</h4><p>​	生产环境上线：UAT环境作为上线前最后一次上线演练，整理之前上线的需要的步骤和上线的文件、服务应用等。</p>
+<h4 id="2、上线评审"><a href="#2、上线评审" class="headerlink" title="2、上线评审"></a>2、上线评审</h4><p>​	联合开发、测试、架构和运维团队对上线的文档进行详细的评估及检查文档的遗漏问题、风险性等。</p>
+<h4 id="3、上线审批"><a href="#3、上线审批" class="headerlink" title="3、上线审批"></a>3、上线审批</h4><p>​	待上线评审结束，需要对此次上线版本申请上线。待产品部门确定上线时间及发出上线通告、CTO确认，运维团队根据时间进行版本上线。</p>
+<h4 id="4、上线前确认、上线操作人员核对上线文档"><a href="#4、上线前确认、上线操作人员核对上线文档" class="headerlink" title="4、上线前确认、上线操作人员核对上线文档"></a>4、上线前确认、上线操作人员核对上线文档</h4><p>​	确认各项目的上线文档上传完成、git分支合并发布环境完成。才可进入下一步操作</p>
+<p>​	核对上线文档是否有格式不对、描述不清楚、内容错误等问题。如有和上线文档标准不符要求退回重新填写上传。</p>
+<p>​	有新项目部署应提前做好jenkins自动构建。</p>
+<h4 id="5、上线前备份"><a href="#5、上线前备份" class="headerlink" title="5、上线前备份"></a>5、上线前备份</h4><p>​	上线操作前必先备份好所有平台相关数据库(包括 nacos)、上个版本的项目服务程序包。</p>
+<h4 id="6、上线操作流程"><a href="#6、上线操作流程" class="headerlink" title="6、上线操作流程"></a>6、上线操作流程</h4><p>A、运维A更新配置及sql数据。</p>
+<p>B、运维B对更新的配置和SQL进行检查。</p>
+<p>C、运维A更新服务程序。</p>
+<p>因项目服务程序部署有依赖API关系，构建时需要对API本地依赖包清理。</p>
+<p>例如：清理blade-common本地包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /root/.m2/repository/org/springblade/blade-common/</span><br></pre></td></tr></table></figure>
+
+<p>D、运维B对项目服务程序进行初步的检查及测试。</p>
+<p>E、上线完成报告： </p>
+<p>​	上线完后通知测试人员及开发主管上线完成。填写本次上线完成报告、记录部署中出现的问题。</p>
+<h3 id="三、填写上线文档标准"><a href="#三、填写上线文档标准" class="headerlink" title="三、填写上线文档标准"></a>三、填写上线文档标准</h3><h4 id="1、目录结构"><a href="#1、目录结构" class="headerlink" title="1、目录结构"></a>1、目录结构</h4><h5 id="A、目录层级到项目目录结束，不要再建子目录了。"><a href="#A、目录层级到项目目录结束，不要再建子目录了。" class="headerlink" title="A、目录层级到项目目录结束，不要再建子目录了。"></a>A、目录层级到项目目录结束，不要再建子目录了。</h5><p>​	需要上线的内容在版本发布和回滚计划中写清楚，描术不清楚应写到项目目录下的文件中。不要再建子目录增加文件，上线内容一多,子目录容易被忽略。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">SVN发版控制</span><br><span class="line">	v1.1.0</span><br><span class="line">		...</span><br><span class="line">		cangdan</span><br><span class="line">			nacosV1.1.0.yaml</span><br><span class="line">            cangdanV1.1.0.sql</span><br><span class="line">            email_templatev1.1.0.tmpl</span><br><span class="line">            cangdan版本发布和回滚计划_v1.1.xlsx</span><br><span class="line">            ...</span><br><span class="line">        bladex</span><br><span class="line">        	nacosV1.1.0.yaml</span><br><span class="line">        	bladexV1.1.0.sql</span><br><span class="line">        	bladex版本发布和回滚计划_v1.1.xlsx</span><br><span class="line">        evidence</span><br><span class="line">        	证书导入.txt</span><br><span class="line">        	server_prod.jks</span><br><span class="line">        	evidence版本发布和回滚计划_v1.1.xlsx</span><br><span class="line">        cfca</span><br><span class="line">        	cfca版本发布和回滚计划_v1.1.xlsx</span><br><span class="line">    v1.2.0</span><br><span class="line">     	...</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2、版本发布和回滚计划-vx-x-x填写"><a href="#2、版本发布和回滚计划-vx-x-x填写" class="headerlink" title="2、版本发布和回滚计划_vx.x.x填写"></a>2、版本发布和回滚计划_vx.x.x填写</h4><h5 id="A、版本发布excle应写清楚项目所有需要上线的内容"><a href="#A、版本发布excle应写清楚项目所有需要上线的内容" class="headerlink" title="A、版本发布excle应写清楚项目所有需要上线的内容"></a>A、版本发布excle应写清楚项目<font color=red>所有</font>需要上线的内容</h5><p>​	版本发布excle是上线优先打开按内容操作的。<font color="red">应写全本项目需要上线的所有内容</font>。另外具体步骤中写清楚步骤文件位置</p>
+<table>
+<thead>
+<tr>
+<th>操作序号</th>
+<th>操作内容</th>
+<th>具体步骤</th>
+<th>回滚计划</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>nacos配置更新</td>
+<td>转到 .&#x2F;项目bladex&#x2F;nacos_blade.yaml</td>
+<td>…</td>
+</tr>
+</tbody></table>
+<h5 id="B、具体步骤栏一项不能又填执行文件，又填执行命令。"><a href="#B、具体步骤栏一项不能又填执行文件，又填执行命令。" class="headerlink" title="B、具体步骤栏一项不能又填执行文件，又填执行命令。"></a>B、具体步骤栏一项不能又填执行文件，又填执行命令。</h5><p>​	一个操作序号内要么分开填，要么全是执行文件或执行命令。两种执行方式非常容易漏掉内容。</p>
+<h5 id="C、更新其它内容"><a href="#C、更新其它内容" class="headerlink" title="C、更新其它内容"></a>C、更新其它内容</h5><p>​	如果不能在excel 版本发布和回滚计划_vx.x.x 中写清楚，请在项目目录中新建文档写清楚需上线内容</p>
+<h5 id="D、每个项目需单独填写一个版本发布和回滚计划excel"><a href="#D、每个项目需单独填写一个版本发布和回滚计划excel" class="headerlink" title="D、每个项目需单独填写一个版本发布和回滚计划excel"></a>D、每个项目需单独填写一个版本发布和回滚计划excel</h5><p>​	如cangdan版本发布和回滚计划_v1.3.0.xlsx，里面的操作包含了仓单、cfca、文件（file-server）等多个项目的操作步骤。</p>
+<h4 id="3、sql上线"><a href="#3、sql上线" class="headerlink" title="3、sql上线"></a>3、sql上线</h4><h5 id="A、sql内容注意事项"><a href="#A、sql内容注意事项" class="headerlink" title="A、sql内容注意事项"></a>A、sql内容注意事项</h5><p>a、注释说明上线库名</p>
+<p>​		例如： – 本条sql文件上线到blade-{env}库； or  本条sql文件上线到cangdan-{env}库。 </p>
+<p>b、在sql语句内容上一行，注释说明sql添加日期由谁增加及sql内容说明。方便后面有疑问的地方找添加者询问。</p>
+<p>​		例如：– 添加标仓告警处理时间。告警处理人、告警处理信息卢永成 添加日期2022-05-18</p>
+<p>c、上线sql后缀应 .sql 结尾，可导入更新到数据库。</p>
+<p>d、sql语句中不要写库名，因为mysql库在不同环境库名是不一样的。</p>
+<p>e、不能一个SQL文件中存在执行两个库的内容。</p>
+<p>f、UAT环境及生产环境不能有drop table语句，需要drop table的执行重命名。重命名规则为：tablename_bak$日期</p>
+<p>g、sql中出现乱码、sql执行出错一律退回重填。</p>
+<p>h、如需要复杂执行修改时，注释一定要描述清楚。执行人员看不清楚可退回重填或要求编写人员解释清楚。</p>
+<p>i、数据库版本上线固定执行更新的表格新增jenkins固定job.版本上线开启执行(执行上线人员操作)。</p>
+<p>​	例如： bladex库中blade-menu表。</p>
+<h5 id="B、上线SQL模板"><a href="#B、上线SQL模板" class="headerlink" title="B、上线SQL模板"></a>B、上线SQL模板</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim cangdanV1.1.0.sql</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 本条sql文件上线到cangdan-&#123;env&#125;库</span><br><span class="line">-- 徐洪笛，2022.6.1</span><br><span class="line">-- 仓单质押表增加字段</span><br><span class="line">ALTER TABLE t_cangdan_pledge ADD `cangdan_num` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT &#x27;仓单数量&#x27;;</span><br><span class="line">ALTER TABLE t_cangdan_pledge_add ADD `cangdan_num` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT &#x27;仓单数量&#x27;;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="4、nacos配置更新"><a href="#4、nacos配置更新" class="headerlink" title="4、nacos配置更新"></a>4、nacos配置更新</h4><h5 id="A、nacos内容注意事项，未符合以下标准将退回重新填写。"><a href="#A、nacos内容注意事项，未符合以下标准将退回重新填写。" class="headerlink" title="A、nacos内容注意事项，未符合以下标准将退回重新填写。"></a>A、nacos内容注意事项，未符合以下标准将退回重新填写。</h5><p>a、nacos需要增加或更改的内容写在一个文件中，并且要求使用yaml格式填写，能避免格式问题。文件名应为 nacos_{配置文件名}.yaml </p>
+<p>​	例如：nacos_blade-system-[env].yaml </p>
+<p>​	之前线上又有 update_nacos.txt 又有 xxx项目配置重构说明 .md ，两个文件内容也不一致，运维上线时难免漏掉。</p>
+<p>b、<font color=red>nacos内容填写不能加入tab键及其他符号，yaml是以双空格为等级划分符。</font></p>
+<p>​	推荐一个 <a target="_blank" rel="noopener" href="https://www.toyaml.com/">https://www.toyaml.com/</a> 网站可以检测yaml格式。</p>
+<p>c、配置文件内容中：如果key对应的value每个环境不一致可标识{type&#x2F;date.env}，其他需要修改的内容也需要使用大括号标识出来。让上线操作人员可区分。</p>
+<p>​	上线操作将大括号内容视为需要修改内容。其他内容视为固定内容将不做修改上线。如内容填写者未对其需修改内容未大括号括起来，上线故障应为填写者的责任。</p>
+<p>d、新增内容和修改内容要在第一行注释中写清楚</p>
+<h5 id="B、nacos模板"><a href="#B、nacos模板" class="headerlink" title="B、nacos模板"></a>B、nacos模板</h5><p>​	例如: 需要上线spring下增加dataresource.mysql和redis内容。 </p>
+<p>内容增加到blade-system-[env].yaml 对应环境没这个文件，就新建一个 并添加下面信息</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#内容增加到blade-system-[env].yaml 对应环境没这个文件，就新建一个 并添加下面信息</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="comment">##redis 单机环境配置</span></span><br><span class="line">    <span class="attr">host:</span> &#123;<span class="string">redis.url.env</span>&#125;</span><br><span class="line">    <span class="attr">port:</span> <span class="number">6379</span></span><br><span class="line">    <span class="attr">password:</span> &#123;<span class="string">redis.pwd.env</span>&#125;</span><br><span class="line">    <span class="attr">database:</span> <span class="number">0</span></span><br><span class="line">  <span class="comment">#t1    </span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="comment">#t2</span></span><br><span class="line">    <span class="comment"># MySql</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://&#123;mysql.url&#125;:&#123;mysql.port&#125;/&#123;bladex&#125;&#123;env&#125;?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;transformedBitIsBoolean=true&amp;tinyInt1isBit=false&amp;allowMultiQueries=true&amp;serverTimezone=GMT%2B8&amp;allowPublicKeyRetrieval=true</span></span><br><span class="line">    <span class="attr">username:</span> &#123;<span class="string">mysql.user</span>&#125;</span><br><span class="line">    <span class="attr">password:</span> &#123;<span class="string">mysql.pwd</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>nacos_blalde.yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#需要修改blalde.yaml配置，file列aes-key内容</span></span><br><span class="line"><span class="string">blade</span></span><br><span class="line">  <span class="attr">file:</span></span><br><span class="line">  <span class="comment"># 文件加密密钥串，32位数字字母组合</span></span><br><span class="line">  <span class="attr">aes-key:</span> &#123;<span class="string">aes-key.env</span>&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+        <a href="/2022/10/19/%E5%B7%A1%E6%A3%80%E5%86%85%E5%AE%B9/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
+          巡检内容
+        </a>
+      
+    </div>
+    <div>
+      
+        <a href="/2022/09/22/%E9%98%BF%E9%87%8C%E4%BA%91%E5%86%85%E7%BD%91nginx%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%B3%95/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          阿里云内网nginx高可用方法
+          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
+        </a>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "default",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>
