@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="Able Wong">
+
+
+
+  <meta name="description" content="Able的个人博客">
+
+
+  <meta name="keywords" content="Able,运维，博客，IT男，匹敌">
+
+
+<title>Elasticsearch7.8.1 和 kibana集群部署 | PiDi</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+    $("#toggle-dark").click(toggleDark);
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
+          PiDi
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        Elasticsearch7.8.1 和 kibana集群部署
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        Elasticsearch7.8.1 和 kibana集群部署
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2023-11-28</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>7 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>1.3k words</span>
+          </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/ELK/">ELK</a>
+            </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <h3 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明"></a>环境说明</h3><p>1、单机部署三节点</p>
+<p>2、节点：<br>master - 172.16.0.6:9200</p>
+<p>slave1 - 172.16.0.6:9201</p>
+<p>slave2 - 172.16.0.6:9202</p>
+<p>3、版本 7.8.1</p>
+<p>4、下载地址： <a target="_blank" rel="noopener" href="https://elasticsearch.cn/download/">https://elasticsearch.cn/download/</a> 都是下载的tar包安装</p>
+<p>比如filebeat : <a target="_blank" rel="noopener" href="https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.8.1-linux-x86.tar.gz">https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.8.1-linux-x86.tar.gz</a></p>
+<h3 id="部署前准备"><a href="#部署前准备" class="headerlink" title="部署前准备"></a>部署前准备</h3><h4 id="1、下载好安装包"><a href="#1、下载好安装包" class="headerlink" title="1、下载好安装包"></a>1、下载好安装包</h4><p>Elasticsearch\Filebeat\Kibana</p>
+<h4 id="2、服务器准备"><a href="#2、服务器准备" class="headerlink" title="2、服务器准备"></a>2、服务器准备</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch ~]# cd /opt</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment">#改服务器主机名，关闭防火墙，关闭selinux</span></span></span><br><span class="line">[root@elasticsearch opt]# hostnamectl set-hostname elasticsearch</span><br><span class="line">[root@elasticsearch opt]# systemctl stop firewalld &amp;&amp; systemctl disable firewalld</span><br><span class="line">[root@elasticsearch opt]# sed -i &#x27;s#SELINUX=enforcing#SELINUX=disabled#g&#x27; /etc/selinux/config</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 把文件、软件、连接最大化</span></span></span><br><span class="line">[root@elasticsearch opt]# echo &quot;vm.max_map_count=262144&quot; &gt;&gt; /etc/sysctl.conf</span><br><span class="line">[root@elasticsearch opt]# vim /etc/security/limits.conf </span><br><span class="line">* soft nofile 100001</span><br><span class="line">* hard nofile 100002</span><br><span class="line">root soft nofile 100001</span><br><span class="line">root hard nofile 100002</span><br><span class="line">* soft nproc 65536</span><br><span class="line">* hard nproc 65536</span><br><span class="line">[root@elasticsearch opt]#  sysctl -p</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、elasticsearch部署"><a href="#3、elasticsearch部署" class="headerlink" title="3、elasticsearch部署"></a>3、elasticsearch部署</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 将下载好的Efk传到服务器/opt/tools目录，解压缩。</span></span></span><br><span class="line">[root@elasticsearch opt]# mkdir tools </span><br><span class="line">[root@elasticsearch opt]# ls -l tools</span><br><span class="line">total 668552</span><br><span class="line">-rw-r--r-- 1 root root 318334518 Aug 25 14:25 elasticsearch-7.8.1-linux-x86_64.tar.gz</span><br><span class="line">-rw-r--r-- 1 root root  28736539 Aug 25 14:26 filebeat-7.8.1-linux-x86_64.tar.gz</span><br><span class="line">-rw-r--r-- 1 root root 337517217 Aug 25 14:29 kibana-7.8.1-linux-x86_64.tar.gz</span><br><span class="line">[root@elasticsearch opt]# cd tools &amp;&amp; tar -xzf elasticsearch-7.8.1-linux-x86_64.tar.gz </span><br><span class="line">[root@elasticsearch tools]# mv elasticsearch-7.8.1 ../es-master &amp;&amp; cd ../es-master</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 配置文件修改</span></span></span><br><span class="line">[root@elasticsearch es-master]# cd config/</span><br><span class="line">[root@elasticsearch es-master]# cp elasticsearch.yml elasticsearch.tmp</span><br><span class="line">[root@elasticsearch es-master]# vim config/elasticsearch.yml</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">集群名称，按照自己的需求调整</span></span><br><span class="line">cluster.name: my-application</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">节点名称</span></span><br><span class="line">node.name: master</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置data存储目录</span></span><br><span class="line">path.data: /data/elasticsearch/es-master/data</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置logs日志的目录</span></span><br><span class="line">path.logs: /data/elasticsearch/es-master/log</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置内存不使用交换分区</span></span><br><span class="line">bootstrap.memory_lock: false</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置允许所有ip可以连接该elasticsearch，这里根据项目需求自行修改</span></span><br><span class="line">network.host: 0.0.0.0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">开启监听的端口，默认为9200</span></span><br><span class="line">http.port: 9200</span><br><span class="line">discovery.seed_hosts: [&quot;127.0.0.1:9300&quot;,&quot;127.0.0.1:9301&quot;,&quot;127.0.0.1:9302&quot;]</span><br><span class="line">cluster.initial_master_nodes: [&quot;master&quot;,&quot;node-1&quot;,&quot;node-2&quot;]</span><br><span class="line">[root@elasticsearch es-master]# mkdir -p /data/elasticsearch/es-master/data</span><br><span class="line">[root@elasticsearch es-master]# mkdir -p /data/elasticsearch/es-master/log</span><br><span class="line">[root@elasticsearch es-master]# mkdir -p /data/elasticsearch/es-slave1/&#123;data,log&#125;</span><br><span class="line">[root@elasticsearch es-master]# mkdir -p /data/elasticsearch/es-slave2/&#123;data,log&#125;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 复制两个节点 es-slave1 es-slave2</span></span></span><br><span class="line">[root@elasticsearch es-master]# cd /opt &amp;&amp; cp -rpa es-master es-slave1</span><br><span class="line">[root@elasticsearch opt]# cp -rpa es-master es-slave2</span><br><span class="line">[root@elasticsearch opt]# vim es-slave1/config/elasticsearch.yml</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">集群名称，按照自己的需求调整</span></span><br><span class="line">cluster.name: my-application</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">节点名称</span></span><br><span class="line">node.name: node-1</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置data存储目录</span></span><br><span class="line">path.data: /data/elasticsearch/es-slave1/data</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置logs日志的目录</span></span><br><span class="line">path.logs: /data/elasticsearch/es-slave1/log</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置内存不使用交换分区</span></span><br><span class="line">bootstrap.memory_lock: false</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置允许所有ip可以连接该elasticsearch，这里根据项目需求自行修改</span></span><br><span class="line">network.host: 0.0.0.0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">开启监听的端口，默认为9200</span></span><br><span class="line">http.port: 9201</span><br><span class="line">discovery.seed_hosts: [&quot;127.0.0.1:9300&quot;,&quot;127.0.0.1:9301&quot;,&quot;127.0.0.1:9302&quot;]</span><br><span class="line">cluster.initial_master_nodes: [&quot;master&quot;,&quot;node-1&quot;,&quot;node-2&quot;]</span><br><span class="line"></span><br><span class="line">[root@elasticsearch opt]# vim  es-slave2/config/elasticsearch.yml</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">集群名称，按照自己的需求调整</span></span><br><span class="line">cluster.name: my-application</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">节点名称</span></span><br><span class="line">node.name: node-2</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置data存储目录</span></span><br><span class="line">path.data: /data/elasticsearch/es-slave2/data</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置logs日志的目录</span></span><br><span class="line">path.logs: /data/elasticsearch/es-slave2/log</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置内存不使用交换分区</span></span><br><span class="line">bootstrap.memory_lock: false</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置允许所有ip可以连接该elasticsearch，这里根据项目需求自行修改</span></span><br><span class="line">network.host: 0.0.0.0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">开启监听的端口，默认为9202</span></span><br><span class="line">http.port: 9202</span><br><span class="line">discovery.seed_hosts: [&quot;127.0.0.1:9300&quot;,&quot;127.0.0.1:9301&quot;,&quot;127.0.0.1:9302&quot;]</span><br><span class="line">cluster.initial_master_nodes: [&quot;master&quot;,&quot;node-1&quot;,&quot;node-2&quot;]</span><br><span class="line"></span><br><span class="line">[root@elasticsearch opt]# groupadd esgroup &amp;&amp; useradd esuser -g esgroup</span><br><span class="line">[root@elasticsearch opt]# passwd esuser </span><br><span class="line">espassword</span><br><span class="line">[root@elasticsearch opt]# chown -R esuser.esgroup es*</span><br><span class="line">[root@elasticsearch opt]# chown -R esuser.esgroup /data/elasticsearch</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>PS： discovery.seed_hosts 是用来连接选举的，默认是9300，当9300被占用，其他服务会自动在监听端口上加加100， 比如 监听9201，选举端口会开启9301端口。如果选举端口连接不上，服务连接不了选举将启动失败。所以尽可能把所有选举监控端口都填上。</p>
+<p>报错如下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[2023-08-28T12:07:23,434][WARN ][o.e.c.c.ClusterFormationFailureHelper] [master] master not discovered or elected yet, an election requires at least 2 nodes with ids from [U79IWTW5RHy8UNAdwpAsSQ, vxd07BgFSBqnoTOlYBKQGw, Qoa2-jnzSKmShIDYJSgfXQ], have discovered [&#123;master&#125;&#123;vxd07BgFSBqnoTOlYBKQGw&#125;&#123;y7BogOAiRo60czKNlVW5DQ&#125;&#123;172.16.0.6&#125;&#123;172.16.0.6:9300&#125;&#123;dilmrt&#125;&#123;ml.machine_memory=16023437312, xpack.installed=true, transform.node=true, ml.max_open_jobs=20&#125;] which is not a quorum; discovery will continue using [127.0.0.1:9300] from hosts providers and [&#123;master&#125;&#123;vxd07BgFSBqnoTOlYBKQGw&#125;&#123;y7BogOAiRo60czKNlVW5DQ&#125;&#123;172.16.0.6&#125;&#123;172.16.0.6:9300&#125;&#123;dilmrt&#125;&#123;ml.machine_memory=16023437312, xpack.installed=true, transform.node=true, ml.max_open_jobs=20&#125;] from last-known cluster state; node term 1, last-accepted version 86 in term 1</span><br><span class="line">[2023-08-28T12:07:29,849][WARN ][r.suppressed             ] [master] path: /.kibana/_doc/config%3A7.8.1, params: &#123;index=.kibana, id=config:7.8.1&#125;</span><br><span class="line">org.elasticsearch.cluster.block.ClusterBlockException: blocked by: [SERVICE_UNAVAILABLE/1/state not recovered / initialized];</span><br><span class="line">        at org.elasticsearch.cluster.block.ClusterBlocks.globalBlockedException(ClusterBlocks.java:189) ~[elasticsearch-7.8.1.jar:7.8.1]</span><br></pre></td></tr></table></figure>
+
+<p>当所有节点连接上后，可查看主节点.  * 号表示那节点为主节点。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[esuser@elasticsearch es-slave2]$ curl -XGET localhost:9201/_cat/nodes</span><br><span class="line">172.16.0.6 48 68  8 0.43 0.23 0.14 dilmrt - master</span><br><span class="line">172.16.0.6 47 68 13 0.43 0.23 0.14 dilmrt - node-2</span><br><span class="line">172.16.0.6 12 68  8 0.43 0.23 0.14 dilmrt * node-1</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="4、kibana部署"><a href="#4、kibana部署" class="headerlink" title="4、kibana部署"></a>4、kibana部署</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch opt]# cd tools/ &amp;&amp; tar -xzf kibana-7.8.1-linux-x86_64.tar.gz </span><br><span class="line">[root@elasticsearch tools]# mv kibana-7.8.1 ../kibana &amp;&amp; chown -R esuser.esgroup ../kibana</span><br></pre></td></tr></table></figure>
+
+
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/elasticsearch-elk-es/">elasticsearch;elk;es</a>
+        </span>
+      
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+        <a href="/2023/11/30/hello-world/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
+          Hello World
+        </a>
+      
+    </div>
+    <div>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "default",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>
