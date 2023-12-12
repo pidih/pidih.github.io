@@ -167,7 +167,7 @@
         
           <a class="hidden sm:flex" href="/tags">tags</a>
         
-          <a class="hidden sm:flex" href="/categories/%7C%7C%20th">categories</a>
+          <a class="hidden sm:flex" href="/categories/">categories</a>
         
           <a class="hidden sm:flex" href="/archives/">archives</a>
         
@@ -209,7 +209,7 @@
         </li>
       
         <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/categories/%7C%7C%20th" class="flex h-12 sm:h-auto items-center">categories</a>
+          <a href="/categories/" class="flex h-12 sm:h-auto items-center">categories</a>
         </li>
       
         <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
@@ -222,162 +222,64 @@
 </div>
 
   <main class="pt-14">
-    <!-- css -->
-
-<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
-
-
-<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
-
-<!-- toc -->
-
-<section class="px-6 max-w-prose mx-auto md:px-0">
-  <!-- header -->
-  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
-    <div class="pt-4 md:pt-6">
-      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        tags
-      </h1>
-      <div>
-        <section class="flex items-center gap-3 text-sm">
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2023-12-12</time>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>1 min</span>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>0 words</span>
-          </span>
-          
-        </section>
-      </div>
-    </div>
-  </header>
-  <!-- content -->
-  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
     
-  </article>
-  <!-- tag -->
-  <div class="mt-12 pt-6 border-t border-gray-200">
-    
-  </div>
-  <!-- prev and next -->
-  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
-    <div>
+
+  <div class="px-6 max-w-prose mx-auto md:px-0 mt-6">
+    <h2 class="font-bold text-2xl">Tags</h2>
+    <ul class="mt2">
       
-    </div>
-    <div>
+        <li class="mt-2">
+          <a href="/tags/jenkins/">jenkins</a>
+          <span >(1)</span>
+        </li>
       
-    </div>
+        <li class="mt-2">
+          <a href="/tags/jenkins%E6%8F%92%E4%BB%B6/">jenkins插件</a>
+          <span >(1)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/elasticsearch-elk-es/">elasticsearch;elk;es</a>
+          <span >(2)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/%E6%97%A5%E5%BF%97%E5%B9%B3%E5%8F%B0/">日志平台</a>
+          <span >(1)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/loki/">loki</a>
+          <span >(1)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/promtail/">promtail</a>
+          <span >(1)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/nfs/">nfs</a>
+          <span >(1)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/nas-nfs%E9%83%A8%E7%BD%B2/">nas-nfs部署</a>
+          <span >(1)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/oss/">oss</a>
+          <span >(1)</span>
+        </li>
+      
+        <li class="mt-2">
+          <a href="/tags/%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A/">域名绑定</a>
+          <span >(1)</span>
+        </li>
+      
+    </ul>
   </div>
-  <!-- comment -->
-  <div class="article-comments mt-12">
-    
-
-  </div>
-</section>
-<!-- js inspect -->
-
-<script src="/lib/clipboard.min.js"></script>
-
-
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-  });
-</script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-  });
-</script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  $(document).ready(() => {
-    const maraidConfig = {
-      theme: "default",
-      logLevel: 3,
-      flowchart: { curve: "linear" },
-      gantt: { axisFormat: "%m/%d/%Y" },
-      sequence: { actorMargin: 50 },
-    };
-    mermaid.initialize(maraidConfig);
-  });
-</script>
-
-
-
-<script src="/lib/fancybox/fancybox.umd.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-    $('.post-content').each(function(i){
-      $(this).find('img').each(function(){
-        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
-        var alt = this.alt;
-        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
-        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
-      });
-      $(this).find('.fancybox').each(function(){
-        $(this).attr('rel', 'article' + i);
-      });
-    });
-
-    Fancybox.bind('[data-fancybox="gallery"]', {
-        // options
-    })
-  })
-</script>
-
-<!-- tocbot begin -->
-
-<script src="/lib/tocbot/tocbot.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-      tocbot.init({
-        // Where to render the table of contents.
-        tocSelector: '.post-toc',
-        // Where to grab the headings to build the table of contents.
-        contentSelector: '.post-content',
-        // Which headings to grab inside of the contentSelector element.
-        headingSelector: 'h1, h2, h3',
-        // For headings inside relative or absolute positioned containers within content.
-        hasInnerContainers: true,
-    });
-  })
-</script>
-<!-- tocbot end -->
 
 
   </main>
