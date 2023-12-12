@@ -9,14 +9,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-  <meta name="author" content="Able Wong">
+  <meta name="author" content="pidi">
 
 
 
-  <meta name="description" content="Able的个人博客">
+  <meta name="description" content="PIDI的个人博客">
 
 
-  <meta name="keywords" content="Able,运维，博客，IT男，匹敌">
+  <meta name="keywords" content="pidi,运维，博客，IT男，匹敌">
 
 
 <title>jenkins部署及插件安装 | PiDi</title>
@@ -165,9 +165,15 @@
         
           <a class="hidden sm:flex" href="/archives">Posts</a>
         
+          <a class="hidden sm:flex" href="/tags">tags</a>
+        
+          <a class="hidden sm:flex" href="/categories/%7C%7C%20th">categories</a>
+        
+          <a class="hidden sm:flex" href="/archives/">archives</a>
+        
         
           
-            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/ablewong">
               <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
             </a>
           
@@ -196,6 +202,18 @@
       
         <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
           <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/tags" class="flex h-12 sm:h-auto items-center">tags</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/categories/%7C%7C%20th" class="flex h-12 sm:h-auto items-center">categories</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives/" class="flex h-12 sm:h-auto items-center">archives</a>
         </li>
       
     </ul>
@@ -233,13 +251,19 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>7 min</span>
+            <span>6 min</span>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>1.4k words</span>
+            <span>1.3k words</span>
           </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/CICD/">CICD</a>
+            </span>
           
         </section>
       </div>
@@ -247,8 +271,7 @@
   </header>
   <!-- content -->
   <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <hr>
-<h2 id="title-jenkins部署及插件安装date-2022-08-20-11-40tags-jenkins-jenkins插件category-CICDexcerpt-jenkins部署及插件安装author-Able-Wongurl-http-blog-pidi-cocopyrightText-comment"><a href="#title-jenkins部署及插件安装date-2022-08-20-11-40tags-jenkins-jenkins插件category-CICDexcerpt-jenkins部署及插件安装author-Able-Wongurl-http-blog-pidi-cocopyrightText-comment" class="headerlink" title="title: jenkins部署及插件安装date: 2022-08-20 11:40tags: jenkins;jenkins插件category: CICDexcerpt: jenkins部署及插件安装author: Able Wongurl: http://blog.pidi.cocopyrightText:comment: "></a>title: jenkins部署及插件安装<br>date: 2022-08-20 11:40<br>tags: jenkins;jenkins插件<br>category: CICD<br>excerpt: jenkins部署及插件安装<br>author: Able Wong<br>url: <a href="http://blog.pidi.co/">http://blog.pidi.co</a><br>copyrightText:<br>comment: </h2><h4 id="jenkins部署"><a href="#jenkins部署" class="headerlink" title="jenkins部署"></a>jenkins部署</h4><h5 id="1、jenkins-war下载"><a href="#1、jenkins-war下载" class="headerlink" title="1、jenkins.war下载"></a>1、jenkins.war下载</h5><p>其实部署很简单，但因为这次升级插件导致全面崩溃。各种插件依赖。主要是都要升级到最新版本还要把java8升级到java11.但因为公司环境都是java8。部署好了都放弃了。<br>下载2.289.3是有国内可固定更新的。测试过各版本，建议用这个版本。</p>
+    <h4 id="jenkins部署"><a href="#jenkins部署" class="headerlink" title="jenkins部署"></a>jenkins部署</h4><h5 id="1、jenkins-war下载"><a href="#1、jenkins-war下载" class="headerlink" title="1、jenkins.war下载"></a>1、jenkins.war下载</h5><p>其实部署很简单，但因为这次升级插件导致全面崩溃。各种插件依赖。主要是都要升级到最新版本还要把java8升级到java11.但因为公司环境都是java8。部署好了都放弃了。<br>下载2.289.3是有国内可固定更新的。测试过各版本，建议用这个版本。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://get.jenkins.io/war-stable/2.289.3/jenkins.war</span><br></pre></td></tr></table></figure>
 
 <h5 id="2、下载tomcat9"><a href="#2、下载tomcat9" class="headerlink" title="2、下载tomcat9"></a>2、下载tomcat9</h5><p>下载、解压、把webapps目录下的全删除掉。</p>
@@ -283,21 +306,31 @@
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
     
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/jenkins/">jenkins</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/jenkins%E6%8F%92%E4%BB%B6/">jenkins插件</a>
+        </span>
+      
+    
   </div>
   <!-- prev and next -->
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2023/11/28/loki-%E6%A0%87%E4%BB%93%E9%83%A8%E7%BD%B2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+        <a href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
           <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          loki_标仓部署
+          Elasticsearch7.8.1 和 kibana集群部署
         </a>
       
     </div>
     <div>
       
-        <a href="/2023/11/28/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          AlibabaCloud安装mysql8客户端命令
+        <a href="/2022/07/28/%E7%91%9E%E6%8D%B7SSLVPN%E5%87%BA%E5%8F%A3IP%E4%B8%BA%E5%85%AC%E5%8F%B8IP/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          瑞捷SSLVPN出口IP为公司IP
           <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
         </a>
       

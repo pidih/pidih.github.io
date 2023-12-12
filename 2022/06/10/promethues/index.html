@@ -9,14 +9,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-  <meta name="author" content="Able Wong">
+  <meta name="author" content="pidi">
 
 
 
-  <meta name="description" content="Able的个人博客">
+  <meta name="description" content="PIDI的个人博客">
 
 
-  <meta name="keywords" content="Able,运维，博客，IT男，匹敌">
+  <meta name="keywords" content="pidi,运维，博客，IT男，匹敌">
 
 
 <title>promethues | PiDi</title>
@@ -165,9 +165,15 @@
         
           <a class="hidden sm:flex" href="/archives">Posts</a>
         
+          <a class="hidden sm:flex" href="/tags">tags</a>
+        
+          <a class="hidden sm:flex" href="/categories/%7C%7C%20th">categories</a>
+        
+          <a class="hidden sm:flex" href="/archives/">archives</a>
+        
         
           
-            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/ablewong">
               <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
             </a>
           
@@ -196,6 +202,18 @@
       
         <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
           <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/tags" class="flex h-12 sm:h-auto items-center">tags</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/categories/%7C%7C%20th" class="flex h-12 sm:h-auto items-center">categories</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives/" class="flex h-12 sm:h-auto items-center">archives</a>
         </li>
       
     </ul>
@@ -283,7 +301,7 @@
 
 
 
-<h1 id="2-docker"><a href="#2-docker" class="headerlink" title="2.docker"></a>2.docker</h1><h2 id="1-准备镜像"><a href="#1-准备镜像" class="headerlink" title="1.准备镜像"></a>1.准备镜像</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker pull prom/node-exporter</span><br><span class="line">docker pull grafana/grafana</span><br><span class="line">docker pull prom/prometheus</span><br><span class="line">docker pull google/cadvisor</span><br><span class="line">docker pull quay.io/prometheus/alertmanager</span><br><span class="line">docker pull timonwong/prometheus-webhook-dingtalk</span><br></pre></td></tr></table></figure>
+<h1 id="2-docker部署"><a href="#2-docker部署" class="headerlink" title="2.docker部署"></a>2.docker部署</h1><h2 id="1-准备镜像"><a href="#1-准备镜像" class="headerlink" title="1.准备镜像"></a>1.准备镜像</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker pull prom/node-exporter</span><br><span class="line">docker pull grafana/grafana</span><br><span class="line">docker pull prom/prometheus</span><br><span class="line">docker pull google/cadvisor</span><br><span class="line">docker pull quay.io/prometheus/alertmanager</span><br><span class="line">docker pull timonwong/prometheus-webhook-dingtalk</span><br></pre></td></tr></table></figure>
 
 <h2 id="2-node-exporter"><a href="#2-node-exporter" class="headerlink" title="2.node-exporter"></a>2.node-exporter</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --network=host \</span><br><span class="line"> --pid=host \</span><br><span class="line">-v &quot;/proc:/host/proc:ro&quot; \</span><br><span class="line">-v &quot;/sys:/host/sys:ro&quot; \</span><br><span class="line">-v &quot;/etc/localtime:/etc/localtime&quot; \</span><br><span class="line">-v &quot;/:/rootfs:ro&quot; \</span><br><span class="line">--privileged \</span><br><span class="line">--name=node-exporter \</span><br><span class="line">--restart=always \</span><br><span class="line">prom/node-exporter</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">端口：9100</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">推荐模板<span class="built_in">id</span>：8919</span></span><br></pre></td></tr></table></figure>
 
