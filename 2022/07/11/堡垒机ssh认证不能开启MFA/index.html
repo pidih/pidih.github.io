@@ -246,7 +246,7 @@
         <section class="flex items-center gap-3 text-sm">
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2023-12-11</time>
+            <time>2023-12-12</time>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
@@ -256,8 +256,14 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>341 words</span>
+            <span>420 words</span>
           </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/%E5%AE%89%E5%85%A8/">安全</a>/<a class="article-category-link" href="/categories/%E5%AE%89%E5%85%A8/%E4%BA%91%E5%B9%B3%E5%8F%B0/">云平台</a>
+            </span>
           
         </section>
       </div>
@@ -284,10 +290,30 @@
 <p>后面找了很久问题后，才感觉出来，ssh连接输入账号密码后，MFA还需要认证一次，但SSH工具只能做到前面的认证，后面是谷歌认证是没办法做的。</p>
 <p>提了阿里工单，那边回复也没办法操作。</p>
 <p>所以子账号开一个MFA认证，其他的工作需要就关掉了。过了等保再说。</p>
+<p>后面经测试，其他的ssh工具是可以二次验证的，像putty\xshell等工具默认就支持</p>
+<p>secureCRT需要修改下配置</p>
+<p><img src="/img/google-authenticator.jpg" alt="Google Authenticator"></p>
+<p>keyboard interactive需要放在第一位。</p>
+<p><img src="/img/google-authenticator-2.jpg" alt="Google Authenticator"></p>
+<p>注意：使用password + google authenticator，如果使用公钥登录的话，会跳过google authenticator验证直接登录服务器的。</p>
 
   </article>
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
+    
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/%E5%A0%A1%E5%9E%92%E6%9C%BA/">堡垒机</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/%E4%BA%91%E5%B9%B3%E5%8F%B0/">云平台</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/MFA%E8%AE%A4%E8%AF%81/">MFA认证</a>
+        </span>
+      
     
   </div>
   <!-- prev and next -->

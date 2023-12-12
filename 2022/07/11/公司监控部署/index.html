@@ -246,7 +246,7 @@
         <section class="flex items-center gap-3 text-sm">
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2023-12-11</time>
+            <time>2023-12-12</time>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
@@ -256,8 +256,14 @@
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>5.8k words</span>
+            <span>5.9k words</span>
           </span>
+          
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/%E7%9B%91%E6%8E%A7/">监控</a>
+            </span>
           
         </section>
       </div>
@@ -306,19 +312,47 @@
 
 <h4 id="3、bladeX监控指标"><a href="#3、bladeX监控指标" class="headerlink" title="3、bladeX监控指标"></a>3、bladeX监控指标</h4><p>打开线上prometheus <a target="_blank" rel="noopener" href="http://120.24.10.160:9090/graph">http://120.24.10.160:9090/graph</a><br>在panel栏输入指标 up{job&#x3D;”bladeX”}  结果为1是正常，为0则告警<br>结果有20个说明bladex的应用有20个。 告警规则是&#x2F;data&#x2F;alertrule&#x2F;bladex_rule.yaml</p>
 <h4 id="4、服务器资源告警"><a href="#4、服务器资源告警" class="headerlink" title="4、服务器资源告警"></a>4、服务器资源告警</h4><p>打开线上prometheus <a target="_blank" rel="noopener" href="http://120.24.10.160:9090/graph">http://120.24.10.160:9090/graph</a><br>在panel栏输入指标up{job&#x3D;”node_exporter”} 可查看到所有监控主机。<br>告警有很多指标，CPU\MEMORY\DISK\IO等 详细告警规则 是&#x2F;data&#x2F;alertrule&#x2F;nodealert.yaml</p>
-<h3 id="五、监控展示-grafana"><a href="#五、监控展示-grafana" class="headerlink" title="五、监控展示 grafana"></a>五、监控展示 grafana</h3>
+<h3 id="五、监控展示-grafana"><a href="#五、监控展示-grafana" class="headerlink" title="五、监控展示 grafana"></a>五、监控展示 grafana</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run  -d  \</span><br><span class="line">-p 3000:3000  \</span><br><span class="line">--name=grafana  \</span><br><span class="line">-v /opt/monitor/grafana/data:/var/lib/grafana  \</span><br><span class="line">-v /opt/monitor/grafana/conf:/etc/grafana  \</span><br><span class="line">grafana/grafana</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim  /opt/monitor/grafana/conf/grafana.ini</span><br><span class="line">data=/var/lib/grafana</span><br><span class="line">logs=/var/lib/grafana</span><br><span class="line">plugins=/var/lib/grafana/plugins</span><br></pre></td></tr></table></figure>
   </article>
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
+    
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/prometheus/">prometheus</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/%E5%91%8A%E8%AD%A6/">告警</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/alertmanager/">alertmanager</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/dingtalk%E5%91%8A%E8%AD%A6/">dingtalk告警</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6/">钉钉告警</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/pushgateway/">pushgateway</a>
+        </span>
+      
     
   </div>
   <!-- prev and next -->
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2022/07/28/%E7%91%9E%E6%8D%B7SSLVPN%E5%87%BA%E5%8F%A3IP%E4%B8%BA%E5%85%AC%E5%8F%B8IP/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+        <a href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
           <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          瑞捷SSLVPN出口IP为公司IP
+          jenkins部署及插件安装
         </a>
       
     </div>
