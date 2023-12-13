@@ -1,556 +1,1319 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <title>promethues | 谁与匹敌</title>
+  <meta name="keywords" content=" docker , prometheus , 监控 , 告警 , 部署安装 ">
+  <meta name="description" content="promethues | 谁与匹敌">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about">
+<meta property="og:url" content="http://blog.pidi.co/about/index.html">
+<meta property="og:site_name" content="谁与匹敌">
+<meta property="og:description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-13T06:14:04.000Z">
+<meta property="article:modified_time" content="2023-12-13T07:26:38.230Z">
+<meta property="article:author" content="匹敌">
+<meta property="article:tag" content="pidi,运维，博客，IT男，匹敌">
+<meta name="twitter:card" content="summary">
 
 
+<link rel="icon" href="/img/avatar.jpg">
 
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
 
-  <meta name="author" content="pidi">
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
 
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
 
-
-  <meta name="description" content="PIDI的个人博客">
-
-
-  <meta name="keywords" content="pidi,运维，博客，IT男，匹敌">
-
-
-<title>promethues | PiDi</title>
-
-
-
-<link rel="icon" href="/favicon.png">
-
-
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
-
-
-
-<script src="/lib/jquery.min.js"></script>
-
-
-<script src="/lib/iconify-icon.min.js"></script>
-
-
-<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
 <script>
-  tailwind.config = {
-    darkMode: "class",
-  };
+    hljs.initHighlightingOnLoad();
 </script>
 
-
-<script src="/lib/nprogress/nprogress.js"></script>
-
-<script>
-  $(document).ready(() => {
-    NProgress.configure({
-      showSpinner: false,
-    });
-    NProgress.start();
-    $("#nprogress .bar").css({
-      background: "#de7441",
-    });
-    $("#nprogress .peg").css({
-      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
-    });
-    $("#nprogress .spinner-icon").css({
-      "border-top-color": "#de7441",
-      "border-left-color": "#de7441",
-    });
-    setTimeout(function () {
-      NProgress.done();
-      $(".fade").removeClass("out");
-    }, 800);
-  });
-</script>
-
-<script>
-  (function () {
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-    if (setting === "dark" || (prefersDark && setting !== "light"))
-      document.documentElement.classList.toggle("dark", true);
-    let isDark = document.documentElement.classList.contains("dark");
-  })();
-
-  $(document).ready(function () {
-    // init icon
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = document.documentElement.classList.contains("dark");
-    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-
-    function toggleGiscusTheme() {
-      const isDark = document.documentElement.classList.contains("dark");
-      const giscusFrame = document.querySelector("iframe.giscus-frame");
-      if (giscusFrame) {
-        giscusFrame.contentWindow.postMessage(
-          {
-            giscus: {
-              setConfig: {
-                theme: isDark ? "dark" : "light",
-              },
-            },
-          },
-          "https://giscus.app"
-        );
-      }
-    }
-
-
-    // toggle dark mode
-    function toggleDark() {
-      let isDark = document.documentElement.classList.contains("dark");
-      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-      isDark = !isDark;
-      document.documentElement.classList.toggle("dark", isDark);
-      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-      if (prefersDark === isDark) {
-        localStorage.setItem("hexo-color-scheme", "auto");
-      } else {
-        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
-      }
-      toggleGiscusTheme();
-    }
-    $("#toggle-dark").click(toggleDark);
-
-    // listen dark mode change
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", (e) => {
-        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-        if (setting === "auto") {
-          document.documentElement.classList.toggle("dark", e.matches);
-          $("#theme-icon").attr(
-            "icon",
-            e.matches ? "ri:moon-line" : "ri:sun-line"
-          );
-          toggleGiscusTheme();
-        }
-      });
-  });
-</script>
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
 
 
 
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
 
 <meta name="generator" content="Hexo 6.3.0"></head>
-<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
-  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
-  <div class="max-auto">
-    <nav class="flex items-center text-base">
-      <a href="/" class="group">
-        <h2 class="font-medium tracking-tighterp text-l p-2">
-          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
-          PiDi
-        </h2>
-      </a>
-      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        promethues
-      </div>
-      <div class="flex-1"></div>
-      <div class="flex items-center gap-3">
-        
-          <a class="hidden sm:flex" href="/archives">Posts</a>
-        
-          <a class="hidden sm:flex" href="/tags">tags</a>
-        
-          <a class="hidden sm:flex" href="/categories/">categories</a>
-        
-          <a class="hidden sm:flex" href="/archives/">archives</a>
-        
-        
-          
-            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/ablewong">
-              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
-            </a>
-          
-        
-        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
-          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
-        </a>
-        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
-          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
-        </a>
-      </div>
-      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
-        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
-          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
-        </span>
-        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
-          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
-        </span>
-      </div>
-    </nav>
-  </div>
-</header>
-<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
-  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
-    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/tags" class="flex h-12 sm:h-auto items-center">tags</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/categories/" class="flex h-12 sm:h-auto items-center">categories</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives/" class="flex h-12 sm:h-auto items-center">archives</a>
-        </li>
-      
-    </ul>
-  </div>
-  <div class="mask bg-black/20 absolute inset-0"></div>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
 </div>
 
-  <main class="pt-14">
-    <!-- css -->
-
-<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
 
 
-<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>匹敌</span>
+</div>
 
-<!-- toc -->
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/ablewong"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:6430186@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=6430186&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
 
-  <!-- tocbot -->
-<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
 
 
-<section class="px-6 max-w-prose mx-auto md:px-0">
-  <!-- header -->
-  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
-    <div class="pt-4 md:pt-6">
-      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        promethues
-      </h1>
-      <div>
-        <section class="flex items-center gap-3 text-sm">
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2023-12-12</time>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>9 min</span>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>1.8k words</span>
-          </span>
-          
-            <span class="text-gray-400">·</span>
-            <span class="flex items-center gap-1">
-              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
-              <a class="article-category-link" href="/categories/%E7%9B%91%E6%8E%A7/">监控</a>
-            </span>
-          
-        </section>
-      </div>
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(23)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="安全">
+            
+            安全
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="监控">
+            
+            监控
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="日志">
+            
+            日志
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="云平台">
+            
+            云平台
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="中间件">
+            
+            中间件
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CICD">
+            
+            CICD
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
     </div>
-  </header>
-  <!-- content -->
-  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <h1 id="1-源码部署"><a href="#1-源码部署" class="headerlink" title="1.源码部署"></a>1.源码部署</h1><h2 id="1-基础环境"><a href="#1-基础环境" class="headerlink" title="1.基础环境"></a>1.基础环境</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld &amp;&amp; systemctl disable firewalld</span><br><span class="line">setenforce 0</span><br><span class="line">sed -i &#x27;s/SELINUX=enforcing/SELINUX=disabled/g&#x27; /etc/selinux/config</span><br><span class="line">init 6</span><br><span class="line">yum isntall -y wget vim </span><br></pre></td></tr></table></figure>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="23">
 
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>阿里云</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>安全防护</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>堡垒机</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>报告</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>部署安装</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>钉钉告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>负载</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>高可用</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>故障排查</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>监控</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>流程</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>漏洞</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>木马</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志收集</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>上线规范</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>实时日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>统计</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>文档</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>消息队列</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>域名绑定</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云产品下架</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>制度</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>alertmanager</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>apache</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>blade</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cicd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dingtalk告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>docker</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>elasticsearch;elk;es</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>log.io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>logs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>loki</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>MFA认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock-server</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mq</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql-cli</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql8</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nas-nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nginx</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>oss</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>php</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>prometheus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>promtail</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pushgateway</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rabbitMQ</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS同步自建mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SSL证书</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>waf</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/11/28/loki-%E9%83%A8%E7%BD%B2/"
+           data-tag="日志平台,loki,promtail"
+           data-author="" >
+            <span class="post-title" title="loki_bc部署">loki_bc部署</span>
+            <span class="post-date" title="2023-11-28 20:37:00">2023/11/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2023/10/09/UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9Fdocker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="UAT环境监控系统docker方式部署">UAT环境监控系统docker方式部署</span>
+            <span class="post-date" title="2023-10-09 11:40:00">2023/10/09</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/09/23/log-io%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8/"
+           data-tag="日志,log.io,实时日志"
+           data-author="" >
+            <span class="post-title" title="log.io部署与使用">log.io部署与使用</span>
+            <span class="post-date" title="2023-09-23 19:28:00">2023/09/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2023/09/12/rabbitMQ/"
+           data-tag="部署安装,mq,rabbitMQ,消息队列"
+           data-author="" >
+            <span class="post-title" title="rabbitMQ">rabbitMQ</span>
+            <span class="post-date" title="2023-09-12 15:24:00">2023/09/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/05/06/23-5%E6%9C%88%E4%BB%BD%E4%B8%8B%E6%9E%B6%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%89%E5%85%A8%E4%BA%A7%E5%93%81/"
+           data-tag="云产品下架,waf,nginx"
+           data-author="" >
+            <span class="post-title" title="23-5月份下架阿里云安全产品">23-5月份下架阿里云安全产品</span>
+            <span class="post-date" title="2023-05-06 10:55:00">2023/05/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/02/20/%E7%94%9F%E4%BA%A7RDS%E6%97%B6%E6%97%B6%E5%90%8C%E6%AD%A5%E5%88%B0%E8%87%AA%E5%BB%BAmysql8-0/"
+           data-tag="RDS,mysql8,RDS同步自建mysql"
+           data-author="" >
+            <span class="post-title" title="生产RDS时时同步到自建mysql8.0">生产RDS时时同步到自建mysql8.0</span>
+            <span class="post-date" title="2023-02-20 20:07:00">2023/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/01/30/oss%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A%E5%8F%8A%E8%AF%81%E4%B9%A6%E6%9B%B4%E6%96%B0/"
+           data-tag="oss,域名绑定"
+           data-author="" >
+            <span class="post-title" title="oss域名绑定及证书更新">oss域名绑定及证书更新</span>
+            <span class="post-date" title="2023-01-30 10:08:00">2023/01/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/28/%E7%89%88%E6%9C%AC%E4%B8%8A%E7%BA%BF%E6%93%8D%E4%BD%9C%E8%A7%84%E8%8C%83/"
+           data-tag="文档,流程,制度,cicd,上线规范"
+           data-author="" >
+            <span class="post-title" title="版本上线操作规范">版本上线操作规范</span>
+            <span class="post-date" title="2022-09-28 10:34:00">2022/09/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/22/%E9%98%BF%E9%87%8C%E4%BA%91%E5%86%85%E7%BD%91nginx%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="nginx,阿里云,高可用,负载"
+           data-author="" >
+            <span class="post-title" title="阿里云内网nginx高可用方法">阿里云内网nginx高可用方法</span>
+            <span class="post-date" title="2022-09-22 15:49:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/22/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/"
+           data-tag="文档,流程,cicd"
+           data-author="" >
+            <span class="post-title" title="项目上线工作流程梳理">项目上线工作流程梳理</span>
+            <span class="post-date" title="2022-09-22 12:32:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/07/nas-nfs%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,nfs,nas-nfs"
+           data-author="" >
+            <span class="post-title" title="nas-nfs部署">nas-nfs部署</span>
+            <span class="post-date" title="2022-09-07 14:10:00">2022/09/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-16%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.16.1和kibana集群部署">Elasticsearch7.16.1和kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.8.1 和 kibana集群部署">Elasticsearch7.8.1 和 kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/"
+           data-tag="jenkins,jenkins插件"
+           data-author="" >
+            <span class="post-title" title="jenkins部署及插件安装">jenkins部署及插件安装</span>
+            <span class="post-date" title="2022-08-20 11:40:00">2022/08/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/07/11/%E5%85%AC%E5%8F%B8%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2/"
+           data-tag="prometheus,告警,alertmanager,dingtalk告警,钉钉告警,pushgateway"
+           data-author="" >
+            <span class="post-title" title="公司监控部署">公司监控部署</span>
+            <span class="post-date" title="2022-07-11 15:33:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/11/%E5%A0%A1%E5%9E%92%E6%9C%BAssh%E8%AE%A4%E8%AF%81%E4%B8%8D%E8%83%BD%E5%BC%80%E5%90%AFMFA/"
+           data-tag="堡垒机,云平台,MFA认证"
+           data-author="" >
+            <span class="post-title" title="堡垒机ssh认证不能开启MFA">堡垒机ssh认证不能开启MFA</span>
+            <span class="post-date" title="2022-07-11 15:19:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/07/%E5%AE%98%E7%BD%91%E6%8D%A2%E8%AF%81%E4%B9%A6/"
+           data-tag="docker,SSL证书,php,apache"
+           data-author="" >
+            <span class="post-title" title="官网换证书">官网换证书</span>
+            <span class="post-date" title="2022-07-07 17:55:00">2022/07/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/06/30/blade-user%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1/"
+           data-tag="blade,mock-server,mock认证"
+           data-author="" >
+            <span class="post-title" title="blade-user需要认证服务">blade-user需要认证服务</span>
+            <span class="post-date" title="2022-06-30 15:16:00">2022/06/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/06/10/promethues/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="promethues">promethues</span>
+            <span class="post-date" title="2022-06-10 19:07:00">2022/06/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/05/23/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/"
+           data-tag="部署安装,mysql,mysql-cli"
+           data-author="" >
+            <span class="post-title" title="AlibabaCloud安装mysql8客户端命令">AlibabaCloud安装mysql8客户端命令</span>
+            <span class="post-date" title="2022-05-23 16:40:00">2022/05/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/05/10/Spring-boot-gateway%E6%BC%8F%E6%B4%9E/"
+           data-tag="安全防护,漏洞,木马,故障排查"
+           data-author="" >
+            <span class="post-title" title="Spring_boot_gateway漏洞">Spring_boot_gateway漏洞</span>
+            <span class="post-date" title="2022-05-10 17:23:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/05/10/nginx%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/"
+           data-tag="nginx,logs,日志收集"
+           data-author="" >
+            <span class="post-title" title="nginx日志分析">nginx日志分析</span>
+            <span class="post-date" title="2022-05-10 09:19:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2022/04/21/%E8%BF%90%E7%BB%B42022%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
+           data-tag="云平台,报告,统计"
+           data-author="" >
+            <span class="post-title" title="运维2022年年度总结报告">运维2022年年度总结报告</span>
+            <span class="post-date" title="2022-04-21 11:46:00">2022/04/21</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-promethues" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">promethues</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="监控">监控</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color2">docker</a>
+            
+            <a class="color1">prometheus</a>
+            
+            <a class="color3">监控</a>
+            
+            <a class="color3">告警</a>
+            
+            <a class="color5">部署安装</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2023-12-12 11:02:09'>2022-06-10 19:07</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%BA%90%E7%A0%81%E9%83%A8%E7%BD%B2"><span class="toc-text">1.源码部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83"><span class="toc-text">1.基础环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E6%9C%8D%E5%8A%A1-prometheus-server"><span class="toc-text">2.主服务 prometheus server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-node%E4%BF%A1%E6%81%AF%E9%87%87%E9%9B%86%E5%99%A8-node-exporter"><span class="toc-text">3.node信息采集器 node_exporter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%AF%E8%A7%86%E5%8C%96grafana"><span class="toc-text">4.可视化grafana</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%8A%A5%E8%AD%A6alertmanager"><span class="toc-text">5.报警alertmanager</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-pushgateway"><span class="toc-text">6.pushgateway</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-docker%E9%83%A8%E7%BD%B2"><span class="toc-text">2.docker部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87%E9%95%9C%E5%83%8F"><span class="toc-text">1.准备镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-node-exporter"><span class="toc-text">2.node-exporter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-cadvisor"><span class="toc-text">3.cadvisor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-grafana"><span class="toc-text">4.grafana</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-prometheus"><span class="toc-text">5.prometheus</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-alertmanager"><span class="toc-text">6.alertmanager</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-dingding-rebot"><span class="toc-text">7.dingding rebot</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-源码部署"><a href="#1-源码部署" class="headerlink" title="1.源码部署"></a>1.源码部署</h1><h2 id="1-基础环境"><a href="#1-基础环境" class="headerlink" title="1.基础环境"></a>1.基础环境</h2><pre><code class="shell">systemctl stop firewalld &amp;&amp; systemctl disable firewalld
+setenforce 0
+sed -i &#39;s/SELINUX=enforcing/SELINUX=disabled/g&#39; /etc/selinux/config
+init 6
+yum isntall -y wget vim 
+</code></pre>
 <h2 id="2-主服务-prometheus-server"><a href="#2-主服务-prometheus-server" class="headerlink" title="2.主服务 prometheus server"></a>2.主服务 prometheus server</h2><p>主服务器，负责收集和存储时间序列数据，负责实现对监控数据的获取，存储以及查询。</p>
 <p><strong>端口：9090</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/prometheus/prometheus/releases/download/v2.35.0-rc0/prometheus-2.35.0-rc0.linux-amd64.tar.gz</span><br><span class="line">tar zxvf prometheus-2.35.0-rc0.linux-amd64.tar.gz </span><br><span class="line">mv prometheus-2.35.0-rc0.linux-amd64 prometheus</span><br><span class="line">cd prometheus-2.35.0-rc0.linux-amd64</span><br><span class="line">nohup ./prometheus --config.file=prometheus.yml &gt; ./prometheus.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">wget https://github.com/prometheus/prometheus/releases/download/v2.35.0-rc0/prometheus-2.35.0-rc0.linux-amd64.tar.gz
+tar zxvf prometheus-2.35.0-rc0.linux-amd64.tar.gz 
+mv prometheus-2.35.0-rc0.linux-amd64 prometheus
+cd prometheus-2.35.0-rc0.linux-amd64
+nohup ./prometheus --config.file=prometheus.yml &gt; ./prometheus.log 2&gt;&amp;1 &amp;
+</code></pre>
 <p><strong>可选指令</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">--config.file= 指定配置文件目录</span><br><span class="line">--storage.tsdb.path= 指定监控指标数据存储的路径</span><br><span class="line">--storage.tsdb.retention=15d 历史数据最大保留时间，默认15day</span><br><span class="line">--web.console.templates=&quot;/data/prometheus/consoles&quot; 指定控制台模板目录路径</span><br><span class="line">--web.console.libraries=&quot;/data/prometheus/console_librarics&quot; 指定控制台库目录路径</span><br><span class="line">--web.max-connections=512 设置最大连接数</span><br><span class="line">--web.external-url</span><br><span class="line">--web.listen-address=&quot;0.0.0.0:9090&quot;  默认监控端口</span><br><span class="line">--web.enable-lifecyle 开启热加载(1.kill -Hub pid 2. curl -X POST http://ip:port/-/reload)</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">--config.file= 指定配置文件目录
+--storage.tsdb.path= 指定监控指标数据存储的路径
+--storage.tsdb.retention=15d 历史数据最大保留时间，默认15day
+--web.console.templates=&quot;/data/prometheus/consoles&quot; 指定控制台模板目录路径
+--web.console.libraries=&quot;/data/prometheus/console_librarics&quot; 指定控制台库目录路径
+--web.max-connections=512 设置最大连接数
+--web.external-url
+--web.listen-address=&quot;0.0.0.0:9090&quot;  默认监控端口
+--web.enable-lifecyle 开启热加载(1.kill -Hub pid 2. curl -X POST http://ip:port/-/reload)
+</code></pre>
 <p><strong>配置文件</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">global #全局配置</span><br><span class="line">  scrape_interval #每次数据采集的时间间隔，默认1s</span><br><span class="line">  scrape_timeout  #采集请求超时时间，默认为10s</span><br><span class="line">  evaluation_interval #执行rules的频率 默认1s</span><br><span class="line">  external_labels #与外部系统通信时添加到任意时间序列或告警用的外部标签</span><br><span class="line">scrape_configs #配置被采集数据节点</span><br><span class="line">  job_name #全局唯一名称</span><br><span class="line">    scrape_interval #默认等于global内的参数，设置后覆盖global的值</span><br><span class="line">    scrape_timeout #默认等于global内的参数，设置后覆盖global的值</span><br><span class="line">    metrics_path #从targets获取metric的http资源路径，默认为/metrics</span><br><span class="line">    honor_labels #Prometheus如何处理标签之间的冲突，若设置为true，则通过保留标签来解决标签冲突进行数据值采集。若设置为false，则通过重名名解决标签冲突</span><br><span class="line">    scheme #用于请求的协议方式，默认是http</span><br><span class="line">    params #数据采集访问http url 设定的请求参数</span><br><span class="line">    relabel_configs #采集数据重置标签配置</span><br><span class="line">    metrics_relabel_configs #metric重置标签配置</span><br><span class="line">    sample_limie #对样本(sample)数量的每次采集进行限制，超过限制数据为失败，默认为0，表示无限制</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">global #全局配置
+  scrape_interval #每次数据采集的时间间隔，默认1s
+  scrape_timeout  #采集请求超时时间，默认为10s
+  evaluation_interval #执行rules的频率 默认1s
+  external_labels #与外部系统通信时添加到任意时间序列或告警用的外部标签
+scrape_configs #配置被采集数据节点
+  job_name #全局唯一名称
+    scrape_interval #默认等于global内的参数，设置后覆盖global的值
+    scrape_timeout #默认等于global内的参数，设置后覆盖global的值
+    metrics_path #从targets获取metric的http资源路径，默认为/metrics
+    honor_labels #Prometheus如何处理标签之间的冲突，若设置为true，则通过保留标签来解决标签冲突进行数据值采集。若设置为false，则通过重名名解决标签冲突
+    scheme #用于请求的协议方式，默认是http
+    params #数据采集访问http url 设定的请求参数
+    relabel_configs #采集数据重置标签配置
+    metrics_relabel_configs #metric重置标签配置
+    sample_limie #对样本(sample)数量的每次采集进行限制，超过限制数据为失败，默认为0，表示无限制
+    
+    
+    
+    
+</code></pre>
 <h2 id="3-node信息采集器-node-exporter"><a href="#3-node信息采集器-node-exporter" class="headerlink" title="3.node信息采集器 node_exporter"></a>3.node信息采集器 node_exporter</h2><p>监控样本数据的收集</p>
 <p><strong>端口：9100</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz</span><br><span class="line">tar</span><br><span class="line">mv</span><br><span class="line">cd</span><br><span class="line">nohup ./node_exporter &gt; node_exporter.log &amp;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">在主服务Prometheus的配置文件里添加job</span></span><br><span class="line">cat ../promethues/promethues.xml</span><br><span class="line">scrape_configs:</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.</span></span><br><span class="line">  - job_name: &quot;prometheus&quot;</span><br><span class="line"></span><br><span class="line">    # metrics_path defaults to &#x27;/metrics&#x27;</span><br><span class="line">    # scheme defaults to &#x27;http&#x27;.</span><br><span class="line"></span><br><span class="line">    static_configs:</span><br><span class="line">      - targets: [&quot;localhost:9090&quot;]</span><br><span class="line">  - job_name: &quot;node_exporter&quot;</span><br><span class="line">    static_configs:</span><br><span class="line">      - targets: [&quot;localhost:9100&quot;]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<pre><code class="shell">wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
+tar
+mv
+cd
+nohup ./node_exporter &gt; node_exporter.log &amp;
+#在主服务Prometheus的配置文件里添加job
+cat ../promethues/promethues.xml
+scrape_configs:
+  # The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.
+  - job_name: &quot;prometheus&quot;
 
+    # metrics_path defaults to &#39;/metrics&#39;
+    # scheme defaults to &#39;http&#39;.
+
+    static_configs:
+      - targets: [&quot;localhost:9090&quot;]
+  - job_name: &quot;node_exporter&quot;
+    static_configs:
+      - targets: [&quot;localhost:9100&quot;]
+</code></pre>
 <h2 id="4-可视化grafana"><a href="#4-可视化grafana" class="headerlink" title="4.可视化grafana"></a>4.可视化grafana</h2><p>grafana 是一款采用 Go 语言编写的开源应用，主要用于大规模指标数据的可视化展现，是网络架构和应用分析中最流行的<strong>时序数据展示</strong>工具，目前已经支持绝大部分常用的时序数据库</p>
 <p><strong>端口：3000</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://dl.grafana.com/enterprise/release/grafana-enterprise-8.4.6.linux-amd64.tar.gz</span><br><span class="line">tar zxvf grafana-enterprise-8.4.6.linux-amd64.tar.gz </span><br><span class="line">mv grafana-8.4.6/ grafana</span><br><span class="line">cd ../grafana</span><br><span class="line">nohup ./bin/grafana-server &gt; ./grafana.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">wget https://dl.grafana.com/enterprise/release/grafana-enterprise-8.4.6.linux-amd64.tar.gz
+tar zxvf grafana-enterprise-8.4.6.linux-amd64.tar.gz 
+mv grafana-8.4.6/ grafana
+cd ../grafana
+nohup ./bin/grafana-server &gt; ./grafana.log 2&gt;&amp;1 &amp;
+</code></pre>
 <p>添加数据源，添加dashboard</p>
 <p><a target="_blank" rel="noopener" href="https://grafana.com/grafana/dashboards%EF%BC%8C%E4%B8%8B%E8%BD%BDjson%E5%86%8D%E4%B8%8A%E4%BC%A0%E7%94%9F%E6%88%90dashboard">https://grafana.com/grafana/dashboards，下载json再上传生成dashboard</a></p>
-<h2 id="5-报警alertmanager"><a href="#5-报警alertmanager" class="headerlink" title="5.报警alertmanager"></a>5.报警alertmanager</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz</span><br><span class="line">tar zxvf alertmanager-0.24.0.linux-amd64.tar.gz </span><br><span class="line">mv alertmanager-0.24.0.linux-amd64 alertmanager</span><br><span class="line">cd alertmanager</span><br><span class="line">nohup ./alertmanager --config.file=alertmanager.yml &gt; ./alertmanager.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-
+<h2 id="5-报警alertmanager"><a href="#5-报警alertmanager" class="headerlink" title="5.报警alertmanager"></a>5.报警alertmanager</h2><pre><code class="shell">wget https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
+tar zxvf alertmanager-0.24.0.linux-amd64.tar.gz 
+mv alertmanager-0.24.0.linux-amd64 alertmanager
+cd alertmanager
+nohup ./alertmanager --config.file=alertmanager.yml &gt; ./alertmanager.log 2&gt;&amp;1 &amp;
+</code></pre>
 <h2 id="6-pushgateway"><a href="#6-pushgateway" class="headerlink" title="6.pushgateway"></a>6.pushgateway</h2><p>PushGateway 就是一个中转组件，将 metric 推到PushGateway，Prometheus 再从PushGateway 拉取就可以了</p>
 <p><strong>端口：9091</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/prometheus/pushgateway/releases/download/v1.4.2/pushgateway-1.4.2.linux-amd64.tar.gz</span><br><span class="line">tar zxvf pushgateway-1.4.2.linux-amd64.tar.gz </span><br><span class="line">mv pushgateway-1.4.2.linux-amd64 pushgateway</span><br><span class="line">cd pushgateway</span><br><span class="line">nohup  ./pushgateway --web.listen-address :9091 &gt; ./pushgateway.log 2&gt;&amp;1 &amp;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">在主服务Prometheus的配置文件里添加job</span></span><br><span class="line">cat ../promethues/promethues.yml</span><br><span class="line"> - job_name: &quot;pushgateway&quot;</span><br><span class="line">    static_configs:</span><br><span class="line">      - targets: [&quot;localhost:9091&quot;]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<pre><code class="shell">wget https://github.com/prometheus/pushgateway/releases/download/v1.4.2/pushgateway-1.4.2.linux-amd64.tar.gz
+tar zxvf pushgateway-1.4.2.linux-amd64.tar.gz 
+mv pushgateway-1.4.2.linux-amd64 pushgateway
+cd pushgateway
+nohup  ./pushgateway --web.listen-address :9091 &gt; ./pushgateway.log 2&gt;&amp;1 &amp;
+#在主服务Prometheus的配置文件里添加job
+cat ../promethues/promethues.yml
+ - job_name: &quot;pushgateway&quot;
+    static_configs:
+      - targets: [&quot;localhost:9091&quot;]
+</code></pre>
+<h1 id="2-docker部署"><a href="#2-docker部署" class="headerlink" title="2.docker部署"></a>2.docker部署</h1><h2 id="1-准备镜像"><a href="#1-准备镜像" class="headerlink" title="1.准备镜像"></a>1.准备镜像</h2><pre><code class="shell">docker pull prom/node-exporter
+docker pull grafana/grafana
+docker pull prom/prometheus
+docker pull google/cadvisor
+docker pull quay.io/prometheus/alertmanager
+docker pull timonwong/prometheus-webhook-dingtalk
+</code></pre>
+<h2 id="2-node-exporter"><a href="#2-node-exporter" class="headerlink" title="2.node-exporter"></a>2.node-exporter</h2><pre><code class="shell">docker run -d --network=host \
+ --pid=host \
+-v &quot;/proc:/host/proc:ro&quot; \
+-v &quot;/sys:/host/sys:ro&quot; \
+-v &quot;/etc/localtime:/etc/localtime&quot; \
+-v &quot;/:/rootfs:ro&quot; \
+--privileged \
+--name=node-exporter \
+--restart=always \
+prom/node-exporter
+#端口：9100
+#推荐模板id：8919
+</code></pre>
+<h2 id="3-cadvisor"><a href="#3-cadvisor" class="headerlink" title="3.cadvisor"></a>3.cadvisor</h2><pre><code class="shell">docker run \
+--volume=/:/rootfs:ro \
+--volume=/var/run:/var/run:ro \
+--volume=/sys:/sys:ro \
+--volume=/var/lib/docker/:/var/lib/docker:ro \
+--volume=/dev/disk/:/dev/disk:ro \
+--publish=8080:8080 \
+--detach=true \
+--name=cadvisor \
+--privileged \
+--device=/dev/kmsg \
+google/cadvisor
+#推荐模板id：11600
+</code></pre>
+<h2 id="4-grafana"><a href="#4-grafana" class="headerlink" title="4.grafana"></a>4.grafana</h2><pre><code class="shell">mkdir -pv /data/grafana
+chmod 777 /data/grafana
+docker run -d -p 3000:3000 \
+--name=grafana \
+-v /data/grafana:/var/lib/grafana \
+-v /etc/localtime:/etc/localtime \
+--restart=always \
+grafana/grafana
+#默认密码admin:admin
+</code></pre>
+<h2 id="5-prometheus"><a href="#5-prometheus" class="headerlink" title="5.prometheus"></a>5.prometheus</h2><pre><code class="shell">mkdir -pv /data/prometheus/config
+cat &gt; /data/prometheus/config/prometheus.yml &lt;&lt; EOF
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: &#39;prometheus&#39;
+    static_configs:
+    - targets: [&#39;localhost:9090&#39;]
+  - job_name: &#39;node-exporter&#39;
+    static_configs:
+    - targets: [&#39;192.168.20.10:9100&#39;]
+  - job_name: &#39;cadvisor&#39;
+    static_configs:
+    - targets: [&#39;192.168.20.10:8080&#39;]
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: [&#39;192.168.20.10:9093&#39;]
+rule_files:
+  - &quot;rules/*&quot;    
+EOF
+mkdir -pv /data/prometheus/config/rules
+cat &gt; /data/prometheus/rules/test.yml &lt;&lt; EOF
+groups:
+- name: CPU报警规则
+  rules:
+  - alert: CPU使用率告警
+    expr: 100 - (avg by (instance)(irate(node_cpu_seconds_total&#123;mode=&quot;idle&quot;&#125;[1m]) )) * 100 &gt; 50
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: &quot;CPU使用率正在飙升。&quot;
+      description: &quot;CPU使用率超过50%（当前值：&#123;&#123; $value &#125;&#125;%）&quot;
+- name: 磁盘使用率报警规则
+  rules:
+  - alert: 磁盘使用率告警
+    expr: 100 - node_filesystem_free_bytes&#123;fstype=~&quot;xfs|ext4&quot;&#125; / node_filesystem_size_bytes&#123;fstype=~&quot;xfs|ext4&quot;&#125; * 100 &gt; 80
+    for: 20m
+    labels:
+      severity: warning
+    annotations:
+      summary: &quot;硬盘分区使用率过高&quot;
+      description: &quot;分区使用大于80%（当前值：&#123;&#123; $value &#125;&#125;%）&quot;
+- name: 内存报警规则
+  rules:
+  - alert: 内存使用率告警
+    expr: (1 - (node_memory_MemAvailable_bytes / (node_memory_MemTotal_bytes))) * 100 &gt; 50
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: &quot;服务器可用内存不足。&quot;
+      description: &quot;内存使用率已超过50%（当前值：&#123;&#123; $value &#125;&#125;%）&quot;
+- name: 实例存活告警规则
+  rules:
+  - alert: 实例存活告警
+    expr: up == 0
+    for: 10s
+    labels:
+      user: prometheus
+      severity: warning
+    annotations:
+      summary: &quot;主机宕机 !!!&quot;
+      description: &quot;该实例主机已经宕机超过一分钟了。&quot;
+EOF
+
+docker run  -d -p 9090:9090 \
+-v /data/prometheus/config:/etc/prometheus/ \
+-v /etc/localtime:/etc/localtime \
+--name=prometheus \
+--restart=always \
+prom/prometheus \
+--config.file=/etc/prometheus/prometheus.yml \
+--web.enable-lifecycle  #开启热加载  culr -X POST:192.168.20.10:9090/-/reload
+</code></pre>
+<h2 id="6-alertmanager"><a href="#6-alertmanager" class="headerlink" title="6.alertmanager"></a>6.alertmanager</h2><pre><code class="shell">mkdir /data/alertmanager
+cat &gt; /data/alertmanager/alertmanager.yml &lt;&lt; EOF
+global:
+      resolve_timeout: 1m
+      smtp_smarthost: &#39;smtp.163.com:25&#39;
+      smtp_from: &#39;livenessprobe@163.com&#39;
+      smtp_auth_username: &#39;livenessprobe&#39;
+      smtp_auth_password: &#39;DKXIWRDLHFZNCKDL&#39;
+      smtp_require_tls: false
+templates:
+      - &#39;/altertmanager/rules/*.tmpl&#39;
+route:
+      group_by: [alertname]
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 10m
+      receiver: default-receiver
+receivers:
+    - name: &#39;default-receiver&#39;
+      email_configs:
+      - to: &#39;1798414562@qq.com&#39;
+        send_resolved: true
+EOF
+mkdir /data/alertmanager/rules
+cat &gt; /data/alertmanager/rules/email.tmpl &lt;&lt; EOF
+&#123;&#123; define "wechat.default.message" &#125;&#125;
+&#123;&#123; range $i, $alert :=.Alerts &#125;&#125;
+========监控报警====
+告警状态: &#123;&#123; .Status &#125;&#125;
+告警级别: &#123;&#123; $alert.Labels.severity &#125;&#125;
+告警类型: &#123;&#123; $alert.Labels.alertname &#125;&#125;
+告警应用: &#123;&#123; $alert.Labels.name &#125;&#125;
+告警主机: &#123;&#123; $alert.Labels.instance &#125;&#125;
+告警详情: &#123;&#123; $alert.Annotations.description &#125;&#125;
+告警时间: &#123;&#123; (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" &#125;&#125;
+========end=========
+&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+EOF
+docker run --name alertmanager -d \
+-p 9093:9093 \
+-v /etc/localtime:/etc/localtime \
+-v /data/alertmanager/:/etc/alertmanager/ \
+quay.io/prometheus/alertmanager 
+</code></pre>
+<h2 id="7-dingding-rebot"><a href="#7-dingding-rebot" class="headerlink" title="7.dingding rebot"></a>7.dingding rebot</h2><pre><code class="shell">修改alertmanager配置文件
+cat &gt; /data/alertmanager/alertmanager.yml &lt;&lt; EOF
+global:
+      resolve_timeout: 1m
+      smtp_smarthost: &#39;smtp.163.com:25&#39;
+      smtp_from: &#39;livenessprobe@163.com&#39;
+      smtp_auth_username: &#39;livenessprobe&#39;
+      smtp_auth_password: &#39;DKXIWRDLHFZNCKDL&#39;
+      smtp_require_tls: false
+templates:
+      - &#39;/altertmanager/rules/*.tmpl&#39;
+route:
+      group_by: [alertname]
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 10m
+      receiver: cluster1
+receivers:
+    - name: &#39;cluster1&#39;
+      webhook_configs:
+      - url: &#39;http://192.168.20.10:8060/dingtalk/cluster1/send&#39;
+        send_resolved: true
+EOF
+
+docker run -d -p 8060:8060  \
+--name=webhook \
+--restart=always \
+timonwong/prometheus-webhook-dingtalk \
+--ding.profile=&quot;webhook1=https://oapi.dingtalk.com/robot/send?access_token= \
+6d99e78e84603b9549dbc7172b44c7733954bb2ee945768f7b47ff2c33952825&quot;
 
 
+</code></pre>
 
-
-
-
-
-<h1 id="2-docker部署"><a href="#2-docker部署" class="headerlink" title="2.docker部署"></a>2.docker部署</h1><h2 id="1-准备镜像"><a href="#1-准备镜像" class="headerlink" title="1.准备镜像"></a>1.准备镜像</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker pull prom/node-exporter</span><br><span class="line">docker pull grafana/grafana</span><br><span class="line">docker pull prom/prometheus</span><br><span class="line">docker pull google/cadvisor</span><br><span class="line">docker pull quay.io/prometheus/alertmanager</span><br><span class="line">docker pull timonwong/prometheus-webhook-dingtalk</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-node-exporter"><a href="#2-node-exporter" class="headerlink" title="2.node-exporter"></a>2.node-exporter</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --network=host \</span><br><span class="line"> --pid=host \</span><br><span class="line">-v &quot;/proc:/host/proc:ro&quot; \</span><br><span class="line">-v &quot;/sys:/host/sys:ro&quot; \</span><br><span class="line">-v &quot;/etc/localtime:/etc/localtime&quot; \</span><br><span class="line">-v &quot;/:/rootfs:ro&quot; \</span><br><span class="line">--privileged \</span><br><span class="line">--name=node-exporter \</span><br><span class="line">--restart=always \</span><br><span class="line">prom/node-exporter</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">端口：9100</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">推荐模板<span class="built_in">id</span>：8919</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-cadvisor"><a href="#3-cadvisor" class="headerlink" title="3.cadvisor"></a>3.cadvisor</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">--volume=/:/rootfs:ro \</span><br><span class="line">--volume=/var/run:/var/run:ro \</span><br><span class="line">--volume=/sys:/sys:ro \</span><br><span class="line">--volume=/var/lib/docker/:/var/lib/docker:ro \</span><br><span class="line">--volume=/dev/disk/:/dev/disk:ro \</span><br><span class="line">--publish=8080:8080 \</span><br><span class="line">--detach=true \</span><br><span class="line">--name=cadvisor \</span><br><span class="line">--privileged \</span><br><span class="line">--device=/dev/kmsg \</span><br><span class="line">google/cadvisor</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">推荐模板<span class="built_in">id</span>：11600</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-grafana"><a href="#4-grafana" class="headerlink" title="4.grafana"></a>4.grafana</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mkdir -pv /data/grafana</span><br><span class="line">chmod 777 /data/grafana</span><br><span class="line">docker run -d -p 3000:3000 \</span><br><span class="line">--name=grafana \</span><br><span class="line">-v /data/grafana:/var/lib/grafana \</span><br><span class="line">-v /etc/localtime:/etc/localtime \</span><br><span class="line">--restart=always \</span><br><span class="line">grafana/grafana</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">默认密码admin:admin</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="5-prometheus"><a href="#5-prometheus" class="headerlink" title="5.prometheus"></a>5.prometheus</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">mkdir -pv /data/prometheus/config</span><br><span class="line">cat &gt; /data/prometheus/config/prometheus.yml &lt;&lt; EOF</span><br><span class="line">global:</span><br><span class="line">  scrape_interval: 15s</span><br><span class="line">  evaluation_interval: 15s</span><br><span class="line">scrape_configs:</span><br><span class="line">  - job_name: &#x27;prometheus&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;localhost:9090&#x27;]</span><br><span class="line">  - job_name: &#x27;node-exporter&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;192.168.20.10:9100&#x27;]</span><br><span class="line">  - job_name: &#x27;cadvisor&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;192.168.20.10:8080&#x27;]</span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets: [&#x27;192.168.20.10:9093&#x27;]</span><br><span class="line">rule_files:</span><br><span class="line">  - &quot;rules/*&quot;    </span><br><span class="line">EOF</span><br><span class="line">mkdir -pv /data/prometheus/config/rules</span><br><span class="line">cat &gt; /data/prometheus/rules/test.yml &lt;&lt; EOF</span><br><span class="line">groups:</span><br><span class="line">- name: CPU报警规则</span><br><span class="line">  rules:</span><br><span class="line">  - alert: CPU使用率告警</span><br><span class="line">    expr: 100 - (avg by (instance)(irate(node_cpu_seconds_total&#123;mode=&quot;idle&quot;&#125;[1m]) )) * 100 &gt; 50</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      severity: warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot;CPU使用率正在飙升。&quot;</span><br><span class="line">      description: &quot;CPU使用率超过50%（当前值：&#123;&#123; $value &#125;&#125;%）&quot;</span><br><span class="line">- name: 磁盘使用率报警规则</span><br><span class="line">  rules:</span><br><span class="line">  - alert: 磁盘使用率告警</span><br><span class="line">    expr: 100 - node_filesystem_free_bytes&#123;fstype=~&quot;xfs|ext4&quot;&#125; / node_filesystem_size_bytes&#123;fstype=~&quot;xfs|ext4&quot;&#125; * 100 &gt; 80</span><br><span class="line">    for: 20m</span><br><span class="line">    labels:</span><br><span class="line">      severity: warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot;硬盘分区使用率过高&quot;</span><br><span class="line">      description: &quot;分区使用大于80%（当前值：&#123;&#123; $value &#125;&#125;%）&quot;</span><br><span class="line">- name: 内存报警规则</span><br><span class="line">  rules:</span><br><span class="line">  - alert: 内存使用率告警</span><br><span class="line">    expr: (1 - (node_memory_MemAvailable_bytes / (node_memory_MemTotal_bytes))) * 100 &gt; 50</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      severity: warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot;服务器可用内存不足。&quot;</span><br><span class="line">      description: &quot;内存使用率已超过50%（当前值：&#123;&#123; $value &#125;&#125;%）&quot;</span><br><span class="line">- name: 实例存活告警规则</span><br><span class="line">  rules:</span><br><span class="line">  - alert: 实例存活告警</span><br><span class="line">    expr: up == 0</span><br><span class="line">    for: 10s</span><br><span class="line">    labels:</span><br><span class="line">      user: prometheus</span><br><span class="line">      severity: warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot;主机宕机 !!!&quot;</span><br><span class="line">      description: &quot;该实例主机已经宕机超过一分钟了。&quot;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">docker run  -d -p 9090:9090 \</span><br><span class="line">-v /data/prometheus/config:/etc/prometheus/ \</span><br><span class="line">-v /etc/localtime:/etc/localtime \</span><br><span class="line">--name=prometheus \</span><br><span class="line">--restart=always \</span><br><span class="line">prom/prometheus \</span><br><span class="line">--config.file=/etc/prometheus/prometheus.yml \</span><br><span class="line">--web.enable-lifecycle  #开启热加载  culr -X POST:192.168.20.10:9090/-/reload</span><br></pre></td></tr></table></figure>
-
-<h2 id="6-alertmanager"><a href="#6-alertmanager" class="headerlink" title="6.alertmanager"></a>6.alertmanager</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">mkdir /data/alertmanager</span><br><span class="line">cat &gt; /data/alertmanager/alertmanager.yml &lt;&lt; EOF</span><br><span class="line">global:</span><br><span class="line">      resolve_timeout: 1m</span><br><span class="line">      smtp_smarthost: &#x27;smtp.163.com:25&#x27;</span><br><span class="line">      smtp_from: &#x27;livenessprobe@163.com&#x27;</span><br><span class="line">      smtp_auth_username: &#x27;livenessprobe&#x27;</span><br><span class="line">      smtp_auth_password: &#x27;DKXIWRDLHFZNCKDL&#x27;</span><br><span class="line">      smtp_require_tls: false</span><br><span class="line">templates:</span><br><span class="line">      - &#x27;/altertmanager/rules/*.tmpl&#x27;</span><br><span class="line">route:</span><br><span class="line">      group_by: [alertname]</span><br><span class="line">      group_wait: 10s</span><br><span class="line">      group_interval: 10s</span><br><span class="line">      repeat_interval: 10m</span><br><span class="line">      receiver: default-receiver</span><br><span class="line">receivers:</span><br><span class="line">    - name: &#x27;default-receiver&#x27;</span><br><span class="line">      email_configs:</span><br><span class="line">      - to: &#x27;1798414562@qq.com&#x27;</span><br><span class="line">        send_resolved: true</span><br><span class="line">EOF</span><br><span class="line">mkdir /data/alertmanager/rules</span><br><span class="line">cat &gt; /data/alertmanager/rules/email.tmpl &lt;&lt; EOF</span><br><span class="line">&#123;&#123; define &quot;wechat.default.message&quot; &#125;&#125;</span><br><span class="line">&#123;&#123; range $i, $alert :=.Alerts &#125;&#125;</span><br><span class="line">========监控报警====</span><br><span class="line">告警状态: &#123;&#123; .Status &#125;&#125;</span><br><span class="line">告警级别: &#123;&#123; $alert.Labels.severity &#125;&#125;</span><br><span class="line">告警类型: &#123;&#123; $alert.Labels.alertname &#125;&#125;</span><br><span class="line">告警应用: &#123;&#123; $alert.Labels.name &#125;&#125;</span><br><span class="line">告警主机: &#123;&#123; $alert.Labels.instance &#125;&#125;</span><br><span class="line">告警详情: &#123;&#123; $alert.Annotations.description &#125;&#125;</span><br><span class="line">告警时间: &#123;&#123; (.StartsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">========end=========</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">EOF</span><br><span class="line">docker run --name alertmanager -d \</span><br><span class="line">-p 9093:9093 \</span><br><span class="line">-v /etc/localtime:/etc/localtime \</span><br><span class="line">-v /data/alertmanager/:/etc/alertmanager/ \</span><br><span class="line">quay.io/prometheus/alertmanager </span><br></pre></td></tr></table></figure>
-
-<h2 id="7-dingding-rebot"><a href="#7-dingding-rebot" class="headerlink" title="7.dingding rebot"></a>7.dingding rebot</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">修改alertmanager配置文件</span><br><span class="line">cat &gt; /data/alertmanager/alertmanager.yml &lt;&lt; EOF</span><br><span class="line">global:</span><br><span class="line">      resolve_timeout: 1m</span><br><span class="line">      smtp_smarthost: &#x27;smtp.163.com:25&#x27;</span><br><span class="line">      smtp_from: &#x27;livenessprobe@163.com&#x27;</span><br><span class="line">      smtp_auth_username: &#x27;livenessprobe&#x27;</span><br><span class="line">      smtp_auth_password: &#x27;DKXIWRDLHFZNCKDL&#x27;</span><br><span class="line">      smtp_require_tls: false</span><br><span class="line">templates:</span><br><span class="line">      - &#x27;/altertmanager/rules/*.tmpl&#x27;</span><br><span class="line">route:</span><br><span class="line">      group_by: [alertname]</span><br><span class="line">      group_wait: 10s</span><br><span class="line">      group_interval: 10s</span><br><span class="line">      repeat_interval: 10m</span><br><span class="line">      receiver: cluster1</span><br><span class="line">receivers:</span><br><span class="line">    - name: &#x27;cluster1&#x27;</span><br><span class="line">      webhook_configs:</span><br><span class="line">      - url: &#x27;http://192.168.20.10:8060/dingtalk/cluster1/send&#x27;</span><br><span class="line">        send_resolved: true</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">docker run -d -p 8060:8060  \</span><br><span class="line">--name=webhook \</span><br><span class="line">--restart=always \</span><br><span class="line">timonwong/prometheus-webhook-dingtalk \</span><br><span class="line">--ding.profile=&quot;webhook1=https://oapi.dingtalk.com/robot/send?access_token= \</span><br><span class="line">6d99e78e84603b9549dbc7172b44c7733954bb2ee945768f7b47ff2c33952825&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-
-  </article>
-  <!-- tag -->
-  <div class="mt-12 pt-6 border-t border-gray-200">
-    
       
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/">部署安装</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/docker/">docker</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/prometheus/">prometheus</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E7%9B%91%E6%8E%A7/">监控</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E5%91%8A%E8%AD%A6/">告警</a>
-        </span>
-      
-    
-  </div>
-  <!-- prev and next -->
-  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
-    <div>
-      
-        <a href="/2022/06/30/blade-user%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          blade-user需要认证服务
-        </a>
-      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 6430186@qq.com </span>
     </div>
-    <div>
-      
-        <a href="/2022/05/23/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          AlibabaCloud安装mysql8客户端命令
-          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
-        </a>
-      
-    </div>
-  </div>
-  <!-- comment -->
-  <div class="article-comments mt-12">
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
     
 
-  </div>
-</section>
-<!-- js inspect -->
-
-<script src="/lib/clipboard.min.js"></script>
-
-
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-  });
-</script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-  });
-</script>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  $(document).ready(() => {
-    const maraidConfig = {
-      theme: "default",
-      logLevel: 3,
-      flowchart: { curve: "linear" },
-      gantt: { axisFormat: "%m/%d/%Y" },
-      sequence: { actorMargin: 50 },
-    };
-    mermaid.initialize(maraidConfig);
-  });
-</script>
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 匹敌
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
 
-
-<script src="/lib/fancybox/fancybox.umd.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-    $('.post-content').each(function(i){
-      $(this).find('img').each(function(){
-        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
-        var alt = this.alt;
-        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
-        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
-      });
-      $(this).find('.fancybox').each(function(){
-        $(this).attr('rel', 'article' + i);
-      });
-    });
-
-    Fancybox.bind('[data-fancybox="gallery"]', {
-        // options
-    })
-  })
-</script>
-
-<!-- tocbot begin -->
-
-<script src="/lib/tocbot/tocbot.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-      tocbot.init({
-        // Where to render the table of contents.
-        tocSelector: '.post-toc',
-        // Where to grab the headings to build the table of contents.
-        contentSelector: '.post-content',
-        // Which headings to grab inside of the contentSelector element.
-        headingSelector: 'h1, h2, h3',
-        // For headings inside relative or absolute positioned containers within content.
-        hasInnerContainers: true,
-    });
-  })
-</script>
-<!-- tocbot end -->
-
-
-  </main>
-  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
-  <!-- busuanzi -->
-  
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<!-- Busuanzi Analytics -->
-<div class="flex items-center gap-2">
-  <span>Visitors</span>
-  <span id="busuanzi_value_site_uv"></span>
-  <span>Page Views</span>
-  <span id="busuanzi_value_site_pv"></span>
+    </div>
 </div>
-<!-- End Busuanzi Analytics -->
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
 
 
-  <!-- copyright -->
-  <div class="flex items-center gap-2">
-    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
-    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
-    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
-  </div>
-  <!-- powered by -->
-  <div class="flex items-center gap-2">
-    <span>Powered by</span>
-    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
-    <span>&</span>
-    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
-  </div>
-
-</footer>
-
-  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
-    <span class="flex justify-center items-center text-sm">
-      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
-      <span id="scrollpercent"><span>0</span> %</span>
-    </span>
-  </div>
-  
-<script src="/js/main.js"></script>
-
-
-  <script>
-    $(document).ready(function () {
-      const mapleCount = "10";
-      const speed = "0.5";
-      const mapleEl = document.getElementById("maple");
-      const maples = Array.from({ length: mapleCount }).map(() => {
-        const maple = document.createElement("div");
-        const scale = Math.random() * 0.5 + 0.5;
-        const offset = Math.random() * 2 - 1;
-        const x = Math.random() * mapleEl.clientWidth;
-        const y = -Math.random() * mapleEl.clientHeight;
-        const duration = 10 / speed;
-        const delay = -duration;
-        maple.className = "maple";
-        maple.style.width = `${24 * scale}px`;
-        maple.style.height = `${24 * scale}px`;
-        maple.style.left = `${x}px`;
-        maple.style.top = `${y}px`;
-        maple.style.setProperty("--maple-fall-offset", offset);
-        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
-        maple.style.animation = `fall ${duration}s linear infinite`;
-        maple.style.animationDelay = `${delay}s`;
-        mapleEl.appendChild(maple)
-        return maple
-      })
-    });
-  </script>
-  
-
-
-  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
 </body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
 
 </html>

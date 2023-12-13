@@ -1,496 +1,1327 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <title>nas-nfs部署 | 谁与匹敌</title>
+  <meta name="keywords" content=" 部署安装 , nfs , nas-nfs ">
+  <meta name="description" content="nas-nfs部署 | 谁与匹敌">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about">
+<meta property="og:url" content="http://blog.pidi.co/about/index.html">
+<meta property="og:site_name" content="谁与匹敌">
+<meta property="og:description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-13T06:14:04.000Z">
+<meta property="article:modified_time" content="2023-12-13T07:26:38.230Z">
+<meta property="article:author" content="匹敌">
+<meta property="article:tag" content="pidi,运维，博客，IT男，匹敌">
+<meta name="twitter:card" content="summary">
 
 
+<link rel="icon" href="/img/avatar.jpg">
 
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
 
-  <meta name="author" content="pidi">
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
 
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
 
-
-  <meta name="description" content="PIDI的个人博客">
-
-
-  <meta name="keywords" content="pidi,运维，博客，IT男，匹敌">
-
-
-<title>nas-nfs部署 | PiDi</title>
-
-
-
-<link rel="icon" href="/favicon.png">
-
-
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
-
-
-
-<script src="/lib/jquery.min.js"></script>
-
-
-<script src="/lib/iconify-icon.min.js"></script>
-
-
-<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
 <script>
-  tailwind.config = {
-    darkMode: "class",
-  };
+    hljs.initHighlightingOnLoad();
 </script>
 
-
-<script src="/lib/nprogress/nprogress.js"></script>
-
-<script>
-  $(document).ready(() => {
-    NProgress.configure({
-      showSpinner: false,
-    });
-    NProgress.start();
-    $("#nprogress .bar").css({
-      background: "#de7441",
-    });
-    $("#nprogress .peg").css({
-      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
-    });
-    $("#nprogress .spinner-icon").css({
-      "border-top-color": "#de7441",
-      "border-left-color": "#de7441",
-    });
-    setTimeout(function () {
-      NProgress.done();
-      $(".fade").removeClass("out");
-    }, 800);
-  });
-</script>
-
-<script>
-  (function () {
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-    if (setting === "dark" || (prefersDark && setting !== "light"))
-      document.documentElement.classList.toggle("dark", true);
-    let isDark = document.documentElement.classList.contains("dark");
-  })();
-
-  $(document).ready(function () {
-    // init icon
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = document.documentElement.classList.contains("dark");
-    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-
-    function toggleGiscusTheme() {
-      const isDark = document.documentElement.classList.contains("dark");
-      const giscusFrame = document.querySelector("iframe.giscus-frame");
-      if (giscusFrame) {
-        giscusFrame.contentWindow.postMessage(
-          {
-            giscus: {
-              setConfig: {
-                theme: isDark ? "dark" : "light",
-              },
-            },
-          },
-          "https://giscus.app"
-        );
-      }
-    }
-
-
-    // toggle dark mode
-    function toggleDark() {
-      let isDark = document.documentElement.classList.contains("dark");
-      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-      isDark = !isDark;
-      document.documentElement.classList.toggle("dark", isDark);
-      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-      if (prefersDark === isDark) {
-        localStorage.setItem("hexo-color-scheme", "auto");
-      } else {
-        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
-      }
-      toggleGiscusTheme();
-    }
-    $("#toggle-dark").click(toggleDark);
-
-    // listen dark mode change
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", (e) => {
-        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-        if (setting === "auto") {
-          document.documentElement.classList.toggle("dark", e.matches);
-          $("#theme-icon").attr(
-            "icon",
-            e.matches ? "ri:moon-line" : "ri:sun-line"
-          );
-          toggleGiscusTheme();
-        }
-      });
-  });
-</script>
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
 
 
 
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
 
 <meta name="generator" content="Hexo 6.3.0"></head>
-<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
-  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
-  <div class="max-auto">
-    <nav class="flex items-center text-base">
-      <a href="/" class="group">
-        <h2 class="font-medium tracking-tighterp text-l p-2">
-          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
-          PiDi
-        </h2>
-      </a>
-      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        nas-nfs部署
-      </div>
-      <div class="flex-1"></div>
-      <div class="flex items-center gap-3">
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>匹敌</span>
+</div>
+
+<div class="icon">
+    
         
-          <a class="hidden sm:flex" href="/archives">Posts</a>
-        
-          <a class="hidden sm:flex" href="/tags">tags</a>
-        
-          <a class="hidden sm:flex" href="/categories/">categories</a>
-        
-          <a class="hidden sm:flex" href="/archives/">archives</a>
-        
-        
-          
-            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/ablewong">
-              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
             </a>
-          
         
-        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
-          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+    
+        
+            <a title="github"
+               href="https://github.com/ablewong"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:6430186@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=6430186&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(23)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="安全">
+            
+            安全
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="监控">
+            
+            监控
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="日志">
+            
+            日志
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="云平台">
+            
+            云平台
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="中间件">
+            
+            中间件
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CICD">
+            
+            CICD
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="23">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>阿里云</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>安全防护</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>堡垒机</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>报告</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>部署安装</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>钉钉告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>负载</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>高可用</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>故障排查</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>监控</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>流程</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>漏洞</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>木马</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志收集</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>上线规范</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>实时日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>统计</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>文档</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>消息队列</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>域名绑定</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云产品下架</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>制度</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>alertmanager</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>apache</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>blade</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cicd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dingtalk告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>docker</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>elasticsearch;elk;es</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>log.io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>logs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>loki</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>MFA认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock-server</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mq</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql-cli</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql8</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nas-nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nginx</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>oss</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>php</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>prometheus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>promtail</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pushgateway</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rabbitMQ</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS同步自建mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SSL证书</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>waf</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/11/28/loki-%E9%83%A8%E7%BD%B2/"
+           data-tag="日志平台,loki,promtail"
+           data-author="" >
+            <span class="post-title" title="loki_bc部署">loki_bc部署</span>
+            <span class="post-date" title="2023-11-28 20:37:00">2023/11/28</span>
         </a>
-        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
-          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2023/10/09/UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9Fdocker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="UAT环境监控系统docker方式部署">UAT环境监控系统docker方式部署</span>
+            <span class="post-date" title="2023-10-09 11:40:00">2023/10/09</span>
         </a>
-      </div>
-      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
-        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
-          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
-        </span>
-        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
-          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
-        </span>
-      </div>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/09/23/log-io%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8/"
+           data-tag="日志,log.io,实时日志"
+           data-author="" >
+            <span class="post-title" title="log.io部署与使用">log.io部署与使用</span>
+            <span class="post-date" title="2023-09-23 19:28:00">2023/09/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2023/09/12/rabbitMQ/"
+           data-tag="部署安装,mq,rabbitMQ,消息队列"
+           data-author="" >
+            <span class="post-title" title="rabbitMQ">rabbitMQ</span>
+            <span class="post-date" title="2023-09-12 15:24:00">2023/09/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/05/06/23-5%E6%9C%88%E4%BB%BD%E4%B8%8B%E6%9E%B6%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%89%E5%85%A8%E4%BA%A7%E5%93%81/"
+           data-tag="云产品下架,waf,nginx"
+           data-author="" >
+            <span class="post-title" title="23-5月份下架阿里云安全产品">23-5月份下架阿里云安全产品</span>
+            <span class="post-date" title="2023-05-06 10:55:00">2023/05/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/02/20/%E7%94%9F%E4%BA%A7RDS%E6%97%B6%E6%97%B6%E5%90%8C%E6%AD%A5%E5%88%B0%E8%87%AA%E5%BB%BAmysql8-0/"
+           data-tag="RDS,mysql8,RDS同步自建mysql"
+           data-author="" >
+            <span class="post-title" title="生产RDS时时同步到自建mysql8.0">生产RDS时时同步到自建mysql8.0</span>
+            <span class="post-date" title="2023-02-20 20:07:00">2023/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/01/30/oss%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A%E5%8F%8A%E8%AF%81%E4%B9%A6%E6%9B%B4%E6%96%B0/"
+           data-tag="oss,域名绑定"
+           data-author="" >
+            <span class="post-title" title="oss域名绑定及证书更新">oss域名绑定及证书更新</span>
+            <span class="post-date" title="2023-01-30 10:08:00">2023/01/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/28/%E7%89%88%E6%9C%AC%E4%B8%8A%E7%BA%BF%E6%93%8D%E4%BD%9C%E8%A7%84%E8%8C%83/"
+           data-tag="文档,流程,制度,cicd,上线规范"
+           data-author="" >
+            <span class="post-title" title="版本上线操作规范">版本上线操作规范</span>
+            <span class="post-date" title="2022-09-28 10:34:00">2022/09/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/22/%E9%98%BF%E9%87%8C%E4%BA%91%E5%86%85%E7%BD%91nginx%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="nginx,阿里云,高可用,负载"
+           data-author="" >
+            <span class="post-title" title="阿里云内网nginx高可用方法">阿里云内网nginx高可用方法</span>
+            <span class="post-date" title="2022-09-22 15:49:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/22/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/"
+           data-tag="文档,流程,cicd"
+           data-author="" >
+            <span class="post-title" title="项目上线工作流程梳理">项目上线工作流程梳理</span>
+            <span class="post-date" title="2022-09-22 12:32:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/07/nas-nfs%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,nfs,nas-nfs"
+           data-author="" >
+            <span class="post-title" title="nas-nfs部署">nas-nfs部署</span>
+            <span class="post-date" title="2022-09-07 14:10:00">2022/09/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-16%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.16.1和kibana集群部署">Elasticsearch7.16.1和kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.8.1 和 kibana集群部署">Elasticsearch7.8.1 和 kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/"
+           data-tag="jenkins,jenkins插件"
+           data-author="" >
+            <span class="post-title" title="jenkins部署及插件安装">jenkins部署及插件安装</span>
+            <span class="post-date" title="2022-08-20 11:40:00">2022/08/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/07/11/%E5%85%AC%E5%8F%B8%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2/"
+           data-tag="prometheus,告警,alertmanager,dingtalk告警,钉钉告警,pushgateway"
+           data-author="" >
+            <span class="post-title" title="公司监控部署">公司监控部署</span>
+            <span class="post-date" title="2022-07-11 15:33:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/11/%E5%A0%A1%E5%9E%92%E6%9C%BAssh%E8%AE%A4%E8%AF%81%E4%B8%8D%E8%83%BD%E5%BC%80%E5%90%AFMFA/"
+           data-tag="堡垒机,云平台,MFA认证"
+           data-author="" >
+            <span class="post-title" title="堡垒机ssh认证不能开启MFA">堡垒机ssh认证不能开启MFA</span>
+            <span class="post-date" title="2022-07-11 15:19:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/07/%E5%AE%98%E7%BD%91%E6%8D%A2%E8%AF%81%E4%B9%A6/"
+           data-tag="docker,SSL证书,php,apache"
+           data-author="" >
+            <span class="post-title" title="官网换证书">官网换证书</span>
+            <span class="post-date" title="2022-07-07 17:55:00">2022/07/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/06/30/blade-user%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1/"
+           data-tag="blade,mock-server,mock认证"
+           data-author="" >
+            <span class="post-title" title="blade-user需要认证服务">blade-user需要认证服务</span>
+            <span class="post-date" title="2022-06-30 15:16:00">2022/06/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/06/10/promethues/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="promethues">promethues</span>
+            <span class="post-date" title="2022-06-10 19:07:00">2022/06/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/05/23/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/"
+           data-tag="部署安装,mysql,mysql-cli"
+           data-author="" >
+            <span class="post-title" title="AlibabaCloud安装mysql8客户端命令">AlibabaCloud安装mysql8客户端命令</span>
+            <span class="post-date" title="2022-05-23 16:40:00">2022/05/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/05/10/Spring-boot-gateway%E6%BC%8F%E6%B4%9E/"
+           data-tag="安全防护,漏洞,木马,故障排查"
+           data-author="" >
+            <span class="post-title" title="Spring_boot_gateway漏洞">Spring_boot_gateway漏洞</span>
+            <span class="post-date" title="2022-05-10 17:23:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/05/10/nginx%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/"
+           data-tag="nginx,logs,日志收集"
+           data-author="" >
+            <span class="post-title" title="nginx日志分析">nginx日志分析</span>
+            <span class="post-date" title="2022-05-10 09:19:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2022/04/21/%E8%BF%90%E7%BB%B42022%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
+           data-tag="云平台,报告,统计"
+           data-author="" >
+            <span class="post-title" title="运维2022年年度总结报告">运维2022年年度总结报告</span>
+            <span class="post-date" title="2022-04-21 11:46:00">2022/04/21</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
     </nav>
-  </div>
-</header>
-<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
-  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
-    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/tags" class="flex h-12 sm:h-auto items-center">tags</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/categories/" class="flex h-12 sm:h-auto items-center">categories</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives/" class="flex h-12 sm:h-auto items-center">archives</a>
-        </li>
-      
-    </ul>
-  </div>
-  <div class="mask bg-black/20 absolute inset-0"></div>
+    <div id="outline-list">
+    </div>
 </div>
 
-  <main class="pt-14">
-    <!-- css -->
-
-<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
-
-
-<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
-
-<!-- toc -->
-
-  <!-- tocbot -->
-<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
-
-
-<section class="px-6 max-w-prose mx-auto md:px-0">
-  <!-- header -->
-  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
-    <div class="pt-4 md:pt-6">
-      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        nas-nfs部署
-      </h1>
-      <div>
-        <section class="flex items-center gap-3 text-sm">
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2023-12-12</time>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>8 min</span>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>1.4k words</span>
-          </span>
-          
-            <span class="text-gray-400">·</span>
-            <span class="flex items-center gap-1">
-              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
-              <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-nas-nfs部署" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">nas-nfs部署</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="中间件">中间件</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">部署安装</a>
+            
+            <a class="color4">nfs</a>
+            
+            <a class="color3">nas-nfs</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2023-12-12 10:56:31'>2022-09-07 14:10</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
             </span>
-          
-        </section>
-      </div>
-    </div>
-  </header>
-  <!-- content -->
-  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <hr>
-<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><h4 id="1、基础组件安装"><a href="#1、基础组件安装" class="headerlink" title="1、基础组件安装"></a>1、基础组件安装</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum install gcc make autoconf vim sysstat net-tools iostat iftop iotp wget lrzsz lsof unzip openssh-clients net-tool vim ntpdate -y</span><br><span class="line">yum install epel-release</span><br><span class="line">yum groupinstall &quot;Development Tools&quot;</span><br><span class="line">fdisk -l</span><br></pre></td></tr></table></figure>
-<h4 id="2、lvm动态可扩展磁盘安装"><a href="#2、lvm动态可扩展磁盘安装" class="headerlink" title="2、lvm动态可扩展磁盘安装"></a>2、lvm动态可扩展磁盘安装</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost yum.repos.d]# pvdisplay </span><br><span class="line">  --- Physical volume ---</span><br><span class="line">  PV Name               /dev/sda3</span><br><span class="line">  VG Name               centos</span><br><span class="line">  PV Size               49.80 GiB / not usable 0   </span><br><span class="line">  Allocatable           yes (but full)</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              12749</span><br><span class="line">  Free PE               0</span><br><span class="line">  Allocated PE          12749</span><br><span class="line">  PV UUID               zEpFmD-49Ak-HC65-ImVg-CRM3-fn8a-JKBKkf</span><br><span class="line">   </span><br><span class="line">[root@localhost yum.repos.d]# lvdisplay </span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/centos/swap</span><br><span class="line">  LV Name                swap</span><br><span class="line">  VG Name                centos</span><br><span class="line">  LV UUID                ovFFYu-dcSI-NsiQ-Q3Zm-jeNy-x1b0-DkNPKV</span><br><span class="line">  LV Write Access        read/write</span><br><span class="line">  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800</span><br><span class="line">  LV Status              available</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">open                 2</span></span><br><span class="line">  LV Size                2.00 GiB</span><br><span class="line">  Current LE             512</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently set to     8192</span><br><span class="line">  Block device           253:1</span><br><span class="line">   </span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/centos/root</span><br><span class="line">  LV Name                root</span><br><span class="line">  VG Name                centos</span><br><span class="line">  LV UUID                Daf9f0-zw3e-bgm8-wtiW-D1oR-QEq3-bOOxBd</span><br><span class="line">  LV Write Access        read/write</span><br><span class="line">  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800</span><br><span class="line">  LV Status              available</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">open                 1</span></span><br><span class="line">  LV Size                47.80 GiB</span><br><span class="line">  Current LE             12237</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently set to     8192</span><br><span class="line">  Block device           253:0</span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">pvremove /dev/sdb1</span><br><span class="line"></span><br><span class="line">parted -l</span><br><span class="line">[root@localhost ~]# parted /dev/sdb</span><br><span class="line">GNU Parted 3.1</span><br><span class="line">Using /dev/sdb</span><br><span class="line">Welcome to GNU Parted! Type &#x27;help&#x27; to view a list of commands.  </span><br><span class="line">(parted) p                                                            </span><br><span class="line">Model: VMware Virtual disk (scsi)</span><br><span class="line">Disk /dev/sdb: 4398GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: msdos</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start   End     Size    Type     File system  Flags</span><br><span class="line"> 2      1048kB  1049kB  512B    primary</span><br><span class="line"> 1      1049kB  2199GB  2199GB  primary               lvm</span><br><span class="line"></span><br><span class="line">(parted) l                                                                </span><br><span class="line">  align-check TYPE N                        check partition N for TYPE(min|opt) alignment</span><br><span class="line">  help [COMMAND]                           print general help, or help on COMMAND</span><br><span class="line">  mklabel,mktable LABEL-TYPE               create a new disklabel (partition table)</span><br><span class="line">  mkpart PART-TYPE [FS-TYPE] START END     make a partition</span><br><span class="line">  name NUMBER NAME                         name partition NUMBER as NAME</span><br><span class="line">  print [devices|free|list,all|NUMBER]     display the partition table, available devices, free space, all found partitions, or a particular partition</span><br><span class="line">  quit                                     exit program</span><br><span class="line">  rescue START END                         rescue a lost partition near START and END</span><br><span class="line">  </span><br><span class="line">  resizepart NUMBER END                    resize partition NUMBER</span><br><span class="line">  rm NUMBER                                delete partition NUMBER</span><br><span class="line">  select DEVICE                            choose the device to edit</span><br><span class="line">  disk_set FLAG STATE                      change the FLAG on selected device</span><br><span class="line">  disk_toggle [FLAG]                       toggle the state of FLAG on selected device</span><br><span class="line">  set NUMBER FLAG STATE                    change the FLAG on partition NUMBER</span><br><span class="line">  toggle [NUMBER [FLAG]]                   toggle the state of FLAG on partition NUMBER</span><br><span class="line">  unit UNIT                                set the default unit to UNIT</span><br><span class="line">  version                                  display the version number and copyright information of GNU Parted</span><br><span class="line">(parted) rm 1                                                             </span><br><span class="line">(parted) rm 2 </span><br><span class="line">(parted) p                                                                </span><br><span class="line">Model: VMware Virtual disk (scsi)</span><br><span class="line">Disk /dev/sdb: 4398GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: msdos</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start  End  Size  Type  File system  Flags</span><br><span class="line"></span><br><span class="line">(parted) mklabel gpt                                                      </span><br><span class="line">Warning: The existing disk label on /dev/sdb will be destroyed and all data on this disk will be lost. Do you want to continue?</span><br><span class="line">Yes/No? yes                                                               </span><br><span class="line">(parted) print</span><br><span class="line">Model: VMware Virtual disk (scsi)</span><br><span class="line">Disk /dev/sdb: 4398GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: gpt</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start  End  Size  File system  Name  Flags</span><br><span class="line"></span><br><span class="line">(parted) mkpart                                                           </span><br><span class="line">Partition name?  []? nas                                                  </span><br><span class="line">File system type?  [ext2]? ext4                                           </span><br><span class="line">Start? 1                                                                  </span><br><span class="line">End? 4398GB                                                               </span><br><span class="line">(parted) p                                                                </span><br><span class="line">Model: VMware Virtual disk (scsi)</span><br><span class="line">Disk /dev/sdb: 4398GB</span><br><span class="line">Sector size (logical/physical): 512B/512B</span><br><span class="line">Partition Table: gpt</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start   End     Size    File system  Name  Flags</span><br><span class="line"> 1      1049kB  4398GB  4398GB               nas</span><br><span class="line"></span><br><span class="line">(parted) Q                                                                </span><br><span class="line">Information: You may need to update /etc/fstab.</span><br><span class="line"></span><br><span class="line">[root@localhost ~]# fdisk -l </span><br><span class="line">WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.</span><br><span class="line"></span><br><span class="line">Disk /dev/sdb: 4398.0 GB, 4398046511104 bytes, 8589934592 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk label type: gpt</span><br><span class="line">Disk identifier: 155C3D18-88A3-49C4-B96D-C190527CC96B</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">        Start          End    Size  Type            Name</span></span><br><span class="line"> 1         2048   8589932543      4T  Microsoft basic nas</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[root@localhost ~]# pvcreate /dev/sdb1</span><br><span class="line">  Physical volume &quot;/dev/sdb1&quot; successfully created.</span><br><span class="line">[root@localhost ~]# pvdisplay </span><br><span class="line">  --- Physical volume ---</span><br><span class="line">  PV Name               /dev/sda3</span><br><span class="line">  VG Name               centos</span><br><span class="line">  PV Size               49.80 GiB / not usable 0   </span><br><span class="line">  Allocatable           yes (but full)</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              12749</span><br><span class="line">  Free PE               0</span><br><span class="line">  Allocated PE          12749</span><br><span class="line">  PV UUID               zEpFmD-49Ak-HC65-ImVg-CRM3-fn8a-JKBKkf</span><br><span class="line">   </span><br><span class="line">  &quot;/dev/sdb1&quot; is a new physical volume of &quot;&lt;4.00 TiB&quot;</span><br><span class="line">  --- NEW Physical volume ---</span><br><span class="line">  PV Name               /dev/sdb1</span><br><span class="line">  VG Name               </span><br><span class="line">  PV Size               &lt;4.00 TiB</span><br><span class="line">  Allocatable           NO</span><br><span class="line">  PE Size               0   </span><br><span class="line">  Total PE              0</span><br><span class="line">  Free PE               0</span><br><span class="line">  Allocated PE          0</span><br><span class="line">  PV UUID               NOe7k5-7RYb-OcdQ-33TN-doLP-55OP-8L8fYb</span><br><span class="line">  </span><br><span class="line">[root@localhost ~]# vgcreate nas /dev/sdb1</span><br><span class="line">  Volume group &quot;nas&quot; successfully created</span><br><span class="line">[root@localhost ~]# vgdisplay </span><br><span class="line">  --- Volume group ---</span><br><span class="line">  VG Name               centos</span><br><span class="line">  System ID             </span><br><span class="line">  Format                lvm2</span><br><span class="line">  Metadata Areas        1</span><br><span class="line">  Metadata Sequence No  3</span><br><span class="line">  VG Access             read/write</span><br><span class="line">  VG Status             resizable</span><br><span class="line">  MAX LV                0</span><br><span class="line">  Cur LV                2</span><br><span class="line">  Open LV               2</span><br><span class="line">  Max PV                0</span><br><span class="line">  Cur PV                1</span><br><span class="line">  Act PV                1</span><br><span class="line">  VG Size               49.80 GiB</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              12749</span><br><span class="line">  Alloc PE / Size       12749 / 49.80 GiB</span><br><span class="line">  Free  PE / Size       0 / 0   </span><br><span class="line">  VG UUID               qXf2pO-Yl2T-1a7y-xpEn-x0qQ-4FtQ-TLfLfb</span><br><span class="line">   </span><br><span class="line">  --- Volume group ---</span><br><span class="line">  VG Name               nas</span><br><span class="line">  System ID             </span><br><span class="line">  Format                lvm2</span><br><span class="line">  Metadata Areas        1</span><br><span class="line">  Metadata Sequence No  1</span><br><span class="line">  VG Access             read/write</span><br><span class="line">  VG Status             resizable</span><br><span class="line">  MAX LV                0</span><br><span class="line">  Cur LV                0</span><br><span class="line">  Open LV               0</span><br><span class="line">  Max PV                0</span><br><span class="line">  Cur PV                1</span><br><span class="line">  Act PV                1</span><br><span class="line">  VG Size               &lt;4.00 TiB</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              1048575</span><br><span class="line">  Alloc PE / Size       0 / 0   </span><br><span class="line">  Free  PE / Size       1048575 / &lt;4.00 TiB</span><br><span class="line">  VG UUID               5JaCkI-wdD5-q72b-lQmK-YGZY-7jc0-SrbepB</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[root@localhost ~]# lvcreate -l +100%FREE -n acnas nas</span><br><span class="line">  Logical volume &quot;acnas&quot; created.</span><br><span class="line">[root@localhost ~]# lvdisplay </span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/centos/swap</span><br><span class="line">  LV Name                swap</span><br><span class="line">  VG Name                centos</span><br><span class="line">  LV UUID                ovFFYu-dcSI-NsiQ-Q3Zm-jeNy-x1b0-DkNPKV</span><br><span class="line">  LV Write Access        read/write</span><br><span class="line">  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800</span><br><span class="line">  LV Status              available</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">open                 2</span></span><br><span class="line">  LV Size                2.00 GiB</span><br><span class="line">  Current LE             512</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently set to     8192</span><br><span class="line">  Block device           253:1</span><br><span class="line">   </span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/centos/root</span><br><span class="line">  LV Name                root</span><br><span class="line">  VG Name                centos</span><br><span class="line">  LV UUID                Daf9f0-zw3e-bgm8-wtiW-D1oR-QEq3-bOOxBd</span><br><span class="line">  LV Write Access        read/write</span><br><span class="line">  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800</span><br><span class="line">  LV Status              available</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">open                 1</span></span><br><span class="line">  LV Size                47.80 GiB</span><br><span class="line">  Current LE             12237</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently set to     8192</span><br><span class="line">  Block device           253:0</span><br><span class="line">   </span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/nas/acnas</span><br><span class="line">  LV Name                acnas</span><br><span class="line">  VG Name                nas</span><br><span class="line">  LV UUID                Poccg5-4Tzf-jccc-Bgwx-4e4U-1lYQ-5gw9nf</span><br><span class="line">  LV Write Access        read/write</span><br><span class="line">  LV Creation host, time nas168, 2022-08-13 15:42:27 +0800</span><br><span class="line">  LV Status              available</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">open                 0</span></span><br><span class="line">  LV Size                &lt;4.00 TiB</span><br><span class="line">  Current LE             1048575</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently set to     8192</span><br><span class="line">  Block device           253:2</span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">[root@localhost ~]# mkfs.xfs /dev/nas/acnas </span><br><span class="line">meta-data=/dev/nas/acnas         isize=512    agcount=4, agsize=268435200 blks</span><br><span class="line">         =                       sectsz=512   attr=2, projid32bit=1</span><br><span class="line">         =                       crc=1        finobt=0, sparse=0</span><br><span class="line">data     =                       bsize=4096   blocks=1073740800, imaxpct=5</span><br><span class="line">         =                       sunit=0      swidth=0 blks</span><br><span class="line">naming   =version 2              bsize=4096   ascii-ci=0 ftype=1</span><br><span class="line">log      =internal log           bsize=4096   blocks=521728, version=2</span><br><span class="line">         =                       sectsz=512   sunit=0 blks, lazy-count=1</span><br><span class="line">realtime =none                   extsz=4096   blocks=0, rtextents=0</span><br></pre></td></tr></table></figure>
-<h3 id="部署NFS"><a href="#部署NFS" class="headerlink" title="部署NFS"></a>部署NFS</h3><h4 id="1、创建目录和安装-nfs"><a href="#1、创建目录和安装-nfs" class="headerlink" title="1、创建目录和安装 nfs"></a>1、创建目录和安装 nfs</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# mkdir /data</span><br><span class="line">[root@localhost ~]# mount /dev/nas/acnas /data</span><br><span class="line">[root@localhost ~]# df -lh</span><br><span class="line">Filesystem               Size  Used Avail Use% Mounted on</span><br><span class="line">devtmpfs                 3.9G     0  3.9G   0% /dev</span><br><span class="line">tmpfs                    3.9G     0  3.9G   0% /dev/shm</span><br><span class="line">tmpfs                    3.9G  8.9M  3.9G   1% /run</span><br><span class="line">tmpfs                    3.9G     0  3.9G   0% /sys/fs/cgroup</span><br><span class="line">/dev/mapper/centos-root   48G  2.1G   46G   5% /</span><br><span class="line">/dev/sda2                197M  159M   39M  81% /boot</span><br><span class="line">tmpfs                    783M     0  783M   0% /run/user/0</span><br><span class="line">/dev/mapper/nas-acnas    4.0T   33M  4.0T   1% /data</span><br><span class="line"></span><br><span class="line">vim /etc/exports</span><br><span class="line">/data/nas 192.168.0.0/16(rw,root_squash,all_squash,sync,anonuid=1000,anongid=1000)</span><br><span class="line">sudo exportfs -r</span><br><span class="line">export fs -av</span><br><span class="line">export -av</span><br><span class="line">exportfs -av</span><br></pre></td></tr></table></figure>
-<h4 id="2、查看可用状态"><a href="#2、查看可用状态" class="headerlink" title="2、查看可用状态"></a>2、查看可用状态</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@nas168 ~]# showmount -e</span><br><span class="line">Export list for nas168:</span><br><span class="line">/data/nas 192.168.0.0/16</span><br></pre></td></tr></table></figure>
-  </article>
-  <!-- tag -->
-  <div class="mt-12 pt-6 border-t border-gray-200">
-    
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/">部署安装</a>
         </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/nfs/">nfs</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/nas-nfs/">nas-nfs</a>
-        </span>
-      
-    
-  </div>
-  <!-- prev and next -->
-  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
-    <div>
-      
-        <a href="/2022/09/22/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          项目上线工作流程梳理
-        </a>
-      
+        
+        
     </div>
-    <div>
-      
-        <a href="/2022/09/04/elasticsearch7-16%E9%83%A8%E7%BD%B2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          Elasticsearch7.16.1和kibana集群部署
-          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
-        </a>
-      
-    </div>
-  </div>
-  <!-- comment -->
-  <div class="article-comments mt-12">
     
-
-  </div>
-</section>
-<!-- js inspect -->
-
-<script src="/lib/clipboard.min.js"></script>
-
-
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-  });
-</script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-  });
-</script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  $(document).ready(() => {
-    const maraidConfig = {
-      theme: "default",
-      logLevel: 3,
-      flowchart: { curve: "linear" },
-      gantt: { axisFormat: "%m/%d/%Y" },
-      sequence: { actorMargin: 50 },
-    };
-    mermaid.initialize(maraidConfig);
-  });
-</script>
-
-
-
-<script src="/lib/fancybox/fancybox.umd.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-    $('.post-content').each(function(i){
-      $(this).find('img').each(function(){
-        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
-        var alt = this.alt;
-        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
-        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
-      });
-      $(this).find('.fancybox').each(function(){
-        $(this).attr('rel', 'article' + i);
-      });
-    });
-
-    Fancybox.bind('[data-fancybox="gallery"]', {
-        // options
-    })
-  })
-</script>
-
-<!-- tocbot begin -->
-
-<script src="/lib/tocbot/tocbot.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-      tocbot.init({
-        // Where to render the table of contents.
-        tocSelector: '.post-toc',
-        // Where to grab the headings to build the table of contents.
-        contentSelector: '.post-content',
-        // Which headings to grab inside of the contentSelector element.
-        headingSelector: 'h1, h2, h3',
-        // For headings inside relative or absolute positioned containers within content.
-        hasInnerContainers: true,
-    });
-  })
-</script>
-<!-- tocbot end -->
-
-
-  </main>
-  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
-  <!-- busuanzi -->
-  
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<!-- Busuanzi Analytics -->
-<div class="flex items-center gap-2">
-  <span>Visitors</span>
-  <span id="busuanzi_value_site_uv"></span>
-  <span>Page Views</span>
-  <span id="busuanzi_value_site_pv"></span>
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-text">环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81%E5%9F%BA%E7%A1%80%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85"><span class="toc-text">1、基础组件安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81lvm%E5%8A%A8%E6%80%81%E5%8F%AF%E6%89%A9%E5%B1%95%E7%A3%81%E7%9B%98%E5%AE%89%E8%A3%85"><span class="toc-text">2、lvm动态可扩展磁盘安装</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2NFS"><span class="toc-text">部署NFS</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E7%9B%AE%E5%BD%95%E5%92%8C%E5%AE%89%E8%A3%85-nfs"><span class="toc-text">1、创建目录和安装 nfs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81%E6%9F%A5%E7%9C%8B%E5%8F%AF%E7%94%A8%E7%8A%B6%E6%80%81"><span class="toc-text">2、查看可用状态</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
 </div>
-<!-- End Busuanzi Analytics -->
-
-
-  <!-- copyright -->
-  <div class="flex items-center gap-2">
-    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
-    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
-    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
-  </div>
-  <!-- powered by -->
-  <div class="flex items-center gap-2">
-    <span>Powered by</span>
-    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
-    <span>&</span>
-    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
-  </div>
-
-</footer>
-
-  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
-    <span class="flex justify-center items-center text-sm">
-      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
-      <span id="scrollpercent"><span>0</span> %</span>
-    </span>
-  </div>
-  
-<script src="/js/main.js"></script>
-
-
-  <script>
-    $(document).ready(function () {
-      const mapleCount = "10";
-      const speed = "0.5";
-      const mapleEl = document.getElementById("maple");
-      const maples = Array.from({ length: mapleCount }).map(() => {
-        const maple = document.createElement("div");
-        const scale = Math.random() * 0.5 + 0.5;
-        const offset = Math.random() * 2 - 1;
-        const x = Math.random() * mapleEl.clientWidth;
-        const y = -Math.random() * mapleEl.clientHeight;
-        const duration = 10 / speed;
-        const delay = -duration;
-        maple.className = "maple";
-        maple.style.width = `${24 * scale}px`;
-        maple.style.height = `${24 * scale}px`;
-        maple.style.left = `${x}px`;
-        maple.style.top = `${y}px`;
-        maple.style.setProperty("--maple-fall-offset", offset);
-        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
-        maple.style.animation = `fall ${duration}s linear infinite`;
-        maple.style.animationDelay = `${delay}s`;
-        mapleEl.appendChild(maple)
-        return maple
-      })
-    });
-  </script>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><h4 id="1、基础组件安装"><a href="#1、基础组件安装" class="headerlink" title="1、基础组件安装"></a>1、基础组件安装</h4><pre><code class="shell">yum install gcc make autoconf vim sysstat net-tools iostat iftop iotp wget lrzsz lsof unzip openssh-clients net-tool vim ntpdate -y
+yum install epel-release
+yum groupinstall &quot;Development Tools&quot;
+fdisk -l
+</code></pre>
+<h4 id="2、lvm动态可扩展磁盘安装"><a href="#2、lvm动态可扩展磁盘安装" class="headerlink" title="2、lvm动态可扩展磁盘安装"></a>2、lvm动态可扩展磁盘安装</h4><pre><code class="shell">[root@localhost yum.repos.d]# pvdisplay 
+  --- Physical volume ---
+  PV Name               /dev/sda3
+  VG Name               centos
+  PV Size               49.80 GiB / not usable 0   
+  Allocatable           yes (but full)
+  PE Size               4.00 MiB
+  Total PE              12749
+  Free PE               0
+  Allocated PE          12749
+  PV UUID               zEpFmD-49Ak-HC65-ImVg-CRM3-fn8a-JKBKkf
+   
+[root@localhost yum.repos.d]# lvdisplay 
+  --- Logical volume ---
+  LV Path                /dev/centos/swap
+  LV Name                swap
+  VG Name                centos
+  LV UUID                ovFFYu-dcSI-NsiQ-Q3Zm-jeNy-x1b0-DkNPKV
+  LV Write Access        read/write
+  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800
+  LV Status              available
+  # open                 2
+  LV Size                2.00 GiB
+  Current LE             512
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:1
+   
+  --- Logical volume ---
+  LV Path                /dev/centos/root
+  LV Name                root
+  VG Name                centos
+  LV UUID                Daf9f0-zw3e-bgm8-wtiW-D1oR-QEq3-bOOxBd
+  LV Write Access        read/write
+  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800
+  LV Status              available
+  # open                 1
+  LV Size                47.80 GiB
+  Current LE             12237
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:0
   
 
+pvremove /dev/sdb1
 
-  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+parted -l
+[root@localhost ~]# parted /dev/sdb
+GNU Parted 3.1
+Using /dev/sdb
+Welcome to GNU Parted! Type &#39;help&#39; to view a list of commands.  
+(parted) p                                                            
+Model: VMware Virtual disk (scsi)
+Disk /dev/sdb: 4398GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags: 
+
+Number  Start   End     Size    Type     File system  Flags
+ 2      1048kB  1049kB  512B    primary
+ 1      1049kB  2199GB  2199GB  primary               lvm
+
+(parted) l                                                                
+  align-check TYPE N                        check partition N for TYPE(min|opt) alignment
+  help [COMMAND]                           print general help, or help on COMMAND
+  mklabel,mktable LABEL-TYPE               create a new disklabel (partition table)
+  mkpart PART-TYPE [FS-TYPE] START END     make a partition
+  name NUMBER NAME                         name partition NUMBER as NAME
+  print [devices|free|list,all|NUMBER]     display the partition table, available devices, free space, all found partitions, or a particular partition
+  quit                                     exit program
+  rescue START END                         rescue a lost partition near START and END
+  
+  resizepart NUMBER END                    resize partition NUMBER
+  rm NUMBER                                delete partition NUMBER
+  select DEVICE                            choose the device to edit
+  disk_set FLAG STATE                      change the FLAG on selected device
+  disk_toggle [FLAG]                       toggle the state of FLAG on selected device
+  set NUMBER FLAG STATE                    change the FLAG on partition NUMBER
+  toggle [NUMBER [FLAG]]                   toggle the state of FLAG on partition NUMBER
+  unit UNIT                                set the default unit to UNIT
+  version                                  display the version number and copyright information of GNU Parted
+(parted) rm 1                                                             
+(parted) rm 2 
+(parted) p                                                                
+Model: VMware Virtual disk (scsi)
+Disk /dev/sdb: 4398GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags: 
+
+Number  Start  End  Size  Type  File system  Flags
+
+(parted) mklabel gpt                                                      
+Warning: The existing disk label on /dev/sdb will be destroyed and all data on this disk will be lost. Do you want to continue?
+Yes/No? yes                                                               
+(parted) print
+Model: VMware Virtual disk (scsi)
+Disk /dev/sdb: 4398GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start  End  Size  File system  Name  Flags
+
+(parted) mkpart                                                           
+Partition name?  []? nas                                                  
+File system type?  [ext2]? ext4                                           
+Start? 1                                                                  
+End? 4398GB                                                               
+(parted) p                                                                
+Model: VMware Virtual disk (scsi)
+Disk /dev/sdb: 4398GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system  Name  Flags
+ 1      1049kB  4398GB  4398GB               nas
+
+(parted) Q                                                                
+Information: You may need to update /etc/fstab.
+
+[root@localhost ~]# fdisk -l 
+WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
+
+Disk /dev/sdb: 4398.0 GB, 4398046511104 bytes, 8589934592 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: gpt
+Disk identifier: 155C3D18-88A3-49C4-B96D-C190527CC96B
+
+
+#         Start          End    Size  Type            Name
+ 1         2048   8589932543      4T  Microsoft basic nas
+
+
+[root@localhost ~]# pvcreate /dev/sdb1
+  Physical volume &quot;/dev/sdb1&quot; successfully created.
+[root@localhost ~]# pvdisplay 
+  --- Physical volume ---
+  PV Name               /dev/sda3
+  VG Name               centos
+  PV Size               49.80 GiB / not usable 0   
+  Allocatable           yes (but full)
+  PE Size               4.00 MiB
+  Total PE              12749
+  Free PE               0
+  Allocated PE          12749
+  PV UUID               zEpFmD-49Ak-HC65-ImVg-CRM3-fn8a-JKBKkf
+   
+  &quot;/dev/sdb1&quot; is a new physical volume of &quot;&lt;4.00 TiB&quot;
+  --- NEW Physical volume ---
+  PV Name               /dev/sdb1
+  VG Name               
+  PV Size               &lt;4.00 TiB
+  Allocatable           NO
+  PE Size               0   
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               NOe7k5-7RYb-OcdQ-33TN-doLP-55OP-8L8fYb
+  
+[root@localhost ~]# vgcreate nas /dev/sdb1
+  Volume group &quot;nas&quot; successfully created
+[root@localhost ~]# vgdisplay 
+  --- Volume group ---
+  VG Name               centos
+  System ID             
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               49.80 GiB
+  PE Size               4.00 MiB
+  Total PE              12749
+  Alloc PE / Size       12749 / 49.80 GiB
+  Free  PE / Size       0 / 0   
+  VG UUID               qXf2pO-Yl2T-1a7y-xpEn-x0qQ-4FtQ-TLfLfb
+   
+  --- Volume group ---
+  VG Name               nas
+  System ID             
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  1
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               &lt;4.00 TiB
+  PE Size               4.00 MiB
+  Total PE              1048575
+  Alloc PE / Size       0 / 0   
+  Free  PE / Size       1048575 / &lt;4.00 TiB
+  VG UUID               5JaCkI-wdD5-q72b-lQmK-YGZY-7jc0-SrbepB
+
+
+[root@localhost ~]# lvcreate -l +100%FREE -n acnas nas
+  Logical volume &quot;acnas&quot; created.
+[root@localhost ~]# lvdisplay 
+  --- Logical volume ---
+  LV Path                /dev/centos/swap
+  LV Name                swap
+  VG Name                centos
+  LV UUID                ovFFYu-dcSI-NsiQ-Q3Zm-jeNy-x1b0-DkNPKV
+  LV Write Access        read/write
+  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800
+  LV Status              available
+  # open                 2
+  LV Size                2.00 GiB
+  Current LE             512
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:1
+   
+  --- Logical volume ---
+  LV Path                /dev/centos/root
+  LV Name                root
+  VG Name                centos
+  LV UUID                Daf9f0-zw3e-bgm8-wtiW-D1oR-QEq3-bOOxBd
+  LV Write Access        read/write
+  LV Creation host, time localhost, 2022-08-13 10:23:50 +0800
+  LV Status              available
+  # open                 1
+  LV Size                47.80 GiB
+  Current LE             12237
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:0
+   
+  --- Logical volume ---
+  LV Path                /dev/nas/acnas
+  LV Name                acnas
+  VG Name                nas
+  LV UUID                Poccg5-4Tzf-jccc-Bgwx-4e4U-1lYQ-5gw9nf
+  LV Write Access        read/write
+  LV Creation host, time nas168, 2022-08-13 15:42:27 +0800
+  LV Status              available
+  # open                 0
+  LV Size                &lt;4.00 TiB
+  Current LE             1048575
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:2
+   
+
+[root@localhost ~]# mkfs.xfs /dev/nas/acnas 
+meta-data=/dev/nas/acnas         isize=512    agcount=4, agsize=268435200 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=1073740800, imaxpct=5
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=521728, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+</code></pre>
+<h3 id="部署NFS"><a href="#部署NFS" class="headerlink" title="部署NFS"></a>部署NFS</h3><h4 id="1、创建目录和安装-nfs"><a href="#1、创建目录和安装-nfs" class="headerlink" title="1、创建目录和安装 nfs"></a>1、创建目录和安装 nfs</h4><pre><code class="shell">[root@localhost ~]# mkdir /data
+[root@localhost ~]# mount /dev/nas/acnas /data
+[root@localhost ~]# df -lh
+Filesystem               Size  Used Avail Use% Mounted on
+devtmpfs                 3.9G     0  3.9G   0% /dev
+tmpfs                    3.9G     0  3.9G   0% /dev/shm
+tmpfs                    3.9G  8.9M  3.9G   1% /run
+tmpfs                    3.9G     0  3.9G   0% /sys/fs/cgroup
+/dev/mapper/centos-root   48G  2.1G   46G   5% /
+/dev/sda2                197M  159M   39M  81% /boot
+tmpfs                    783M     0  783M   0% /run/user/0
+/dev/mapper/nas-acnas    4.0T   33M  4.0T   1% /data
+
+vim /etc/exports
+/data/nas 192.168.0.0/16(rw,root_squash,all_squash,sync,anonuid=1000,anongid=1000)
+sudo exportfs -r
+export fs -av
+export -av
+exportfs -av
+</code></pre>
+<h4 id="2、查看可用状态"><a href="#2、查看可用状态" class="headerlink" title="2、查看可用状态"></a>2、查看可用状态</h4><pre><code class="shell">[root@nas168 ~]# showmount -e
+Export list for nas168:
+/data/nas 192.168.0.0/16
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 6430186@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 匹敌
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
 </body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
 
 </html>

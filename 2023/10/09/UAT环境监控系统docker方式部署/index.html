@@ -1,585 +1,1739 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <title>UAT环境监控系统docker方式部署 | 谁与匹敌</title>
+  <meta name="keywords" content=" docker , prometheus , 监控 , 告警 , 部署安装 ">
+  <meta name="description" content="UAT环境监控系统docker方式部署 | 谁与匹敌">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about">
+<meta property="og:url" content="http://blog.pidi.co/about/index.html">
+<meta property="og:site_name" content="谁与匹敌">
+<meta property="og:description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-13T06:14:04.000Z">
+<meta property="article:modified_time" content="2023-12-13T07:26:38.230Z">
+<meta property="article:author" content="匹敌">
+<meta property="article:tag" content="pidi,运维，博客，IT男，匹敌">
+<meta name="twitter:card" content="summary">
 
 
+<link rel="icon" href="/img/avatar.jpg">
 
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
 
-  <meta name="author" content="pidi">
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
 
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
 
-
-  <meta name="description" content="PIDI的个人博客">
-
-
-  <meta name="keywords" content="pidi,运维，博客，IT男，匹敌">
-
-
-<title>UAT环境监控系统docker方式部署 | PiDi</title>
-
-
-
-<link rel="icon" href="/favicon.png">
-
-
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
-
-
-
-<script src="/lib/jquery.min.js"></script>
-
-
-<script src="/lib/iconify-icon.min.js"></script>
-
-
-<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
 <script>
-  tailwind.config = {
-    darkMode: "class",
-  };
+    hljs.initHighlightingOnLoad();
 </script>
 
-
-<script src="/lib/nprogress/nprogress.js"></script>
-
-<script>
-  $(document).ready(() => {
-    NProgress.configure({
-      showSpinner: false,
-    });
-    NProgress.start();
-    $("#nprogress .bar").css({
-      background: "#de7441",
-    });
-    $("#nprogress .peg").css({
-      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
-    });
-    $("#nprogress .spinner-icon").css({
-      "border-top-color": "#de7441",
-      "border-left-color": "#de7441",
-    });
-    setTimeout(function () {
-      NProgress.done();
-      $(".fade").removeClass("out");
-    }, 800);
-  });
-</script>
-
-<script>
-  (function () {
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-    if (setting === "dark" || (prefersDark && setting !== "light"))
-      document.documentElement.classList.toggle("dark", true);
-    let isDark = document.documentElement.classList.contains("dark");
-  })();
-
-  $(document).ready(function () {
-    // init icon
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = document.documentElement.classList.contains("dark");
-    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-
-    function toggleGiscusTheme() {
-      const isDark = document.documentElement.classList.contains("dark");
-      const giscusFrame = document.querySelector("iframe.giscus-frame");
-      if (giscusFrame) {
-        giscusFrame.contentWindow.postMessage(
-          {
-            giscus: {
-              setConfig: {
-                theme: isDark ? "dark" : "light",
-              },
-            },
-          },
-          "https://giscus.app"
-        );
-      }
-    }
-
-
-    // toggle dark mode
-    function toggleDark() {
-      let isDark = document.documentElement.classList.contains("dark");
-      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-      isDark = !isDark;
-      document.documentElement.classList.toggle("dark", isDark);
-      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-      if (prefersDark === isDark) {
-        localStorage.setItem("hexo-color-scheme", "auto");
-      } else {
-        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
-      }
-      toggleGiscusTheme();
-    }
-    $("#toggle-dark").click(toggleDark);
-
-    // listen dark mode change
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", (e) => {
-        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-        if (setting === "auto") {
-          document.documentElement.classList.toggle("dark", e.matches);
-          $("#theme-icon").attr(
-            "icon",
-            e.matches ? "ri:moon-line" : "ri:sun-line"
-          );
-          toggleGiscusTheme();
-        }
-      });
-  });
-</script>
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
 
 
 
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
 
 <meta name="generator" content="Hexo 6.3.0"></head>
-<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
-  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
-  <div class="max-auto">
-    <nav class="flex items-center text-base">
-      <a href="/" class="group">
-        <h2 class="font-medium tracking-tighterp text-l p-2">
-          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
-          PiDi
-        </h2>
-      </a>
-      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        UAT环境监控系统docker方式部署
-      </div>
-      <div class="flex-1"></div>
-      <div class="flex items-center gap-3">
-        
-          <a class="hidden sm:flex" href="/archives">Posts</a>
-        
-          <a class="hidden sm:flex" href="/tags">tags</a>
-        
-          <a class="hidden sm:flex" href="/categories/">categories</a>
-        
-          <a class="hidden sm:flex" href="/archives/">archives</a>
-        
-        
-          
-            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/ablewong">
-              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
-            </a>
-          
-        
-        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
-          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
-        </a>
-        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
-          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
-        </a>
-      </div>
-      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
-        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
-          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
-        </span>
-        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
-          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
-        </span>
-      </div>
-    </nav>
-  </div>
-</header>
-<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
-  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
-    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/tags" class="flex h-12 sm:h-auto items-center">tags</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/categories/" class="flex h-12 sm:h-auto items-center">categories</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives/" class="flex h-12 sm:h-auto items-center">archives</a>
-        </li>
-      
-    </ul>
-  </div>
-  <div class="mask bg-black/20 absolute inset-0"></div>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
 </div>
 
-  <main class="pt-14">
-    <!-- css -->
-
-<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
 
 
-<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>匹敌</span>
+</div>
 
-<!-- toc -->
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/ablewong"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:6430186@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=6430186&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
 
-  <!-- tocbot -->
-<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
 
 
-<section class="px-6 max-w-prose mx-auto md:px-0">
-  <!-- header -->
-  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
-    <div class="pt-4 md:pt-6">
-      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        UAT环境监控系统docker方式部署
-      </h1>
-      <div>
-        <section class="flex items-center gap-3 text-sm">
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2023-12-12</time>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>27 min</span>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>4.9k words</span>
-          </span>
-          
-            <span class="text-gray-400">·</span>
-            <span class="flex items-center gap-1">
-              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
-              <a class="article-category-link" href="/categories/%E7%9B%91%E6%8E%A7/">监控</a>
-            </span>
-          
-        </section>
-      </div>
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(23)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="安全">
+            
+            安全
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="监控">
+            
+            监控
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="日志">
+            
+            日志
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="云平台">
+            
+            云平台
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="中间件">
+            
+            中间件
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CICD">
+            
+            CICD
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
     </div>
-  </header>
-  <!-- content -->
-  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <h2 id="UAT环境监控docker方式部署"><a href="#UAT环境监控docker方式部署" class="headerlink" title="UAT环境监控docker方式部署"></a>UAT环境监控docker方式部署</h2><h4 id="一、安装docker-环境"><a href="#一、安装docker-环境" class="headerlink" title="一、安装docker 环境"></a>一、安装docker 环境</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pass</span><br></pre></td></tr></table></figure>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="23">
 
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
 
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
 
-<h4 id="二、下载prometheus、alertmanager-、pushgateway、dingtalk-webhook-pormetheus等镜像"><a href="#二、下载prometheus、alertmanager-、pushgateway、dingtalk-webhook-pormetheus等镜像" class="headerlink" title="二、下载prometheus、alertmanager 、pushgateway、dingtalk-webhook-pormetheus等镜像"></a>二、下载prometheus、alertmanager 、pushgateway、dingtalk-webhook-pormetheus等镜像</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker pull prom/prometheus</span><br><span class="line">docker pull prom/alertmanager</span><br><span class="line">docker pull prom/pushgateway</span><br><span class="line">docker pull timonwong/prometheus-webhook-dingtalk </span><br></pre></td></tr></table></figure>
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>阿里云</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>安全防护</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>堡垒机</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>报告</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>部署安装</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>钉钉告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>负载</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>高可用</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>故障排查</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>监控</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>流程</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>漏洞</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>木马</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志收集</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>上线规范</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>实时日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>统计</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>文档</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>消息队列</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>域名绑定</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云产品下架</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>制度</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>alertmanager</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>apache</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>blade</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cicd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dingtalk告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>docker</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>elasticsearch;elk;es</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>log.io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>logs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>loki</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>MFA认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock-server</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mq</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql-cli</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql8</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nas-nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nginx</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>oss</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>php</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>prometheus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>promtail</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pushgateway</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rabbitMQ</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS同步自建mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SSL证书</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>waf</a>
+            </li>
+        
+    </div>
 
+</div>
 
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/11/28/loki-%E9%83%A8%E7%BD%B2/"
+           data-tag="日志平台,loki,promtail"
+           data-author="" >
+            <span class="post-title" title="loki_bc部署">loki_bc部署</span>
+            <span class="post-date" title="2023-11-28 20:37:00">2023/11/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2023/10/09/UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9Fdocker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="UAT环境监控系统docker方式部署">UAT环境监控系统docker方式部署</span>
+            <span class="post-date" title="2023-10-09 11:40:00">2023/10/09</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/09/23/log-io%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8/"
+           data-tag="日志,log.io,实时日志"
+           data-author="" >
+            <span class="post-title" title="log.io部署与使用">log.io部署与使用</span>
+            <span class="post-date" title="2023-09-23 19:28:00">2023/09/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2023/09/12/rabbitMQ/"
+           data-tag="部署安装,mq,rabbitMQ,消息队列"
+           data-author="" >
+            <span class="post-title" title="rabbitMQ">rabbitMQ</span>
+            <span class="post-date" title="2023-09-12 15:24:00">2023/09/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/05/06/23-5%E6%9C%88%E4%BB%BD%E4%B8%8B%E6%9E%B6%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%89%E5%85%A8%E4%BA%A7%E5%93%81/"
+           data-tag="云产品下架,waf,nginx"
+           data-author="" >
+            <span class="post-title" title="23-5月份下架阿里云安全产品">23-5月份下架阿里云安全产品</span>
+            <span class="post-date" title="2023-05-06 10:55:00">2023/05/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/02/20/%E7%94%9F%E4%BA%A7RDS%E6%97%B6%E6%97%B6%E5%90%8C%E6%AD%A5%E5%88%B0%E8%87%AA%E5%BB%BAmysql8-0/"
+           data-tag="RDS,mysql8,RDS同步自建mysql"
+           data-author="" >
+            <span class="post-title" title="生产RDS时时同步到自建mysql8.0">生产RDS时时同步到自建mysql8.0</span>
+            <span class="post-date" title="2023-02-20 20:07:00">2023/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/01/30/oss%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A%E5%8F%8A%E8%AF%81%E4%B9%A6%E6%9B%B4%E6%96%B0/"
+           data-tag="oss,域名绑定"
+           data-author="" >
+            <span class="post-title" title="oss域名绑定及证书更新">oss域名绑定及证书更新</span>
+            <span class="post-date" title="2023-01-30 10:08:00">2023/01/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/28/%E7%89%88%E6%9C%AC%E4%B8%8A%E7%BA%BF%E6%93%8D%E4%BD%9C%E8%A7%84%E8%8C%83/"
+           data-tag="文档,流程,制度,cicd,上线规范"
+           data-author="" >
+            <span class="post-title" title="版本上线操作规范">版本上线操作规范</span>
+            <span class="post-date" title="2022-09-28 10:34:00">2022/09/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/22/%E9%98%BF%E9%87%8C%E4%BA%91%E5%86%85%E7%BD%91nginx%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="nginx,阿里云,高可用,负载"
+           data-author="" >
+            <span class="post-title" title="阿里云内网nginx高可用方法">阿里云内网nginx高可用方法</span>
+            <span class="post-date" title="2022-09-22 15:49:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/22/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/"
+           data-tag="文档,流程,cicd"
+           data-author="" >
+            <span class="post-title" title="项目上线工作流程梳理">项目上线工作流程梳理</span>
+            <span class="post-date" title="2022-09-22 12:32:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/07/nas-nfs%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,nfs,nas-nfs"
+           data-author="" >
+            <span class="post-title" title="nas-nfs部署">nas-nfs部署</span>
+            <span class="post-date" title="2022-09-07 14:10:00">2022/09/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-16%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.16.1和kibana集群部署">Elasticsearch7.16.1和kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.8.1 和 kibana集群部署">Elasticsearch7.8.1 和 kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/"
+           data-tag="jenkins,jenkins插件"
+           data-author="" >
+            <span class="post-title" title="jenkins部署及插件安装">jenkins部署及插件安装</span>
+            <span class="post-date" title="2022-08-20 11:40:00">2022/08/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/07/11/%E5%85%AC%E5%8F%B8%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2/"
+           data-tag="prometheus,告警,alertmanager,dingtalk告警,钉钉告警,pushgateway"
+           data-author="" >
+            <span class="post-title" title="公司监控部署">公司监控部署</span>
+            <span class="post-date" title="2022-07-11 15:33:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/11/%E5%A0%A1%E5%9E%92%E6%9C%BAssh%E8%AE%A4%E8%AF%81%E4%B8%8D%E8%83%BD%E5%BC%80%E5%90%AFMFA/"
+           data-tag="堡垒机,云平台,MFA认证"
+           data-author="" >
+            <span class="post-title" title="堡垒机ssh认证不能开启MFA">堡垒机ssh认证不能开启MFA</span>
+            <span class="post-date" title="2022-07-11 15:19:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/07/%E5%AE%98%E7%BD%91%E6%8D%A2%E8%AF%81%E4%B9%A6/"
+           data-tag="docker,SSL证书,php,apache"
+           data-author="" >
+            <span class="post-title" title="官网换证书">官网换证书</span>
+            <span class="post-date" title="2022-07-07 17:55:00">2022/07/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/06/30/blade-user%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1/"
+           data-tag="blade,mock-server,mock认证"
+           data-author="" >
+            <span class="post-title" title="blade-user需要认证服务">blade-user需要认证服务</span>
+            <span class="post-date" title="2022-06-30 15:16:00">2022/06/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/06/10/promethues/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="promethues">promethues</span>
+            <span class="post-date" title="2022-06-10 19:07:00">2022/06/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/05/23/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/"
+           data-tag="部署安装,mysql,mysql-cli"
+           data-author="" >
+            <span class="post-title" title="AlibabaCloud安装mysql8客户端命令">AlibabaCloud安装mysql8客户端命令</span>
+            <span class="post-date" title="2022-05-23 16:40:00">2022/05/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/05/10/Spring-boot-gateway%E6%BC%8F%E6%B4%9E/"
+           data-tag="安全防护,漏洞,木马,故障排查"
+           data-author="" >
+            <span class="post-title" title="Spring_boot_gateway漏洞">Spring_boot_gateway漏洞</span>
+            <span class="post-date" title="2022-05-10 17:23:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/05/10/nginx%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/"
+           data-tag="nginx,logs,日志收集"
+           data-author="" >
+            <span class="post-title" title="nginx日志分析">nginx日志分析</span>
+            <span class="post-date" title="2022-05-10 09:19:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2022/04/21/%E8%BF%90%E7%BB%B42022%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
+           data-tag="云平台,报告,统计"
+           data-author="" >
+            <span class="post-title" title="运维2022年年度总结报告">运维2022年年度总结报告</span>
+            <span class="post-date" title="2022-04-21 11:46:00">2022/04/21</span>
+        </a>
+        
+        <div id="no-item-tips">
 
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-UAT环境监控系统docker方式部署" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">UAT环境监控系统docker方式部署</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="监控">监控</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color2">docker</a>
+            
+            <a class="color1">prometheus</a>
+            
+            <a class="color3">监控</a>
+            
+            <a class="color3">告警</a>
+            
+            <a class="color5">部署安装</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2023-12-12 11:02:18'>2023-10-09 11:40</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7docker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2"><span class="toc-text">UAT环境监控docker方式部署</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85docker-%E7%8E%AF%E5%A2%83"><span class="toc-text">一、安装docker 环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8B%E8%BD%BDprometheus%E3%80%81alertmanager-%E3%80%81pushgateway%E3%80%81dingtalk-webhook-pormetheus%E7%AD%89%E9%95%9C%E5%83%8F"><span class="toc-text">二、下载prometheus、alertmanager 、pushgateway、dingtalk-webhook-pormetheus等镜像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%90%AF%E5%8A%A8docker"><span class="toc-text">三、添加配置文件启动docker</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81prometheus"><span class="toc-text">1、prometheus</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81dingtalk-webhook-prometheus"><span class="toc-text">2、dingtalk-webhook-prometheus</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E3%80%81alertmanger"><span class="toc-text">3、alertmanger</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4%E3%80%81pushgateway"><span class="toc-text">4、pushgateway</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="UAT环境监控docker方式部署"><a href="#UAT环境监控docker方式部署" class="headerlink" title="UAT环境监控docker方式部署"></a>UAT环境监控docker方式部署</h2><h4 id="一、安装docker-环境"><a href="#一、安装docker-环境" class="headerlink" title="一、安装docker 环境"></a>一、安装docker 环境</h4><pre><code class="shell">pass
+</code></pre>
+<h4 id="二、下载prometheus、alertmanager-、pushgateway、dingtalk-webhook-pormetheus等镜像"><a href="#二、下载prometheus、alertmanager-、pushgateway、dingtalk-webhook-pormetheus等镜像" class="headerlink" title="二、下载prometheus、alertmanager 、pushgateway、dingtalk-webhook-pormetheus等镜像"></a>二、下载prometheus、alertmanager 、pushgateway、dingtalk-webhook-pormetheus等镜像</h4><pre><code class="shell">docker pull prom/prometheus
+docker pull prom/alertmanager
+docker pull prom/pushgateway
+docker pull timonwong/prometheus-webhook-dingtalk 
+</code></pre>
 <h4 id="三、添加配置文件启动docker"><a href="#三、添加配置文件启动docker" class="headerlink" title="三、添加配置文件启动docker"></a>三、添加配置文件启动docker</h4><h5 id="1、prometheus"><a href="#1、prometheus" class="headerlink" title="1、prometheus"></a>1、prometheus</h5><p>配置文件：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 script]# vim /opt/monitor/prometheus/prometheus.yml</span><br><span class="line">global:</span><br><span class="line">  scrape_interval:     15s</span><br><span class="line">  evaluation_interval: 15s </span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets:</span><br><span class="line">      - 172.16.0.88:9093</span><br><span class="line"></span><br><span class="line">rule_files:</span><br><span class="line">   - &quot;/data/alertrule/*.yaml&quot;</span><br><span class="line">scrape_configs:</span><br><span class="line">  - job_name: &#x27;prometheus&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;172.16.0.88:9090&#x27;]</span><br><span class="line"></span><br><span class="line">  - job_name: &#x27;Alertmanager&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;172.16.0.88:9093&#x27;]</span><br><span class="line"></span><br><span class="line">  - job_name: &quot;node_exporter&quot;</span><br><span class="line">    file_sd_configs:</span><br><span class="line">      - files: [&#x27;/data/alertrule/nodegroup/node.json&#x27;]</span><br><span class="line"></span><br><span class="line">  - job_name: &#x27;pushgateway&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">      - targets: [&#x27;172.16.0.88:9091&#x27;]</span><br><span class="line">        labels:</span><br><span class="line">          instance: 172.16.0.88</span><br><span class="line">          hostvm: pushgateway_249</span><br><span class="line"></span><br><span class="line">  - job_name: &quot;NacosUAT&quot;</span><br><span class="line">    metrics_path: /nacos/actuator/prometheus</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets:</span><br><span class="line">      - 172.16.0.94:8848</span><br><span class="line">      labels:</span><br><span class="line">        instance: 172.16.0.94</span><br><span class="line">        nacosnode: uatnacos_49</span><br><span class="line"></span><br><span class="line">  - job_name: &#x27;bladeX-UAT&#x27;</span><br><span class="line">    metrics_path: /actuator/prometheus</span><br><span class="line">    scrape_interval: 5s</span><br><span class="line">    consul_sd_configs:</span><br><span class="line">      #必须保证prometheus能调用否则不会显示</span><br><span class="line">      #若是docker部署必须保证网络与各服务调通</span><br><span class="line">      - server: &#x27;172.16.0.92:7002&#x27; #填写实现consul-api的blade-admin服务ip:端口</span><br><span class="line">        #匹配所有service</span><br><span class="line">        services: []</span><br><span class="line">    relabel_configs:</span><br><span class="line">      #service 源标签</span><br><span class="line">      - source_labels: [__meta_consul_service]</span><br><span class="line">        #匹配 &quot;blade&quot; 开头的service</span><br><span class="line">        regex: &quot;blade*&quot;</span><br><span class="line">        #执行的动作</span><br><span class="line">        action: drop</span><br><span class="line">        #将service的label重写为application</span><br><span class="line">      - source_labels: [__meta_consul_service]</span><br><span class="line">        target_label: application</span><br><span class="line">      - source_labels: [__meta_consul_service_address]</span><br><span class="line">        target_label: instance</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@wrp-uat-249 script]# vim /opt/monitor/prometheus/prometheus.yml
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s 
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - 172.16.0.88:9093
 
+rule_files:
+   - &quot;/data/alertrule/*.yaml&quot;
+scrape_configs:
+  - job_name: &#39;prometheus&#39;
+    static_configs:
+    - targets: [&#39;172.16.0.88:9090&#39;]
+
+  - job_name: &#39;Alertmanager&#39;
+    static_configs:
+    - targets: [&#39;172.16.0.88:9093&#39;]
+
+  - job_name: &quot;node_exporter&quot;
+    file_sd_configs:
+      - files: [&#39;/data/alertrule/nodegroup/node.json&#39;]
+
+  - job_name: &#39;pushgateway&#39;
+    static_configs:
+      - targets: [&#39;172.16.0.88:9091&#39;]
+        labels:
+          instance: 172.16.0.88
+          hostvm: pushgateway_249
+
+  - job_name: &quot;NacosUAT&quot;
+    metrics_path: /nacos/actuator/prometheus
+    static_configs:
+    - targets:
+      - 172.16.0.94:8848
+      labels:
+        instance: 172.16.0.94
+        nacosnode: uatnacos_49
+
+  - job_name: &#39;bladeX-UAT&#39;
+    metrics_path: /actuator/prometheus
+    scrape_interval: 5s
+    consul_sd_configs:
+      #必须保证prometheus能调用否则不会显示
+      #若是docker部署必须保证网络与各服务调通
+      - server: &#39;172.16.0.92:7002&#39; #填写实现consul-api的blade-admin服务ip:端口
+        #匹配所有service
+        services: []
+    relabel_configs:
+      #service 源标签
+      - source_labels: [__meta_consul_service]
+        #匹配 &quot;blade&quot; 开头的service
+        regex: &quot;blade*&quot;
+        #执行的动作
+        action: drop
+        #将service的label重写为application
+      - source_labels: [__meta_consul_service]
+        target_label: application
+      - source_labels: [__meta_consul_service_address]
+        target_label: instance
+</code></pre>
 <p>启动prometheus容器</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=prometheus \</span><br><span class="line">        -p 9090:9090 \</span><br><span class="line">        -v /opt/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">        -v /opt/monitor/alertrule:/data/alertrule \</span><br><span class="line">        prom/prometheus \</span><br><span class="line">        --web.enable-lifecycle \</span><br><span class="line">       --config.file=/etc/prometheus/prometheus.yml   \</span><br><span class="line">       --storage.tsdb.path=/prometheus \</span><br><span class="line">       --web.console.libraries=/usr/share/prometheus/console_libraries \</span><br><span class="line">       --web.console.templates=/usr/share/prometheus/consoles </span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">docker run -d --name=prometheus \
+        -p 9090:9090 \
+        -v /opt/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+        -v /opt/monitor/alertrule:/data/alertrule \
+        prom/prometheus \
+        --web.enable-lifecycle \
+       --config.file=/etc/prometheus/prometheus.yml   \
+       --storage.tsdb.path=/prometheus \
+       --web.console.libraries=/usr/share/prometheus/console_libraries \
+       --web.console.templates=/usr/share/prometheus/consoles 
+</code></pre>
 <p>node.json 这是把UAT环境所有服务器节点的添加到监控</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.94:9100&quot;</span><br><span class="line">    ],  </span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.94&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;120.24.204.49&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;uat-49_nginx&quot;</span><br><span class="line">    &#125;   </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.102:9100&quot;</span><br><span class="line">    ],  </span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.103&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;120.77.64.117&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;uat-117_cangdan&quot;</span><br><span class="line">    &#125;   </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.103:9100&quot;</span><br><span class="line">    ],  </span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.103&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;120.77.28.110&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;uat-110_cangdan&quot;</span><br><span class="line">    &#125;   </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.88:9100&quot;</span><br><span class="line">    ],  </span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.88&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;120.25.236.249&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;uat-249_nginx&quot;</span><br><span class="line">    &#125;   </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.101:9100&quot;</span><br><span class="line">    ], </span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.101&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;120.77.98.202&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;uat-202_bladex1&quot;</span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.92:9100&quot;</span><br><span class="line">    ], </span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.92&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;119.23.107.229&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;uat-229_bladex2&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.94:9100&quot;
+    ],  
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.94&quot;,
+      &quot;Outside_IP&quot;: &quot;120.24.204.49&quot;,
+      &quot;service&quot;: &quot;uat-49_nginx&quot;
+    &#125;   
+  &#125;,
 
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.102:9100&quot;
+    ],  
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.103&quot;,
+      &quot;Outside_IP&quot;: &quot;120.77.64.117&quot;,
+      &quot;service&quot;: &quot;uat-117_cangdan&quot;
+    &#125;   
+  &#125;,
 
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.103:9100&quot;
+    ],  
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.103&quot;,
+      &quot;Outside_IP&quot;: &quot;120.77.28.110&quot;,
+      &quot;service&quot;: &quot;uat-110_cangdan&quot;
+    &#125;   
+  &#125;,
 
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.88:9100&quot;
+    ],  
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.88&quot;,
+      &quot;Outside_IP&quot;: &quot;120.25.236.249&quot;,
+      &quot;service&quot;: &quot;uat-249_nginx&quot;
+    &#125;   
+  &#125;,
+
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.101:9100&quot;
+    ], 
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.101&quot;,
+      &quot;Outside_IP&quot;: &quot;120.77.98.202&quot;,
+      &quot;service&quot;: &quot;uat-202_bladex1&quot;
+    &#125;  
+  &#125;,
+
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.92:9100&quot;
+    ], 
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.92&quot;,
+      &quot;Outside_IP&quot;: &quot;119.23.107.229&quot;,
+      &quot;service&quot;: &quot;uat-229_bladex2&quot;
+    &#125;
+  &#125;
+
+]
+</code></pre>
 <p>告警规则 </p>
 <p>bladeX-UAT blade服务存活告警</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 script]# vim /opt/monitor/alertrule/bladex_alert.yaml</span><br><span class="line">groups:</span><br><span class="line">  - name: bladerule</span><br><span class="line">    rules:</span><br><span class="line">      - alert: BladeXapplications</span><br><span class="line">        expr: up&#123;job=&quot;bladeX-UAT&quot;&#125; == 0</span><br><span class="line">        for: 2m</span><br><span class="line">        labels:</span><br><span class="line">          level: warning</span><br><span class="line">          env: UAT</span><br><span class="line">        annotations:</span><br><span class="line">          summary: &quot;Host &#123;&#123; $labels.instance &#125;&#125; of &#123;&#123; $labels.application &#125;&#125;: has been down&quot;</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">[root@wrp-uat-249 script]# vim /opt/monitor/alertrule/bladex_alert.yaml
+groups:
+  - name: bladerule
+    rules:
+      - alert: BladeXapplications
+        expr: up&#123;job=&quot;bladeX-UAT&quot;&#125; == 0
+        for: 2m
+        labels:
+          level: warning
+          env: UAT
+        annotations:
+          summary: &quot;Host &#123;&#123; $labels.instance &#125;&#125; of &#123;&#123; $labels.application &#125;&#125;: has been down&quot;
+</code></pre>
 <p>nacos告警 nacos存活告警、nacos配置文件变动、nacos服务注册在线数等</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 script]# vim /opt/monitor/alertrule/nacosalert.yaml</span><br><span class="line">groups:</span><br><span class="line">- name: nacos_monitor</span><br><span class="line">  rules:</span><br><span class="line">  - alert: nacos_alive</span><br><span class="line">    expr: up&#123;job=&quot;NaocsUAT&quot;&#125; == 0</span><br><span class="line">    for: 3m</span><br><span class="line">    labels:</span><br><span class="line">      severity: crirical</span><br><span class="line">    annotations:</span><br><span class="line">      description: &quot; &#123;&#123; $labels.instance &#125;&#125; of job of &#123;&#123; $labels.job &#125;&#125; has been down for more than 5 minutes.&quot;</span><br><span class="line">      summary: &quot;&#123;&#123; $labels.instance &#125;&#125; down,up==&#123;&#123; $value &#125;&#125; // up=0表示监控已断开连接或监控点已下线，naocs已断开连接&quot;</span><br><span class="line"></span><br><span class="line">  - alert: nacos_configcount</span><br><span class="line">    expr: nacos_monitor&#123;job=&quot;NacosUAT&quot;,name=&quot;configCount&quot;&#125; &lt; 12</span><br><span class="line">    for: 5m</span><br><span class="line">    labels:</span><br><span class="line">      name: configCount</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; nacos配置文件有变动&quot;</span><br><span class="line">      description: &quot; nacos [&#123;&#123; $labels.job &#125;&#125;] configCount=&#123;&#123; $value &#125;&#125;,配置文件有新增或减少&quot;</span><br><span class="line"></span><br><span class="line">  - alert: nacos_servicecount</span><br><span class="line">    expr: nacos_monitor&#123;job=&quot;NacosUAT&quot;,name=&quot;serviceCount&quot;&#125; &lt; 17</span><br><span class="line">    for: 2m</span><br><span class="line">    labels:</span><br><span class="line">      name: serviceCount</span><br><span class="line">      severity: crirical</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.job &#125;&#125; naocs 注册服务状态异常&quot;</span><br><span class="line">      description: &quot; nacos [&#123;&#123; $labels.name &#125;&#125;]  注册服务原本为17个。现有异常,目前在线服务数量 &#123;&#123; $value &#125;&#125;&quot;</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@wrp-uat-249 script]# vim /opt/monitor/alertrule/nacosalert.yaml
+groups:
+- name: nacos_monitor
+  rules:
+  - alert: nacos_alive
+    expr: up&#123;job=&quot;NaocsUAT&quot;&#125; == 0
+    for: 3m
+    labels:
+      severity: crirical
+    annotations:
+      description: &quot; &#123;&#123; $labels.instance &#125;&#125; of job of &#123;&#123; $labels.job &#125;&#125; has been down for more than 5 minutes.&quot;
+      summary: &quot;&#123;&#123; $labels.instance &#125;&#125; down,up==&#123;&#123; $value &#125;&#125; // up=0表示监控已断开连接或监控点已下线，naocs已断开连接&quot;
 
+  - alert: nacos_configcount
+    expr: nacos_monitor&#123;job=&quot;NacosUAT&quot;,name=&quot;configCount&quot;&#125; &lt; 12
+    for: 5m
+    labels:
+      name: configCount
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; nacos配置文件有变动&quot;
+      description: &quot; nacos [&#123;&#123; $labels.job &#125;&#125;] configCount=&#123;&#123; $value &#125;&#125;,配置文件有新增或减少&quot;
+
+  - alert: nacos_servicecount
+    expr: nacos_monitor&#123;job=&quot;NacosUAT&quot;,name=&quot;serviceCount&quot;&#125; &lt; 17
+    for: 2m
+    labels:
+      name: serviceCount
+      severity: crirical
+    annotations:
+      summary: &quot; &#123;&#123; $labels.job &#125;&#125; naocs 注册服务状态异常&quot;
+      description: &quot; nacos [&#123;&#123; $labels.name &#125;&#125;]  注册服务原本为17个。现有异常,目前在线服务数量 &#123;&#123; $value &#125;&#125;&quot;
+</code></pre>
 <p>node_exproter告警 cpu memory disk node节点存活等告警</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 script]# vim /opt/monitor/alertrule/node_alert.yaml</span><br><span class="line">groups:</span><br><span class="line">- name: UP</span><br><span class="line">  rules:</span><br><span class="line">  - alert: node</span><br><span class="line">    expr: up&#123;job=&quot;node_exporter&quot;&#125; == 0</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      severity: crirical</span><br><span class="line">    annotations:</span><br><span class="line">      description: &quot; &#123;&#123; $labels.instance &#125;&#125; of job of &#123;&#123; $labels.job &#125;&#125; has been down for more than 5 minutes.&quot;</span><br><span class="line">      summary: &quot;&#123;&#123; $labels.instance &#125;&#125; down,up==&#123;&#123; $value &#125;&#125; // up=0表示监控已断开连接，机器已断开连接&quot;</span><br><span class="line">  - alert: HostMemory Usage</span><br><span class="line">    expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 &gt;  85</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Memory</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service&#125;&#125; 内存飙升 &quot;</span><br><span class="line">      description: &quot;主机内存使用率超过80%.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;&quot;</span><br><span class="line">  - alert: HostCPU Usage</span><br><span class="line">    expr: sum(avg without (cpu)(irate(node_cpu_seconds_total&#123;mode!=&#x27;idle&#x27;&#125;[5m]))) by (instance,service) &gt; 0.80</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: CPU</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; CPU飙升&quot;</span><br><span class="line">      description: &quot;主机CPU使用率超过80%.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;&quot;</span><br><span class="line">  - alert: HostLoad </span><br><span class="line">    expr: node_load5 &gt; 4</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Load</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot;&#123;&#123; $labels.service &#125;&#125; 负荷飙升&quot;</span><br><span class="line">      description: &quot; 主机负载5分钟超过4.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;&quot;</span><br><span class="line">  - alert: HostFilesystem Usage</span><br><span class="line">    expr: 1-(node_filesystem_free_bytes / node_filesystem_size_bytes) &gt;  0.8</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Disk</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 分区快满了&quot;</span><br><span class="line">      description: &quot; 主机 [ &#123;&#123; $labels.mountpoint &#125;&#125; ]分区使用超过80%.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;%&quot;</span><br><span class="line">  - alert: HostDiskio</span><br><span class="line">    expr: irate(node_disk_writes_completed_total&#123;job=~&quot;Host&quot;&#125;[1m]) &gt; 10</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Diskio</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; IO读写过大&quot;</span><br><span class="line">      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;]磁盘1分钟平均写入IO负载较高.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;iops&quot;</span><br><span class="line">  - alert: Network_receive</span><br><span class="line">    expr: irate(node_network_receive_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3 </span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Network_receive</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络进来流量飙升&quot;</span><br><span class="line">      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟平均接收流量超过3Mbps.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;</span><br><span class="line">  - alert: Network_transmit</span><br><span class="line">    expr: irate(node_network_transmit_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Network_transmit</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络出去流量飙升&quot;</span><br><span class="line">      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟内平均发送流量超过3Mbps.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">[root@wrp-uat-249 script]# vim /opt/monitor/alertrule/node_alert.yaml
+groups:
+- name: UP
+  rules:
+  - alert: node
+    expr: up&#123;job=&quot;node_exporter&quot;&#125; == 0
+    for: 1m
+    labels:
+      severity: crirical
+    annotations:
+      description: &quot; &#123;&#123; $labels.instance &#125;&#125; of job of &#123;&#123; $labels.job &#125;&#125; has been down for more than 5 minutes.&quot;
+      summary: &quot;&#123;&#123; $labels.instance &#125;&#125; down,up==&#123;&#123; $value &#125;&#125; // up=0表示监控已断开连接，机器已断开连接&quot;
+  - alert: HostMemory Usage
+    expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 &gt;  85
+    for: 1m
+    labels:
+      name: Memory
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service&#125;&#125; 内存飙升 &quot;
+      description: &quot;主机内存使用率超过80%.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;&quot;
+  - alert: HostCPU Usage
+    expr: sum(avg without (cpu)(irate(node_cpu_seconds_total&#123;mode!=&#39;idle&#39;&#125;[5m]))) by (instance,service) &gt; 0.80
+    for: 1m
+    labels:
+      name: CPU
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; CPU飙升&quot;
+      description: &quot;主机CPU使用率超过80%.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;&quot;
+  - alert: HostLoad 
+    expr: node_load5 &gt; 4
+    for: 1m
+    labels:
+      name: Load
+      severity: Warning
+    annotations:
+      summary: &quot;&#123;&#123; $labels.service &#125;&#125; 负荷飙升&quot;
+      description: &quot; 主机负载5分钟超过4.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;&quot;
+  - alert: HostFilesystem Usage
+    expr: 1-(node_filesystem_free_bytes / node_filesystem_size_bytes) &gt;  0.8
+    for: 1m
+    labels:
+      name: Disk
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 分区快满了&quot;
+      description: &quot; 主机 [ &#123;&#123; $labels.mountpoint &#125;&#125; ]分区使用超过80%.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;%&quot;
+  - alert: HostDiskio
+    expr: irate(node_disk_writes_completed_total&#123;job=~&quot;Host&quot;&#125;[1m]) &gt; 10
+    for: 1m
+    labels:
+      name: Diskio
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; IO读写过大&quot;
+      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;]磁盘1分钟平均写入IO负载较高.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;iops&quot;
+  - alert: Network_receive
+    expr: irate(node_network_receive_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3 
+    for: 1m
+    labels:
+      name: Network_receive
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络进来流量飙升&quot;
+      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟平均接收流量超过3Mbps.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;
+  - alert: Network_transmit
+    expr: irate(node_network_transmit_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3
+    for: 1m
+    labels:
+      name: Network_transmit
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络出去流量飙升&quot;
+      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟内平均发送流量超过3Mbps.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;
+</code></pre>
 <p>如果改动配置文件可使用请求API接口去重新加载</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST localhost:9090/-/reload</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">curl -XPOST localhost:9090/-/reload
+</code></pre>
 <p>或者 重启prometheus, 因为是docker部署的，重启也相当快</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart prometheus</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h5 id="2、dingtalk-webhook-prometheus"><a href="#2、dingtalk-webhook-prometheus" class="headerlink" title="2、dingtalk-webhook-prometheus"></a>2、dingtalk-webhook-prometheus</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=dingtalkalert \</span><br><span class="line">        --restart always \</span><br><span class="line">        -p 8060:8060 \</span><br><span class="line">        -v /opt/monitor/dingtalk/config.yml:/etc/prometheus-webhook-dingtalk/config.yml \</span><br><span class="line">        -v /opt/monitor/dingtalk/message:/data/rules \</span><br><span class="line">        -d a607ed1cd901</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">docker restart prometheus
+</code></pre>
+<h5 id="2、dingtalk-webhook-prometheus"><a href="#2、dingtalk-webhook-prometheus" class="headerlink" title="2、dingtalk-webhook-prometheus"></a>2、dingtalk-webhook-prometheus</h5><pre><code class="shell">docker run --name=dingtalkalert \
+        --restart always \
+        -p 8060:8060 \
+        -v /opt/monitor/dingtalk/config.yml:/etc/prometheus-webhook-dingtalk/config.yml \
+        -v /opt/monitor/dingtalk/message:/data/rules \
+        -d a607ed1cd901
+</code></pre>
 <p>配置文件 </p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 script]# vim /opt/monitor/dingtalk/config.yml</span><br><span class="line">templates:</span><br><span class="line">  - /data/rules/dingtalk-relaese.tmpl</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># You can also override default template using `default_message`</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># The following example to use the &#x27;legacy&#x27; template from v0.3.0</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">default_message:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"> title: <span class="string">&#x27;&#123;&#123; template &quot;legacy.title&quot; . &#125;&#125;&#x27;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"> text: <span class="string">&#x27;&#123;&#123; template &quot;legacy.content&quot; . &#125;&#125;&#x27;</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># Targets, previously was known as &quot;profiles&quot;</span></span></span><br><span class="line">targets:</span><br><span class="line">  webhook1:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=997ed4d8b57bf58f03b7739a27f608b6eb7a239bbdb331ce53086ac46cd63f3a</span><br><span class="line">    # secret for signature</span><br><span class="line">    secret: SEC3606100cf9c1c2f450c48e877c95c1d69c4d0174c5c0660ca1acf8e16d3c593b</span><br><span class="line">    message:</span><br><span class="line">      title: &#x27;&#123;&#123; template &quot;legacy.title&quot; . &#125;&#125;&#x27;</span><br><span class="line">      text: &#x27;&#123;&#123; template &quot;legacy.content&quot; . &#125;&#125;&#x27;</span><br><span class="line">  webhook_legacy:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=997ed4d8b57bf58f03b7739a27f608b6eb7a239bbdb331ce53086ac46cd63f3a</span><br><span class="line">    secret: SEC3606100cf9c1c2f450c48e877c95c1d69c4d0174c5c0660ca1acf8e16d3c593b</span><br><span class="line">    # Customize template content</span><br><span class="line">  webhook_mention_all:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=1f25d9698782f264bee1f5f12a7a908b6b8f242aff8e5e9e906690e4c64cba5b</span><br><span class="line">    mention:</span><br><span class="line">      all: true</span><br><span class="line">  webhook_mention_users:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=1f25d9698782f264bee1f5f12a7a908b6b8f242aff8e5e9e906690e4c64cba5b</span><br><span class="line">    secret: SEC1e028984dcaab32c6d5f158e7c17b11a28ae5faddca5729bb7655e09cabe88dd</span><br><span class="line">    message:</span><br><span class="line">      text: &#x27;&#123;&#123; template &quot;dingtalk.to.message&quot; . &#125;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@wrp-uat-249 script]# vim /opt/monitor/dingtalk/config.yml
+templates:
+  - /data/rules/dingtalk-relaese.tmpl
 
+## You can also override default template using `default_message`
+## The following example to use the &#39;legacy&#39; template from v0.3.0
+#default_message:
+#  title: &#39;&#123;&#123; template "legacy.title" . &#125;&#125;&#39;
+#  text: &#39;&#123;&#123; template "legacy.content" . &#125;&#125;&#39;
+
+## Targets, previously was known as &quot;profiles&quot;
+targets:
+  webhook1:
+    url: https://oapi.dingtalk.com/robot/send?access_token=997ed4d8b57bf58f03b7739a27f608b6eb7a239bbdb331ce53086ac46cd63f3a
+    # secret for signature
+    secret: SEC3606100cf9c1c2f450c48e877c95c1d69c4d0174c5c0660ca1acf8e16d3c593b
+    message:
+      title: &#39;&#123;&#123; template "legacy.title" . &#125;&#125;&#39;
+      text: &#39;&#123;&#123; template "legacy.content" . &#125;&#125;&#39;
+  webhook_legacy:
+    url: https://oapi.dingtalk.com/robot/send?access_token=997ed4d8b57bf58f03b7739a27f608b6eb7a239bbdb331ce53086ac46cd63f3a
+    secret: SEC3606100cf9c1c2f450c48e877c95c1d69c4d0174c5c0660ca1acf8e16d3c593b
+    # Customize template content
+  webhook_mention_all:
+    url: https://oapi.dingtalk.com/robot/send?access_token=1f25d9698782f264bee1f5f12a7a908b6b8f242aff8e5e9e906690e4c64cba5b
+    mention:
+      all: true
+  webhook_mention_users:
+    url: https://oapi.dingtalk.com/robot/send?access_token=1f25d9698782f264bee1f5f12a7a908b6b8f242aff8e5e9e906690e4c64cba5b
+    secret: SEC1e028984dcaab32c6d5f158e7c17b11a28ae5faddca5729bb7655e09cabe88dd
+    message:
+      text: &#39;&#123;&#123; template "dingtalk.to.message" . &#125;&#125;&#39;
+</code></pre>
 <p>消息</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 dingtalk]# vim /opt/monitor/dingtalk/message/dingtalk-release.tmpl </span><br><span class="line">&#123;&#123; define &quot;__subject&quot; &#125;&#125;[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;] &#123;&#123; .GroupLabels.SortedPairs.Values | join &quot; &quot; &#125;&#125; &#123;&#123; if gt (len .CommonLabels) (len .GroupLabels) &#125;&#125;(&#123;&#123; with .CommonLabels.Remove .GroupLabels.Names &#125;&#125;&#123;&#123; .Values | join &quot; &quot; &#125;&#125;&#123;&#123; end &#125;&#125;)&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;__alertmanagerURL&quot; &#125;&#125;&#123;&#123; $alertURL := &quot;http://120.24.210.160:9090&quot; &#125;&#125; &#123;&#123;- $alertURL -&#125;&#125;/#/alerts?receiver=&#123;&#123; .Receiver &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123; define &quot;__text_alert_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;</span><br><span class="line">**Labels**</span><br><span class="line">&#123;&#123; range .Labels.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">**Annotations**</span><br><span class="line">&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">**Source:** [&#123;&#123; .GeneratorURL &#125;&#125;](&#123;&#123; .GeneratorURL &#125;&#125;)</span><br><span class="line">&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123; define &quot;default.__text_alert_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;</span><br><span class="line">---</span><br><span class="line">**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;</span><br><span class="line"></span><br><span class="line">**触发时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.StartsAt) &quot;Asia/Shanghai&quot; &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件信息:** </span><br><span class="line">&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件标签:**</span><br><span class="line">&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) &quot;severity&quot;) (ne (.Name) &quot;team&quot;) &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;default.__text_alertresovle_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;</span><br><span class="line">---</span><br><span class="line">**告警恢复:** &#123;&#123;   .Status &#125;&#125;</span><br><span class="line"></span><br><span class="line">**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;</span><br><span class="line"></span><br><span class="line">**触发时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.StartsAt) &quot;Asia/Shanghai&quot; &#125;&#125;</span><br><span class="line"></span><br><span class="line">**结束时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.EndsAt) &quot;Asia/Shanghai&quot; &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件信息:**</span><br><span class="line">&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件标签:**</span><br><span class="line">&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) &quot;severity&quot;) (ne (.Name) &quot;team&quot;) &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;/* Default */&#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;default.title&quot; &#125;&#125;&#123;&#123; template &quot;__subject&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;default.content&quot; &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels &quot;alertname&quot; &#125;&#125;](&#123;&#123; template &quot;__alertmanagerURL&quot; . &#125;&#125;)**</span><br><span class="line">&#123;&#123; if gt (len .Alerts.Firing) 0 -&#125;&#125;</span><br><span class="line"></span><br><span class="line">![警报 图标](https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww2.sinaimg.cn%2Fbmiddle%2F006APoFYjw1fc4w13bl6zj3064064t8s.jpg&amp;refer=http%3A%2F%2Fwww.sina.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1656579096&amp;t=b481a5c9f10fbef572aef79c746869e9)</span><br><span class="line">**====侦测到故障====**</span><br><span class="line">&#123;&#123; template &quot;default.__text_alert_list&quot; .Alerts.Firing &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123; if gt (len .Alerts.Resolved) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123; template &quot;default.__text_alertresovle_list&quot; .Alerts.Resolved &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;/* Legacy */&#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;legacy.title&quot; &#125;&#125;&#123;&#123; template &quot;__subject&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;legacy.content&quot; &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels &quot;alertname&quot; &#125;&#125;](&#123;&#123; template &quot;__alertmanagerURL&quot; . &#125;&#125;)**</span><br><span class="line">&#123;&#123; template &quot;__text_alert_list&quot; .Alerts.Firing &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;/* Following names for compatibility */&#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;ding.link.title&quot; &#125;&#125;&#123;&#123; template &quot;default.title&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;ding.link.content&quot; &#125;&#125;&#123;&#123; template &quot;default.content&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123; define &quot;dingtalk.to.message&quot; &#125;&#125;</span><br><span class="line">&#123;&#123;- if gt (len .Alerts.Firing) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;</span><br><span class="line"></span><br><span class="line">=========  监控告警 =========</span><br><span class="line">告警状态:    &#123;&#123; .Status &#125;&#125;</span><br><span class="line">告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;</span><br><span class="line">monitorResult:    &#123;&#123; range .Labels.SortedPairs  &#125;&#125;  [&#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value  | html &#125;&#125; ]</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">========= = end =  =========</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;- if gt (len .Alerts.Resolved) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;</span><br><span class="line"></span><br><span class="line">========= 告警恢复 =========</span><br><span class="line">告警状态:    &#123;&#123;   .Status &#125;&#125;</span><br><span class="line">告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;</span><br><span class="line">故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">恢复时间:    &#123;&#123; ($alert.EndsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">========= = end =  =========</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@wrp-uat-249 dingtalk]# vim /opt/monitor/dingtalk/message/dingtalk-release.tmpl 
+&#123;&#123; define "__subject" &#125;&#125;[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status "firing" &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;] &#123;&#123; .GroupLabels.SortedPairs.Values | join " " &#125;&#125; &#123;&#123; if gt (len .CommonLabels) (len .GroupLabels) &#125;&#125;(&#123;&#123; with .CommonLabels.Remove .GroupLabels.Names &#125;&#125;&#123;&#123; .Values | join " " &#125;&#125;&#123;&#123; end &#125;&#125;)&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "__alertmanagerURL" &#125;&#125;&#123;&#123; $alertURL := "http://120.24.210.160:9090" &#125;&#125; &#123;&#123;- $alertURL -&#125;&#125;/#/alerts?receiver=&#123;&#123; .Receiver &#125;&#125;&#123;&#123; end &#125;&#125;
+
+&#123;&#123; define "__text_alert_list" &#125;&#125;&#123;&#123; range . &#125;&#125;
+**Labels**
+&#123;&#123; range .Labels.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;
+**Annotations**
+&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;
+**Source:** [&#123;&#123; .GeneratorURL &#125;&#125;](&#123;&#123; .GeneratorURL &#125;&#125;)
+&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+
+&#123;&#123; define "default.__text_alert_list" &#125;&#125;&#123;&#123; range . &#125;&#125;
+---
+**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;
+
+**触发时间:** &#123;&#123; dateInZone "2006.01.02 15:04:05" (.StartsAt) "Asia/Shanghai" &#125;&#125;
+
+**事件信息:** 
+&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+
+
+&#123;&#123; end &#125;&#125;
+
+**事件标签:**
+&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) "severity") (ne (.Name) "team") &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+&#123;&#123; define "default.__text_alertresovle_list" &#125;&#125;&#123;&#123; range . &#125;&#125;
+---
+**告警恢复:** &#123;&#123;   .Status &#125;&#125;
+
+**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;
+
+**触发时间:** &#123;&#123; dateInZone "2006.01.02 15:04:05" (.StartsAt) "Asia/Shanghai" &#125;&#125;
+
+**结束时间:** &#123;&#123; dateInZone "2006.01.02 15:04:05" (.EndsAt) "Asia/Shanghai" &#125;&#125;
+
+**事件信息:**
+&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+
+
+&#123;&#123; end &#125;&#125;
+
+**事件标签:**
+&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) "severity") (ne (.Name) "team") &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+
+&#123;&#123;/* Default */&#125;&#125;
+&#123;&#123; define "default.title" &#125;&#125;&#123;&#123; template "__subject" . &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "default.content" &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status "firing" &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels "alertname" &#125;&#125;](&#123;&#123; template "__alertmanagerURL" . &#125;&#125;)**
+&#123;&#123; if gt (len .Alerts.Firing) 0 -&#125;&#125;
+
+![警报 图标](https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww2.sinaimg.cn%2Fbmiddle%2F006APoFYjw1fc4w13bl6zj3064064t8s.jpg&amp;refer=http%3A%2F%2Fwww.sina.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1656579096&amp;t=b481a5c9f10fbef572aef79c746869e9)
+**====侦测到故障====**
+&#123;&#123; template "default.__text_alert_list" .Alerts.Firing &#125;&#125;
+
+
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123; if gt (len .Alerts.Resolved) 0 -&#125;&#125;
+&#123;&#123; template "default.__text_alertresovle_list" .Alerts.Resolved &#125;&#125;
+
+
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123;/* Legacy */&#125;&#125;
+&#123;&#123; define "legacy.title" &#125;&#125;&#123;&#123; template "__subject" . &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "legacy.content" &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status "firing" &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels "alertname" &#125;&#125;](&#123;&#123; template "__alertmanagerURL" . &#125;&#125;)**
+&#123;&#123; template "__text_alert_list" .Alerts.Firing &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123;/* Following names for compatibility */&#125;&#125;
+&#123;&#123; define "ding.link.title" &#125;&#125;&#123;&#123; template "default.title" . &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "ding.link.content" &#125;&#125;&#123;&#123; template "default.content" . &#125;&#125;&#123;&#123; end &#125;&#125;
 
 
 
+&#123;&#123; define "dingtalk.to.message" &#125;&#125;
+&#123;&#123;- if gt (len .Alerts.Firing) 0 -&#125;&#125;
+&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;
+
+=========  监控告警 =========
+告警状态:    &#123;&#123; .Status &#125;&#125;
+告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;
+monitorResult:    &#123;&#123; range .Labels.SortedPairs  &#125;&#125;  [&#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value  | html &#125;&#125; ]
+&#123;&#123;- end &#125;&#125;
+故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" &#125;&#125;
+========= = end =  =========
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123;- if gt (len .Alerts.Resolved) 0 -&#125;&#125;
+&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;
+
+========= 告警恢复 =========
+告警状态:    &#123;&#123;   .Status &#125;&#125;
+告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;
+故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" &#125;&#125;
+恢复时间:    &#123;&#123; ($alert.EndsAt.Add 28800e9).Format "2006-01-02 15:04:05" &#125;&#125;
+========= = end =  =========
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+</code></pre>
 <h5 id="3、alertmanger"><a href="#3、alertmanger" class="headerlink" title="3、alertmanger"></a>3、alertmanger</h5><p>启动</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=alertmanager -p 9093:9093 -v /opt/monitor/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml prom/alertmanager</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">docker run -d --name=alertmanager -p 9093:9093 -v /opt/monitor/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml prom/alertmanager
+</code></pre>
 <p>配置文件, UAT环境 dingtalk-webhook的填IP为内网IP，不要填localhost和127.0.0.1 因为它会先从docker内部找这两个地址。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 dingtalk]# cat ../alertmanager/alertmanager.yml </span><br><span class="line">global:</span><br><span class="line">  resolve_timeout: 5m</span><br><span class="line">  smtp_smarthost: &#x27;smtp.exmail.qq.com:465&#x27;  # 邮箱SMTP服务器代理地址</span><br><span class="line">  smtp_from: &#x27;alter@pidi.com&#x27;    # 发送邮件的名称</span><br><span class="line">  smtp_auth_username: &#x27;hjb@pidi.com&#x27;</span><br><span class="line">  smtp_auth_password: &#x27;Acabcd12356&#x27;  # 邮箱授权密码</span><br><span class="line">  smtp_require_tls: false</span><br><span class="line">templates:</span><br><span class="line"> - &quot;/opt/monitor/alertrule/email.tmpl&quot;</span><br><span class="line">route:</span><br><span class="line">  group_by: [&#x27;alertname&#x27;]</span><br><span class="line">  group_wait: 5s</span><br><span class="line">  group_interval: 5s</span><br><span class="line">  repeat_interval: 5m</span><br><span class="line">  receiver: &#x27;dingtalk&#x27;</span><br><span class="line">  routes:</span><br><span class="line">  - receiver: &#x27;dingtalk&#x27;</span><br><span class="line">    match:</span><br><span class="line">      team: DevOps</span><br><span class="line">    group_wait: 10s</span><br><span class="line">    group_interval: 15s</span><br><span class="line">    repeat_interval: 3h</span><br><span class="line">  - receiver: &#x27;dingtalk.sql&#x27;</span><br><span class="line">    match:</span><br><span class="line">      job: pushgateway</span><br><span class="line">    group_wait: 10s</span><br><span class="line">    group_interval: 15s</span><br><span class="line">    repeat_interval: 3h</span><br><span class="line">receivers:</span><br><span class="line">- name: &#x27;email&#x27;</span><br><span class="line">  email_configs:</span><br><span class="line">  - to: &#x27;hjb@pidi.com&#x27;</span><br><span class="line">    html: &#x27;&#123;&#123; template &quot;email.to.html&quot; . &#125;&#125;&#x27;</span><br><span class="line">    headers: &#123; Subject: &quot; WARNING- -告警邮件&quot; &#125;</span><br><span class="line">    send_resolved: true</span><br><span class="line">- name: &#x27;dingtalk&#x27;</span><br><span class="line">  webhook_configs:</span><br><span class="line">  - url: &#x27;http://172.16.0.88:8060/dingtalk/webhook1/send&#x27;</span><br><span class="line">    send_resolved: true</span><br><span class="line">- name: &#x27;dingtalk.sql&#x27;</span><br><span class="line">  webhook_configs:</span><br><span class="line">  - url: &#x27;http://172.16.0.88:8060/dingtalk/webhook_mention_users/send&#x27;</span><br><span class="line">    send_resolved: true</span><br><span class="line">inhibit_rules:</span><br><span class="line">  - source_match:</span><br><span class="line">      severity: &#x27;critical&#x27;</span><br><span class="line">    target_match:</span><br><span class="line">      severity: &#x27;warning&#x27;</span><br><span class="line">    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]</span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">[root@wrp-uat-249 dingtalk]# cat ../alertmanager/alertmanager.yml 
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: &#39;smtp.exmail.qq.com:465&#39;  # 邮箱SMTP服务器代理地址
+  smtp_from: &#39;alter@pidi.com&#39;    # 发送邮件的名称
+  smtp_auth_username: &#39;hjb@pidi.com&#39;
+  smtp_auth_password: &#39;Acabcd12356&#39;  # 邮箱授权密码
+  smtp_require_tls: false
+templates:
+ - &quot;/opt/monitor/alertrule/email.tmpl&quot;
+route:
+  group_by: [&#39;alertname&#39;]
+  group_wait: 5s
+  group_interval: 5s
+  repeat_interval: 5m
+  receiver: &#39;dingtalk&#39;
+  routes:
+  - receiver: &#39;dingtalk&#39;
+    match:
+      team: DevOps
+    group_wait: 10s
+    group_interval: 15s
+    repeat_interval: 3h
+  - receiver: &#39;dingtalk.sql&#39;
+    match:
+      job: pushgateway
+    group_wait: 10s
+    group_interval: 15s
+    repeat_interval: 3h
+receivers:
+- name: &#39;email&#39;
+  email_configs:
+  - to: &#39;hjb@pidi.com&#39;
+    html: &#39;&#123;&#123; template "email.to.html" . &#125;&#125;&#39;
+    headers: &#123; Subject: &quot; WARNING- -告警邮件&quot; &#125;
+    send_resolved: true
+- name: &#39;dingtalk&#39;
+  webhook_configs:
+  - url: &#39;http://172.16.0.88:8060/dingtalk/webhook1/send&#39;
+    send_resolved: true
+- name: &#39;dingtalk.sql&#39;
+  webhook_configs:
+  - url: &#39;http://172.16.0.88:8060/dingtalk/webhook_mention_users/send&#39;
+    send_resolved: true
+inhibit_rules:
+  - source_match:
+      severity: &#39;critical&#39;
+    target_match:
+      severity: &#39;warning&#39;
+    equal: [&#39;alertname&#39;, &#39;dev&#39;, &#39;instance&#39;]
+</code></pre>
 <h5 id="4、pushgateway"><a href="#4、pushgateway" class="headerlink" title="4、pushgateway"></a>4、pushgateway</h5><p>启动</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=pushgateway \</span><br><span class="line">        --restart always \</span><br><span class="line">        -p 9091:9091 \</span><br><span class="line">        -d prom/pushgateway</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">docker run --name=pushgateway \
+        --restart always \
+        -p 9091:9091 \
+        -d prom/pushgateway
+</code></pre>
 <p>增加定时任务</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 alertrule]# crontab -e</span><br><span class="line">*/5 * * * * /usr/bin/python3 /opt/monitor/script/alert_py_pushgateway.py</span><br><span class="line">*/5 * * * * /usr/bin/python3 /opt/monitor/script/monitor_py_pushway.py</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">[root@wrp-uat-249 alertrule]# crontab -e
+*/5 * * * * /usr/bin/python3 /opt/monitor/script/alert_py_pushgateway.py
+*/5 * * * * /usr/bin/python3 /opt/monitor/script/monitor_py_pushway.py
+</code></pre>
 <p>sql监控脚本, 这脚本有点乱，没时间优化</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 script]# vim /opt/monitor/script/alert_py_pushgateway.py</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/env python3</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-*- coding:utf-8 -*-</span></span><br><span class="line">import json</span><br><span class="line">import requests</span><br><span class="line">import re</span><br><span class="line"></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment">## 请求接口有错误返回的数据样式</span></span></span><br><span class="line">result=&#123;</span><br><span class="line">    &quot;code&quot;: 200,</span><br><span class="line">    &quot;success&quot;: &quot;true&quot;,</span><br><span class="line">    &quot;data&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;id&quot;: 9131,</span><br><span class="line">            &quot;monitorId&quot;: &quot;1&quot;,</span><br><span class="line">            &quot;monitorResult&quot;: &quot;[&#123;\&quot;num\&quot;:4,\&quot;cangchu_detail_id\&quot;:\&quot;78fa832ff15f4129bde82ae938e4bede\&quot;&#125;]&quot;,</span><br><span class="line">            &quot;monitorDesc&quot;: &quot;一货多仓单&quot;,</span><br><span class="line">            &quot;createTime&quot;: &quot;2022-05-25 16:26:23&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;id&quot;: 9132,</span><br><span class="line">            &quot;monitorId&quot;: &quot;2&quot;,</span><br><span class="line">            &quot;monitorResult&quot;: &quot;[&#123;\&quot;cangdan_id\&quot;:\&quot;a5452ed2ab0746c49531d3018063afd5\&quot;&#125;,&#123;\&quot;cangdan_id\&quot;:\&quot;b335f89a17894bffb45fa489cc55d3c3\&quot;&#125;]&quot;,</span><br><span class="line">            &quot;monitorDesc&quot;: &quot;一仓单多押&quot;,</span><br><span class="line">            &quot;createTime&quot;: &quot;2022-05-25 16:26:23&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;id&quot;: 9133,</span><br><span class="line">            &quot;monitorId&quot;: &quot;3&quot;,</span><br><span class="line">            &quot;monitorResult&quot;: &quot;&quot;,</span><br><span class="line">            &quot;monitorDesc&quot;: &quot;spoierqn klw ak wejr &quot;,</span><br><span class="line">            &quot;createTime&quot;: &quot;2022-05-25 16:26:23&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;msg&quot;: &quot;操作成功&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">先取到接口的值，这里UAT环境的，生产环境要替换掉。</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">url=<span class="string">&quot;http://192.168.2.221:8899/api/blade-xxljob/monitor/get-job-execute-status/executeMonitorSql&quot;</span></span></span><br><span class="line">url=&quot;https://uat.pidi.com/api/blade-xxljob/monitor/get-monitor-results&quot;</span><br><span class="line">hds = &#123;&#x27;X-Requested-With&#x27;: &#x27;Python requests&#x27;, &#x27;Content-type&#x27;: &#x27;text/xml&#x27;&#125; </span><br><span class="line">result=requests.get(url, headers=hds).json()</span><br><span class="line"></span><br><span class="line">pushgateway_ip=&quot;172.16.0.88&quot;</span><br><span class="line">pushgateway_port=&quot;9091&quot;</span><br><span class="line"></span><br><span class="line">d1=&quot;&quot;</span><br><span class="line">d2=&quot;&quot;</span><br><span class="line">d3=&quot;&quot;</span><br><span class="line">alert1=0</span><br><span class="line">alert2=0</span><br><span class="line">alert3=0</span><br><span class="line">counter=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">获取到请求值进行格式化为pushgateway能接收的数据。monitorResult有值就要告警。</span></span><br><span class="line">for resultm in result[&#x27;data&#x27;]:</span><br><span class="line">        for k,y in resultm.items():</span><br><span class="line">                if result[&#x27;data&#x27;].index(resultm) == 0:</span><br><span class="line">                        if k == &quot;monitorResult&quot; and y != &quot;&quot;:</span><br><span class="line">                            alert1 = 1</span><br><span class="line">                            va1=json.loads(y)</span><br><span class="line">                            for va in va1:</span><br><span class="line">                                    for k1,y1 in va.items():</span><br><span class="line">                                            if k1 == &quot;cangchu_detail_id&quot;:</span><br><span class="line">                                                    counter+=1</span><br><span class="line">                                                    k1=str(k1)+str(counter)</span><br><span class="line">                                            d1+=str(k1)+&quot;=&quot;+str(y1)+&quot;,&quot;</span><br><span class="line">                            continue</span><br><span class="line">                        elif k == &quot;monitorResult&quot; and y == &quot;&quot;:</span><br><span class="line">                            d1+=str(k)+&quot;=&quot;+str(0)+&quot;,&quot;</span><br><span class="line">                        elif k== &quot;monitorDesc&quot;:</span><br><span class="line">                            d1+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;</span><br><span class="line">                elif result[&#x27;data&#x27;].index(resultm) == 1:</span><br><span class="line">                        if k == &quot;monitorResult&quot; and y != &quot;&quot;:</span><br><span class="line">                            alert2 = 1</span><br><span class="line">                            va1=json.loads(y)</span><br><span class="line">                            for va in va1:</span><br><span class="line">                                    for k1,y1 in va.items():</span><br><span class="line">                                            if k1 == &quot;cangdan_id&quot;:</span><br><span class="line">                                                    counter+=1</span><br><span class="line">                                                    k1=str(k1)+str(counter)</span><br><span class="line">                                            d2+=str(k1)+&quot;=&quot;+str(y1)+&quot;,&quot;</span><br><span class="line">                            continue</span><br><span class="line">                        elif k == &quot;monitorResult&quot; and y == &quot;&quot;:</span><br><span class="line">                            d2+=str(k)+&quot;=&quot;+str(0)+&quot;,&quot;</span><br><span class="line">                        elif k== &quot;monitorDesc&quot;:</span><br><span class="line">                            d2+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;</span><br><span class="line">                else:</span><br><span class="line">                        if k == &quot;monitorResult&quot; and y != &quot;&quot;:</span><br><span class="line">                            alert3 = 1</span><br><span class="line">                            va1=json.loads(y)</span><br><span class="line">                            for va in va1:</span><br><span class="line">                                    for k1,y1 in va.items():</span><br><span class="line">                                            d3+=str(k1)+&quot;=&quot;+str(y1)+&quot;,&quot;</span><br><span class="line">                            continue</span><br><span class="line">                        elif k == &quot;monitorResult&quot; and y == &quot;&quot;:</span><br><span class="line">                            d3+=str(k)+&quot;=&quot;+str(0)+&quot;,&quot;</span><br><span class="line">                        elif k== &quot;monitorDesc&quot;:</span><br><span class="line">                            d3+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">去掉最后的,号， 为=后面的值加上双引号（不要问我为什么，你要问我踩过的坑有多少）</span></span><br><span class="line">d1=d1[::-1].replace(&quot;,&quot;,&#x27;&quot;&#x27;,1)[::-1]</span><br><span class="line">d2=d2[::-1].replace(&quot;,&quot;,&#x27;&quot;&#x27;,1)[::-1]</span><br><span class="line">d3=d3[::-1].replace(&quot;,&quot;,&#x27;&quot;&#x27;,1)[::-1]</span><br><span class="line">d1=d1.replace(&quot;=&quot;,&#x27;=&quot;&#x27;).replace(&quot;,&quot;,&#x27;&quot;,&#x27;)</span><br><span class="line">d2=d2.replace(&quot;=&quot;,&#x27;=&quot;&#x27;).replace(&quot;,&quot;,&#x27;&quot;,&#x27;)</span><br><span class="line">d3=d3.replace(&quot;=&quot;,&#x27;=&quot;&#x27;).replace(&quot;,&quot;,&#x27;&quot;,&#x27;)</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">alert1=0</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">alert2=0</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">alert3=1</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">这是最后到pushgateway的数据了。大概是这样</span></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">cangdan_metric&#123;id=&quot;11591&quot;,monitorId=&quot;1&quot;,monitorResult=&quot;&quot;,monitorDesc=&quot;一货多仓单&quot;,createTime=&quot;2022-05-28 15:15:00&quot;&#125; 0</span><br><span class="line">mortgage_metric&#123;id=&quot;9132&quot;,monitorId=&quot;2&quot;,cangdan_id2=&quot;a5452ed2ab0746c49531d3018063afd5&quot;,cangdan_id3=&quot;b335f89a17894bffb45fa489cc55d3c3&quot;,monitorDesc=&quot;一仓单多押&quot;,createTime=&quot;2022-05-25 16:26:23&quot;&#125; 1</span><br><span class="line">repeat_metric&#123;id=&quot;11593&quot;,monitorId=&quot;3&quot;,monitorResult=&quot;&quot;,monitorDesc=&quot;重复仓单号&quot;,createTime=&quot;2022-05-28 15:15:00&quot;&#125; 0</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">quota=&quot;&quot;&quot;</span><br><span class="line">cangdan_metric&#123;execenv=&quot;UAT&quot;,%s&#125; %d</span><br><span class="line">mortgage_metric&#123;execenv=&quot;UAT&quot;,%s&#125; %d</span><br><span class="line">repeat_metric&#123;execenv=&quot;UAT&quot;,%s&#125; %d</span><br><span class="line">&quot;&quot;&quot; %(d1,alert1,d2,alert2,d3,alert3)</span><br><span class="line"></span><br><span class="line">print(quota)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">res = requests.post(url=&quot;http://&quot;+pushgateway_ip+&quot;:&quot;+pushgateway_port+&quot;/metrics/job/app/custom_instance/test_instance&quot;,data=quota.encode(),headers=hds)</span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@wrp-uat-249 script]# vim /opt/monitor/script/alert_py_pushgateway.py
+#!/bin/env python3
+# -*- coding:utf-8 -*-
+import json
+import requests
+import re
 
+&#39;&#39;&#39;
+### 请求接口有错误返回的数据样式
+result=&#123;
+    &quot;code&quot;: 200,
+    &quot;success&quot;: &quot;true&quot;,
+    &quot;data&quot;: [
+        &#123;
+            &quot;id&quot;: 9131,
+            &quot;monitorId&quot;: &quot;1&quot;,
+            &quot;monitorResult&quot;: &quot;[&#123;\&quot;num\&quot;:4,\&quot;cangchu_detail_id\&quot;:\&quot;78fa832ff15f4129bde82ae938e4bede\&quot;&#125;]&quot;,
+            &quot;monitorDesc&quot;: &quot;一货多仓单&quot;,
+            &quot;createTime&quot;: &quot;2022-05-25 16:26:23&quot;
+        &#125;,
+        &#123;
+            &quot;id&quot;: 9132,
+            &quot;monitorId&quot;: &quot;2&quot;,
+            &quot;monitorResult&quot;: &quot;[&#123;\&quot;cangdan_id\&quot;:\&quot;a5452ed2ab0746c49531d3018063afd5\&quot;&#125;,&#123;\&quot;cangdan_id\&quot;:\&quot;b335f89a17894bffb45fa489cc55d3c3\&quot;&#125;]&quot;,
+            &quot;monitorDesc&quot;: &quot;一仓单多押&quot;,
+            &quot;createTime&quot;: &quot;2022-05-25 16:26:23&quot;
+        &#125;,
+        &#123;
+            &quot;id&quot;: 9133,
+            &quot;monitorId&quot;: &quot;3&quot;,
+            &quot;monitorResult&quot;: &quot;&quot;,
+            &quot;monitorDesc&quot;: &quot;spoierqn klw ak wejr &quot;,
+            &quot;createTime&quot;: &quot;2022-05-25 16:26:23&quot;
+        &#125;
+    ],
+    &quot;msg&quot;: &quot;操作成功&quot;
+&#125;
+&#39;&#39;&#39;
+
+#先取到接口的值，这里UAT环境的，生产环境要替换掉。
+#url=&quot;http://192.168.2.221:8899/api/blade-xxljob/monitor/get-job-execute-status/executeMonitorSql&quot;
+url=&quot;https://uat.pidi.com/api/blade-xxljob/monitor/get-monitor-results&quot;
+hds = &#123;&#39;X-Requested-With&#39;: &#39;Python requests&#39;, &#39;Content-type&#39;: &#39;text/xml&#39;&#125; 
+result=requests.get(url, headers=hds).json()
+
+pushgateway_ip=&quot;172.16.0.88&quot;
+pushgateway_port=&quot;9091&quot;
+
+d1=&quot;&quot;
+d2=&quot;&quot;
+d3=&quot;&quot;
+alert1=0
+alert2=0
+alert3=0
+counter=0
+
+#获取到请求值进行格式化为pushgateway能接收的数据。monitorResult有值就要告警。
+for resultm in result[&#39;data&#39;]:
+        for k,y in resultm.items():
+                if result[&#39;data&#39;].index(resultm) == 0:
+                        if k == &quot;monitorResult&quot; and y != &quot;&quot;:
+                            alert1 = 1
+                            va1=json.loads(y)
+                            for va in va1:
+                                    for k1,y1 in va.items():
+                                            if k1 == &quot;cangchu_detail_id&quot;:
+                                                    counter+=1
+                                                    k1=str(k1)+str(counter)
+                                            d1+=str(k1)+&quot;=&quot;+str(y1)+&quot;,&quot;
+                            continue
+                        elif k == &quot;monitorResult&quot; and y == &quot;&quot;:
+                            d1+=str(k)+&quot;=&quot;+str(0)+&quot;,&quot;
+                        elif k== &quot;monitorDesc&quot;:
+                            d1+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;
+                elif result[&#39;data&#39;].index(resultm) == 1:
+                        if k == &quot;monitorResult&quot; and y != &quot;&quot;:
+                            alert2 = 1
+                            va1=json.loads(y)
+                            for va in va1:
+                                    for k1,y1 in va.items():
+                                            if k1 == &quot;cangdan_id&quot;:
+                                                    counter+=1
+                                                    k1=str(k1)+str(counter)
+                                            d2+=str(k1)+&quot;=&quot;+str(y1)+&quot;,&quot;
+                            continue
+                        elif k == &quot;monitorResult&quot; and y == &quot;&quot;:
+                            d2+=str(k)+&quot;=&quot;+str(0)+&quot;,&quot;
+                        elif k== &quot;monitorDesc&quot;:
+                            d2+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;
+                else:
+                        if k == &quot;monitorResult&quot; and y != &quot;&quot;:
+                            alert3 = 1
+                            va1=json.loads(y)
+                            for va in va1:
+                                    for k1,y1 in va.items():
+                                            d3+=str(k1)+&quot;=&quot;+str(y1)+&quot;,&quot;
+                            continue
+                        elif k == &quot;monitorResult&quot; and y == &quot;&quot;:
+                            d3+=str(k)+&quot;=&quot;+str(0)+&quot;,&quot;
+                        elif k== &quot;monitorDesc&quot;:
+                            d3+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;
+
+
+#去掉最后的,号， 为=后面的值加上双引号（不要问我为什么，你要问我踩过的坑有多少）
+d1=d1[::-1].replace(&quot;,&quot;,&#39;&quot;&#39;,1)[::-1]
+d2=d2[::-1].replace(&quot;,&quot;,&#39;&quot;&#39;,1)[::-1]
+d3=d3[::-1].replace(&quot;,&quot;,&#39;&quot;&#39;,1)[::-1]
+d1=d1.replace(&quot;=&quot;,&#39;=&quot;&#39;).replace(&quot;,&quot;,&#39;&quot;,&#39;)
+d2=d2.replace(&quot;=&quot;,&#39;=&quot;&#39;).replace(&quot;,&quot;,&#39;&quot;,&#39;)
+d3=d3.replace(&quot;=&quot;,&#39;=&quot;&#39;).replace(&quot;,&quot;,&#39;&quot;,&#39;)
+#alert1=0
+#alert2=0
+#alert3=1
+#这是最后到pushgateway的数据了。大概是这样
+&#39;&#39;&#39;
+cangdan_metric&#123;id=&quot;11591&quot;,monitorId=&quot;1&quot;,monitorResult=&quot;&quot;,monitorDesc=&quot;一货多仓单&quot;,createTime=&quot;2022-05-28 15:15:00&quot;&#125; 0
+mortgage_metric&#123;id=&quot;9132&quot;,monitorId=&quot;2&quot;,cangdan_id2=&quot;a5452ed2ab0746c49531d3018063afd5&quot;,cangdan_id3=&quot;b335f89a17894bffb45fa489cc55d3c3&quot;,monitorDesc=&quot;一仓单多押&quot;,createTime=&quot;2022-05-25 16:26:23&quot;&#125; 1
+repeat_metric&#123;id=&quot;11593&quot;,monitorId=&quot;3&quot;,monitorResult=&quot;&quot;,monitorDesc=&quot;重复仓单号&quot;,createTime=&quot;2022-05-28 15:15:00&quot;&#125; 0
+&#39;&#39;&#39;
+quota=&quot;&quot;&quot;
+cangdan_metric&#123;execenv=&quot;UAT&quot;,%s&#125; %d
+mortgage_metric&#123;execenv=&quot;UAT&quot;,%s&#125; %d
+repeat_metric&#123;execenv=&quot;UAT&quot;,%s&#125; %d
+&quot;&quot;&quot; %(d1,alert1,d2,alert2,d3,alert3)
+
+print(quota)
+
+
+res = requests.post(url=&quot;http://&quot;+pushgateway_ip+&quot;:&quot;+pushgateway_port+&quot;/metrics/job/app/custom_instance/test_instance&quot;,data=quota.encode(),headers=hds)
+print(res)
+</code></pre>
 <p>另外一个</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">[root@wrp-uat-249 script]# vim /opt/monitor/script/monitor_py_pushway.py </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/env python3</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">import json</span><br><span class="line">import requests</span><br><span class="line">import re</span><br><span class="line"></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">api请求的结果大概长这样</span></span><br><span class="line">&#123;</span><br><span class="line">    &quot;code&quot;: 200,</span><br><span class="line">    &quot;success&quot;: true,</span><br><span class="line">    &quot;data&quot;: &#123;</span><br><span class="line">        &quot;id&quot;: 204404,</span><br><span class="line">        &quot;jobGroup&quot;: 1,</span><br><span class="line">        &quot;jobId&quot;: 9,</span><br><span class="line">        &quot;executorAddress&quot;: &quot;192.168.16.36:7018&quot;,</span><br><span class="line">        &quot;executorHandler&quot;: &quot;executeMonitorSql&quot;,</span><br><span class="line">        &quot;executorParam&quot;: &quot;&quot;,</span><br><span class="line">        &quot;executorShardingParam&quot;: &quot;&quot;,</span><br><span class="line">        &quot;executorFailRetryCount&quot;: 0,</span><br><span class="line">        &quot;triggerTime&quot;: &quot;2022-05-25 16:26:23&quot;,</span><br><span class="line">        &quot;triggerCode&quot;: 200,</span><br><span class="line">        &quot;triggerMsg&quot;: &quot;任务触发类型：手动触发&lt;br&gt;调度机器：172.18.0.1&lt;br&gt;执行器-注册方式：自动注册&lt;br&gt;执行器-地址列表：[192.168.16.36:7018]&lt;br&gt;路由策略：第一个&lt;br&gt;阻塞处理策略：单机串行&lt;br&gt;任务超时时间：0&lt;br&gt;失败重试次数：0&lt;br&gt;&lt;br&gt;&lt;span style=\&quot;color:#00c0ef;\&quot; &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;触发调度&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; &lt;/span&gt;&lt;br&gt;触发调度：&lt;br&gt;address：192.168.16.36:7018&lt;br&gt;code：200&lt;br&gt;msg：null&quot;,</span><br><span class="line">        &quot;handleTime&quot;: &quot;2022-05-25 16:26:24&quot;,</span><br><span class="line">        &quot;handleCode&quot;: 200,</span><br><span class="line">        &quot;handleMsg&quot;: &quot;&quot;,</span><br><span class="line">        &quot;alarmStatus&quot;: 0</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;msg&quot;: &quot;操作成功&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">先取到接口的值，这里UAT环境的，生产环境要替换掉。</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">url=<span class="string">&quot;http://192.168.2.221:8899/api/blade-xxljob/monitor/get-job-execute-status/executeMonitorSql&quot;</span>  <span class="comment">#这是开发环境</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">这是生产环境</span></span><br><span class="line">url=&quot;https://uat.pidi.com/api/blade-xxljob/monitor/get-job-execute-status/executeMonitorSql&quot;    </span><br><span class="line">hds = &#123;&#x27;X-Requested-With&#x27;: &#x27;Python requests&#x27;, &#x27;Content-type&#x27;: &#x27;text/xml&#x27;&#125; </span><br><span class="line">result=requests.get(url, headers=hds).json()</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">注意生产环境还是其他环境，IP不要填错了。</span></span><br><span class="line">pushgateway_ip=&quot;172.16.0.88&quot;</span><br><span class="line">pushgateway_port=&quot;9091&quot;</span><br><span class="line"></span><br><span class="line">d1=&quot;&quot;</span><br><span class="line">alarmStatus=-1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">获取到请求值进行格式化为pushgateway能接收的数据。monitorResult有值就要告警。</span></span><br><span class="line">if bool(result[&#x27;data&#x27;]):</span><br><span class="line">    for k,y in result[&#x27;data&#x27;].items():</span><br><span class="line">        if k == &quot;alarmStatus&quot;:</span><br><span class="line">            alarmStatus=y</span><br><span class="line">        elif k == &quot;triggerMsg&quot;:</span><br><span class="line">            continue</span><br><span class="line">        d1+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">去掉最后的,号， 为=后面的值加上双引号（不要问我为什么，你要问我踩过的坑有多少）</span></span><br><span class="line">d1=d1[::-1].replace(&quot;,&quot;,&#x27;&quot;&#x27;,1)[::-1]</span><br><span class="line">d1=d1.replace(&quot;=&quot;,&#x27;=&quot;&#x27;).replace(&quot;,&quot;,&#x27;&quot;,&#x27;)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">这是最张到pushgateway的数据了。大概是这样</span></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">mortgage_metric&#123;id=&quot;9132&quot;,monitorId=&quot;2&quot;,cangdan_id2=&quot;a5452ed2ab0746c49531d3018063afd5&quot;,cangdan_id3=&quot;b335f89a17894bffb45fa489cc55d3c3&quot;,monitorDesc=&quot;一仓单多押&quot;,createTime=&quot;2022-05-25 16:26:23&quot;&#125; 1</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">quota=&quot;&quot;&quot;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">这是SQL监控执行情况,5分钟执行一次</span></span><br><span class="line">monitor_sql_metric&#123;%s&#125; %d</span><br><span class="line">&quot;&quot;&quot; %(d1,alarmStatus)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="built_in">print</span>(quota)</span></span><br><span class="line"></span><br><span class="line">res = requests.post(url=&quot;http://&quot;+pushgateway_ip+&quot;:&quot;+pushgateway_port+&quot;/metrics/job/monitorsql/&quot;,data=quota.encode(),headers=hds)</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="built_in">print</span>(res)</span></span><br><span class="line">print(res.status_code)</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@wrp-uat-249 script]# vim /opt/monitor/script/monitor_py_pushway.py 
+#!/bin/env python3
+# -*- coding:utf-8 -*-
+
+import json
+import requests
+import re
+
+&#39;&#39;&#39;
+#api请求的结果大概长这样
+&#123;
+    &quot;code&quot;: 200,
+    &quot;success&quot;: true,
+    &quot;data&quot;: &#123;
+        &quot;id&quot;: 204404,
+        &quot;jobGroup&quot;: 1,
+        &quot;jobId&quot;: 9,
+        &quot;executorAddress&quot;: &quot;192.168.16.36:7018&quot;,
+        &quot;executorHandler&quot;: &quot;executeMonitorSql&quot;,
+        &quot;executorParam&quot;: &quot;&quot;,
+        &quot;executorShardingParam&quot;: &quot;&quot;,
+        &quot;executorFailRetryCount&quot;: 0,
+        &quot;triggerTime&quot;: &quot;2022-05-25 16:26:23&quot;,
+        &quot;triggerCode&quot;: 200,
+        &quot;triggerMsg&quot;: &quot;任务触发类型：手动触发&lt;br&gt;调度机器：172.18.0.1&lt;br&gt;执行器-注册方式：自动注册&lt;br&gt;执行器-地址列表：[192.168.16.36:7018]&lt;br&gt;路由策略：第一个&lt;br&gt;阻塞处理策略：单机串行&lt;br&gt;任务超时时间：0&lt;br&gt;失败重试次数：0&lt;br&gt;&lt;br&gt;&lt;span style=\&quot;color:#00c0ef;\&quot; &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;触发调度&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; &lt;/span&gt;&lt;br&gt;触发调度：&lt;br&gt;address：192.168.16.36:7018&lt;br&gt;code：200&lt;br&gt;msg：null&quot;,
+        &quot;handleTime&quot;: &quot;2022-05-25 16:26:24&quot;,
+        &quot;handleCode&quot;: 200,
+        &quot;handleMsg&quot;: &quot;&quot;,
+        &quot;alarmStatus&quot;: 0
+    &#125;,
+    &quot;msg&quot;: &quot;操作成功&quot;
+&#125;
+&#39;&#39;&#39;
+
+#先取到接口的值，这里UAT环境的，生产环境要替换掉。
+#url=&quot;http://192.168.2.221:8899/api/blade-xxljob/monitor/get-job-execute-status/executeMonitorSql&quot;  #这是开发环境
+#这是生产环境
+url=&quot;https://uat.pidi.com/api/blade-xxljob/monitor/get-job-execute-status/executeMonitorSql&quot;    
+hds = &#123;&#39;X-Requested-With&#39;: &#39;Python requests&#39;, &#39;Content-type&#39;: &#39;text/xml&#39;&#125; 
+result=requests.get(url, headers=hds).json()
+
+#注意生产环境还是其他环境，IP不要填错了。
+pushgateway_ip=&quot;172.16.0.88&quot;
+pushgateway_port=&quot;9091&quot;
+
+d1=&quot;&quot;
+alarmStatus=-1
+
+
+#获取到请求值进行格式化为pushgateway能接收的数据。monitorResult有值就要告警。
+if bool(result[&#39;data&#39;]):
+    for k,y in result[&#39;data&#39;].items():
+        if k == &quot;alarmStatus&quot;:
+            alarmStatus=y
+        elif k == &quot;triggerMsg&quot;:
+            continue
+        d1+=str(k)+&quot;=&quot;+str(y)+&quot;,&quot;
 
 
 
-<h5 id="5、grafana"><a href="#5、grafana" class="headerlink" title="5、grafana"></a>5、grafana</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run  -d  \</span><br><span class="line">-p 3000:3000  \</span><br><span class="line">--name=grafana  \</span><br><span class="line">-v /opt/monitor/grafana/data:/var/lib/grafana  \</span><br><span class="line">-v /opt/monitor/grafana/conf:/etc/grafana  \</span><br><span class="line">grafana/grafana</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim  /opt/monitor/grafana/conf/grafana.ini</span><br><span class="line">data=/var/lib/grafana</span><br><span class="line">logs=/var/lib/grafana</span><br><span class="line">plugins=/var/lib/grafana/plugins</span><br></pre></td></tr></table></figure>
+#去掉最后的,号， 为=后面的值加上双引号（不要问我为什么，你要问我踩过的坑有多少）
+d1=d1[::-1].replace(&quot;,&quot;,&#39;&quot;&#39;,1)[::-1]
+d1=d1.replace(&quot;=&quot;,&#39;=&quot;&#39;).replace(&quot;,&quot;,&#39;&quot;,&#39;)
 
+#这是最张到pushgateway的数据了。大概是这样
+&#39;&#39;&#39;
+mortgage_metric&#123;id=&quot;9132&quot;,monitorId=&quot;2&quot;,cangdan_id2=&quot;a5452ed2ab0746c49531d3018063afd5&quot;,cangdan_id3=&quot;b335f89a17894bffb45fa489cc55d3c3&quot;,monitorDesc=&quot;一仓单多押&quot;,createTime=&quot;2022-05-25 16:26:23&quot;&#125; 1
+&#39;&#39;&#39;
+quota=&quot;&quot;&quot;
+#这是SQL监控执行情况,5分钟执行一次
+monitor_sql_metric
+</code></pre>
 
-
-<p>node-exporter 中文 dashboardID 11074</p>
-<h4 id="四、测试告警"><a href="#四、测试告警" class="headerlink" title="四、测试告警"></a>四、测试告警</h4><p>可以把内存阀值改小到50然后重新加载下配置文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim /opt/monitor/alertrule/node_alert.yaml</span><br><span class="line">expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 &gt;  50</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST localhost:9091/-/reload</span><br></pre></td></tr></table></figure>
-
-<p>这边zzax-plat 的prometheus端口没放开, 开启webhook有就告警过来</p>
-<p><img src="/img/image-20220708174651800.png" alt="image-20220708174651800"></p>
-
-  </article>
-  <!-- tag -->
-  <div class="mt-12 pt-6 border-t border-gray-200">
-    
       
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/">部署安装</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/docker/">docker</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/prometheus/">prometheus</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E7%9B%91%E6%8E%A7/">监控</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E5%91%8A%E8%AD%A6/">告警</a>
-        </span>
-      
-    
-  </div>
-  <!-- prev and next -->
-  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
-    <div>
-      
-        <a href="/2023/11/28/loki-%E9%83%A8%E7%BD%B2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          loki_bc部署
-        </a>
-      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 6430186@qq.com </span>
     </div>
-    <div>
-      
-        <a href="/2023/09/23/log-io%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          log.io部署与使用
-          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
-        </a>
-      
-    </div>
-  </div>
-  <!-- comment -->
-  <div class="article-comments mt-12">
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
     
 
-  </div>
-</section>
-<!-- js inspect -->
-
-<script src="/lib/clipboard.min.js"></script>
-
-
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-  });
-</script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-  });
-</script>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  $(document).ready(() => {
-    const maraidConfig = {
-      theme: "default",
-      logLevel: 3,
-      flowchart: { curve: "linear" },
-      gantt: { axisFormat: "%m/%d/%Y" },
-      sequence: { actorMargin: 50 },
-    };
-    mermaid.initialize(maraidConfig);
-  });
-</script>
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 匹敌
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
 
-
-<script src="/lib/fancybox/fancybox.umd.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-    $('.post-content').each(function(i){
-      $(this).find('img').each(function(){
-        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
-        var alt = this.alt;
-        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
-        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
-      });
-      $(this).find('.fancybox').each(function(){
-        $(this).attr('rel', 'article' + i);
-      });
-    });
-
-    Fancybox.bind('[data-fancybox="gallery"]', {
-        // options
-    })
-  })
-</script>
-
-<!-- tocbot begin -->
-
-<script src="/lib/tocbot/tocbot.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-      tocbot.init({
-        // Where to render the table of contents.
-        tocSelector: '.post-toc',
-        // Where to grab the headings to build the table of contents.
-        contentSelector: '.post-content',
-        // Which headings to grab inside of the contentSelector element.
-        headingSelector: 'h1, h2, h3',
-        // For headings inside relative or absolute positioned containers within content.
-        hasInnerContainers: true,
-    });
-  })
-</script>
-<!-- tocbot end -->
-
-
-  </main>
-  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
-  <!-- busuanzi -->
-  
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<!-- Busuanzi Analytics -->
-<div class="flex items-center gap-2">
-  <span>Visitors</span>
-  <span id="busuanzi_value_site_uv"></span>
-  <span>Page Views</span>
-  <span id="busuanzi_value_site_pv"></span>
+    </div>
 </div>
-<!-- End Busuanzi Analytics -->
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
 
 
-  <!-- copyright -->
-  <div class="flex items-center gap-2">
-    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
-    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
-    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
-  </div>
-  <!-- powered by -->
-  <div class="flex items-center gap-2">
-    <span>Powered by</span>
-    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
-    <span>&</span>
-    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
-  </div>
-
-</footer>
-
-  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
-    <span class="flex justify-center items-center text-sm">
-      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
-      <span id="scrollpercent"><span>0</span> %</span>
-    </span>
-  </div>
-  
-<script src="/js/main.js"></script>
-
-
-  <script>
-    $(document).ready(function () {
-      const mapleCount = "10";
-      const speed = "0.5";
-      const mapleEl = document.getElementById("maple");
-      const maples = Array.from({ length: mapleCount }).map(() => {
-        const maple = document.createElement("div");
-        const scale = Math.random() * 0.5 + 0.5;
-        const offset = Math.random() * 2 - 1;
-        const x = Math.random() * mapleEl.clientWidth;
-        const y = -Math.random() * mapleEl.clientHeight;
-        const duration = 10 / speed;
-        const delay = -duration;
-        maple.className = "maple";
-        maple.style.width = `${24 * scale}px`;
-        maple.style.height = `${24 * scale}px`;
-        maple.style.left = `${x}px`;
-        maple.style.top = `${y}px`;
-        maple.style.setProperty("--maple-fall-offset", offset);
-        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
-        maple.style.animation = `fall ${duration}s linear infinite`;
-        maple.style.animationDelay = `${delay}s`;
-        mapleEl.appendChild(maple)
-        return maple
-      })
-    });
-  </script>
-  
-
-
-  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
 </body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
 
 </html>

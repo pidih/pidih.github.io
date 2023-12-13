@@ -1,367 +1,1680 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <title>loki_bc部署 | 谁与匹敌</title>
+  <meta name="keywords" content=" 日志平台 , loki , promtail ">
+  <meta name="description" content="loki_bc部署 | 谁与匹敌">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about">
+<meta property="og:url" content="http://blog.pidi.co/about/index.html">
+<meta property="og:site_name" content="谁与匹敌">
+<meta property="og:description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-13T06:14:04.000Z">
+<meta property="article:modified_time" content="2023-12-13T07:26:38.230Z">
+<meta property="article:author" content="匹敌">
+<meta property="article:tag" content="pidi,运维，博客，IT男，匹敌">
+<meta name="twitter:card" content="summary">
 
 
+<link rel="icon" href="/img/avatar.jpg">
 
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
 
-  <meta name="author" content="pidi">
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
 
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
 
-
-  <meta name="description" content="PIDI的个人博客">
-
-
-  <meta name="keywords" content="pidi,运维，博客，IT男，匹敌">
-
-
-<title>loki_bc部署 | PiDi</title>
-
-
-
-<link rel="icon" href="/favicon.png">
-
-
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
-
-
-
-<script src="/lib/jquery.min.js"></script>
-
-
-<script src="/lib/iconify-icon.min.js"></script>
-
-
-<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
 <script>
-  tailwind.config = {
-    darkMode: "class",
-  };
+    hljs.initHighlightingOnLoad();
 </script>
 
-
-<script src="/lib/nprogress/nprogress.js"></script>
-
-<script>
-  $(document).ready(() => {
-    NProgress.configure({
-      showSpinner: false,
-    });
-    NProgress.start();
-    $("#nprogress .bar").css({
-      background: "#de7441",
-    });
-    $("#nprogress .peg").css({
-      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
-    });
-    $("#nprogress .spinner-icon").css({
-      "border-top-color": "#de7441",
-      "border-left-color": "#de7441",
-    });
-    setTimeout(function () {
-      NProgress.done();
-      $(".fade").removeClass("out");
-    }, 800);
-  });
-</script>
-
-<script>
-  (function () {
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-    if (setting === "dark" || (prefersDark && setting !== "light"))
-      document.documentElement.classList.toggle("dark", true);
-    let isDark = document.documentElement.classList.contains("dark");
-  })();
-
-  $(document).ready(function () {
-    // init icon
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = document.documentElement.classList.contains("dark");
-    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-
-    function toggleGiscusTheme() {
-      const isDark = document.documentElement.classList.contains("dark");
-      const giscusFrame = document.querySelector("iframe.giscus-frame");
-      if (giscusFrame) {
-        giscusFrame.contentWindow.postMessage(
-          {
-            giscus: {
-              setConfig: {
-                theme: isDark ? "dark" : "light",
-              },
-            },
-          },
-          "https://giscus.app"
-        );
-      }
-    }
-
-
-    // toggle dark mode
-    function toggleDark() {
-      let isDark = document.documentElement.classList.contains("dark");
-      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-      isDark = !isDark;
-      document.documentElement.classList.toggle("dark", isDark);
-      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
-      if (prefersDark === isDark) {
-        localStorage.setItem("hexo-color-scheme", "auto");
-      } else {
-        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
-      }
-      toggleGiscusTheme();
-    }
-    $("#toggle-dark").click(toggleDark);
-
-    // listen dark mode change
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", (e) => {
-        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
-        if (setting === "auto") {
-          document.documentElement.classList.toggle("dark", e.matches);
-          $("#theme-icon").attr(
-            "icon",
-            e.matches ? "ri:moon-line" : "ri:sun-line"
-          );
-          toggleGiscusTheme();
-        }
-      });
-  });
-</script>
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
 
 
 
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
 
 <meta name="generator" content="Hexo 6.3.0"></head>
-<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
-  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
-  <div class="max-auto">
-    <nav class="flex items-center text-base">
-      <a href="/" class="group">
-        <h2 class="font-medium tracking-tighterp text-l p-2">
-          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="PiDi" />
-          PiDi
-        </h2>
-      </a>
-      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
-        loki_bc部署
-      </div>
-      <div class="flex-1"></div>
-      <div class="flex items-center gap-3">
-        
-          <a class="hidden sm:flex" href="/archives">Posts</a>
-        
-          <a class="hidden sm:flex" href="/tags">tags</a>
-        
-          <a class="hidden sm:flex" href="/categories/">categories</a>
-        
-          <a class="hidden sm:flex" href="/archives/">archives</a>
-        
-        
-          
-            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/ablewong">
-              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
-            </a>
-          
-        
-        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
-          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
-        </a>
-        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
-          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
-        </a>
-      </div>
-      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
-        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
-          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
-        </span>
-        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
-          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
-        </span>
-      </div>
-    </nav>
-  </div>
-</header>
-<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
-  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
-    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/tags" class="flex h-12 sm:h-auto items-center">tags</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/categories/" class="flex h-12 sm:h-auto items-center">categories</a>
-        </li>
-      
-        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
-          <a href="/archives/" class="flex h-12 sm:h-auto items-center">archives</a>
-        </li>
-      
-    </ul>
-  </div>
-  <div class="mask bg-black/20 absolute inset-0"></div>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
 </div>
 
-  <main class="pt-14">
-    <!-- css -->
-
-<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
 
 
-<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>匹敌</span>
+</div>
 
-<!-- toc -->
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/ablewong"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:6430186@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=6430186&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
 
-  <!-- tocbot -->
-<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
 
 
-<section class="px-6 max-w-prose mx-auto md:px-0">
-  <!-- header -->
-  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
-    <div class="pt-4 md:pt-6">
-      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
-        loki_bc部署
-      </h1>
-      <div>
-        <section class="flex items-center gap-3 text-sm">
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2023-12-13</time>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
-            <span>38 min</span>
-          </span>
-          <span class="text-gray-400">·</span>
-          <span class="flex items-center gap-1">
-            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
-            <span>7.3k words</span>
-          </span>
-          
-            <span class="text-gray-400">·</span>
-            <span class="flex items-center gap-1">
-              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
-              <a class="article-category-link" href="/categories/%E6%97%A5%E5%BF%97/">日志</a>
-            </span>
-          
-        </section>
-      </div>
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(23)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="安全">
+            
+            安全
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="监控">
+            
+            监控
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="日志">
+            
+            日志
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="云平台">
+            
+            云平台
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="中间件">
+            
+            中间件
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CICD">
+            
+            CICD
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
     </div>
-  </header>
-  <!-- content -->
-  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
-    <h3 id="部署LOKI"><a href="#部署LOKI" class="headerlink" title="部署LOKI"></a>部署LOKI</h3><h4 id="一、部署环境"><a href="#一、部署环境" class="headerlink" title="一、部署环境"></a>一、部署环境</h4><p>1、系统：Alibaba Cloud Linux2.19(centos)</p>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="23">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>阿里云</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>安全防护</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>堡垒机</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>报告</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>部署安装</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>钉钉告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>负载</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>高可用</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>故障排查</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>监控</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>流程</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>漏洞</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>木马</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志收集</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>上线规范</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>实时日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>统计</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>文档</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>消息队列</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>域名绑定</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云产品下架</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>制度</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>alertmanager</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>apache</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>blade</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cicd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dingtalk告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>docker</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>elasticsearch;elk;es</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>log.io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>logs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>loki</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>MFA认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock-server</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mq</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql-cli</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql8</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nas-nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nginx</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>oss</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>php</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>prometheus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>promtail</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pushgateway</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rabbitMQ</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS同步自建mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SSL证书</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>waf</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/11/28/loki-%E9%83%A8%E7%BD%B2/"
+           data-tag="日志平台,loki,promtail"
+           data-author="" >
+            <span class="post-title" title="loki_bc部署">loki_bc部署</span>
+            <span class="post-date" title="2023-11-28 20:37:00">2023/11/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2023/10/09/UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9Fdocker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="UAT环境监控系统docker方式部署">UAT环境监控系统docker方式部署</span>
+            <span class="post-date" title="2023-10-09 11:40:00">2023/10/09</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/09/23/log-io%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8/"
+           data-tag="日志,log.io,实时日志"
+           data-author="" >
+            <span class="post-title" title="log.io部署与使用">log.io部署与使用</span>
+            <span class="post-date" title="2023-09-23 19:28:00">2023/09/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2023/09/12/rabbitMQ/"
+           data-tag="部署安装,mq,rabbitMQ,消息队列"
+           data-author="" >
+            <span class="post-title" title="rabbitMQ">rabbitMQ</span>
+            <span class="post-date" title="2023-09-12 15:24:00">2023/09/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/05/06/23-5%E6%9C%88%E4%BB%BD%E4%B8%8B%E6%9E%B6%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%89%E5%85%A8%E4%BA%A7%E5%93%81/"
+           data-tag="云产品下架,waf,nginx"
+           data-author="" >
+            <span class="post-title" title="23-5月份下架阿里云安全产品">23-5月份下架阿里云安全产品</span>
+            <span class="post-date" title="2023-05-06 10:55:00">2023/05/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/02/20/%E7%94%9F%E4%BA%A7RDS%E6%97%B6%E6%97%B6%E5%90%8C%E6%AD%A5%E5%88%B0%E8%87%AA%E5%BB%BAmysql8-0/"
+           data-tag="RDS,mysql8,RDS同步自建mysql"
+           data-author="" >
+            <span class="post-title" title="生产RDS时时同步到自建mysql8.0">生产RDS时时同步到自建mysql8.0</span>
+            <span class="post-date" title="2023-02-20 20:07:00">2023/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/01/30/oss%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A%E5%8F%8A%E8%AF%81%E4%B9%A6%E6%9B%B4%E6%96%B0/"
+           data-tag="oss,域名绑定"
+           data-author="" >
+            <span class="post-title" title="oss域名绑定及证书更新">oss域名绑定及证书更新</span>
+            <span class="post-date" title="2023-01-30 10:08:00">2023/01/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/28/%E7%89%88%E6%9C%AC%E4%B8%8A%E7%BA%BF%E6%93%8D%E4%BD%9C%E8%A7%84%E8%8C%83/"
+           data-tag="文档,流程,制度,cicd,上线规范"
+           data-author="" >
+            <span class="post-title" title="版本上线操作规范">版本上线操作规范</span>
+            <span class="post-date" title="2022-09-28 10:34:00">2022/09/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/22/%E9%98%BF%E9%87%8C%E4%BA%91%E5%86%85%E7%BD%91nginx%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="nginx,阿里云,高可用,负载"
+           data-author="" >
+            <span class="post-title" title="阿里云内网nginx高可用方法">阿里云内网nginx高可用方法</span>
+            <span class="post-date" title="2022-09-22 15:49:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/22/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/"
+           data-tag="文档,流程,cicd"
+           data-author="" >
+            <span class="post-title" title="项目上线工作流程梳理">项目上线工作流程梳理</span>
+            <span class="post-date" title="2022-09-22 12:32:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/07/nas-nfs%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,nfs,nas-nfs"
+           data-author="" >
+            <span class="post-title" title="nas-nfs部署">nas-nfs部署</span>
+            <span class="post-date" title="2022-09-07 14:10:00">2022/09/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-16%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.16.1和kibana集群部署">Elasticsearch7.16.1和kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.8.1 和 kibana集群部署">Elasticsearch7.8.1 和 kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/"
+           data-tag="jenkins,jenkins插件"
+           data-author="" >
+            <span class="post-title" title="jenkins部署及插件安装">jenkins部署及插件安装</span>
+            <span class="post-date" title="2022-08-20 11:40:00">2022/08/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/07/11/%E5%85%AC%E5%8F%B8%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2/"
+           data-tag="prometheus,告警,alertmanager,dingtalk告警,钉钉告警,pushgateway"
+           data-author="" >
+            <span class="post-title" title="公司监控部署">公司监控部署</span>
+            <span class="post-date" title="2022-07-11 15:33:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/11/%E5%A0%A1%E5%9E%92%E6%9C%BAssh%E8%AE%A4%E8%AF%81%E4%B8%8D%E8%83%BD%E5%BC%80%E5%90%AFMFA/"
+           data-tag="堡垒机,云平台,MFA认证"
+           data-author="" >
+            <span class="post-title" title="堡垒机ssh认证不能开启MFA">堡垒机ssh认证不能开启MFA</span>
+            <span class="post-date" title="2022-07-11 15:19:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/07/%E5%AE%98%E7%BD%91%E6%8D%A2%E8%AF%81%E4%B9%A6/"
+           data-tag="docker,SSL证书,php,apache"
+           data-author="" >
+            <span class="post-title" title="官网换证书">官网换证书</span>
+            <span class="post-date" title="2022-07-07 17:55:00">2022/07/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/06/30/blade-user%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1/"
+           data-tag="blade,mock-server,mock认证"
+           data-author="" >
+            <span class="post-title" title="blade-user需要认证服务">blade-user需要认证服务</span>
+            <span class="post-date" title="2022-06-30 15:16:00">2022/06/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/06/10/promethues/"
+           data-tag="docker,prometheus,监控,告警,部署安装"
+           data-author="" >
+            <span class="post-title" title="promethues">promethues</span>
+            <span class="post-date" title="2022-06-10 19:07:00">2022/06/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/05/23/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/"
+           data-tag="部署安装,mysql,mysql-cli"
+           data-author="" >
+            <span class="post-title" title="AlibabaCloud安装mysql8客户端命令">AlibabaCloud安装mysql8客户端命令</span>
+            <span class="post-date" title="2022-05-23 16:40:00">2022/05/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/05/10/Spring-boot-gateway%E6%BC%8F%E6%B4%9E/"
+           data-tag="安全防护,漏洞,木马,故障排查"
+           data-author="" >
+            <span class="post-title" title="Spring_boot_gateway漏洞">Spring_boot_gateway漏洞</span>
+            <span class="post-date" title="2022-05-10 17:23:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/05/10/nginx%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/"
+           data-tag="nginx,logs,日志收集"
+           data-author="" >
+            <span class="post-title" title="nginx日志分析">nginx日志分析</span>
+            <span class="post-date" title="2022-05-10 09:19:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2022/04/21/%E8%BF%90%E7%BB%B42022%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
+           data-tag="云平台,报告,统计"
+           data-author="" >
+            <span class="post-title" title="运维2022年年度总结报告">运维2022年年度总结报告</span>
+            <span class="post-date" title="2022-04-21 11:46:00">2022/04/21</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-loki-部署" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">loki_bc部署</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="日志">日志</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">日志平台</a>
+            
+            <a class="color5">loki</a>
+            
+            <a class="color4">promtail</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2023-12-13 10:42:57'>2023-11-28 20:37</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2LOKI"><span class="toc-text">部署LOKI</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83"><span class="toc-text">一、部署环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BC%80%E5%A7%8B%E9%83%A8%E7%BD%B2"><span class="toc-text">二、开始部署</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85docker%E5%92%8Cdocker-compose"><span class="toc-text">1、安装docker和docker-compose</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%AE%89%E8%A3%85yum%E4%BB%93%E5%BA%93%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7"><span class="toc-text">安装yum仓库管理工具</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#docker-compose"><span class="toc-text">docker-compose</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%A2%9E%E5%8A%A0docker-compose%E6%96%87%E4%BB%B6-loki-grafana-prometheus-alertmanager-dingtalk-webhook%E4%BD%BF%E7%94%A8docker-compose%E4%B8%80%E8%B5%B7%E9%83%A8%E7%BD%B2"><span class="toc-text">增加docker-compose文件,  loki \ grafana \prometheus \ alertmanager \ dingtalk-webhook使用docker-compose一起部署</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81%E5%88%9B%E5%BB%BA%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6%E5%A4%B9%E5%87%86%E5%A4%87%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E5%86%85%E5%AE%B9"><span class="toc-text">2、创建需要的文件夹准备配置文件和内容</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E3%80%81%E5%85%88%E5%BC%84loki"><span class="toc-text">3、先弄loki</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E"><span class="toc-text">配置文件说明</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#loki%E6%B8%85%E9%99%A4%E6%97%A5%E5%BF%97%E5%8F%AF%E5%8F%82%E8%80%83"><span class="toc-text">loki清除日志可参考</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4%E3%80%81grafana"><span class="toc-text">4、grafana</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5%E3%80%81%E9%85%8D%E7%BD%AEpromtheus"><span class="toc-text">5、配置promtheus</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#6%E3%80%81%E9%85%8D%E7%BD%AEAlertmanager"><span class="toc-text">6、配置Alertmanager</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#7%E3%80%81%E9%85%8D%E7%BD%AEdingtalk-webhook"><span class="toc-text">7、配置dingtalk-webhook</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8%E3%80%81node-exporter"><span class="toc-text">8、node-exporter</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#9%E3%80%81%E5%90%AF%E5%8A%A8docker-compose"><span class="toc-text">9、启动docker-compose</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#10%E3%80%81%E9%83%A8%E7%BD%B2promtail%E9%87%87%E9%9B%86%E7%AB%AF%E3%80%82"><span class="toc-text">10、部署promtail采集端。</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E"><span class="toc-text">配置说明</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E8%A7%84%E5%88%99%EF%BC%8C"><span class="toc-text">正则规则，</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%85%B6%E4%BB%96promtail%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%8F%AF%E5%8F%82%E8%80%83%EF%BC%9A"><span class="toc-text">其他promtail配置文件可参考：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E5%92%8C%E8%B0%83%E8%AF%95"><span class="toc-text">三、使用和调试</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81%E8%B0%83%E8%AF%95promtail"><span class="toc-text">1、调试promtail</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81%E6%9F%A5%E7%9C%8Bgrafana"><span class="toc-text">2、查看grafana</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="部署LOKI"><a href="#部署LOKI" class="headerlink" title="部署LOKI"></a>部署LOKI</h3><h4 id="一、部署环境"><a href="#一、部署环境" class="headerlink" title="一、部署环境"></a>一、部署环境</h4><p>1、系统：Alibaba Cloud Linux2.19(centos)</p>
 <p>2、部署工具：使用docker-compose部署</p>
 <p>3、部署服务： loki, promtail, grafana, prometheus, alertmanager</p>
 <h4 id="二、开始部署"><a href="#二、开始部署" class="headerlink" title="二、开始部署"></a>二、开始部署</h4><h5 id="1、安装docker和docker-compose"><a href="#1、安装docker和docker-compose" class="headerlink" title="1、安装docker和docker-compose"></a>1、安装docker和docker-compose</h5><p>docker</p>
-<h6 id="安装yum仓库管理工具"><a href="#安装yum仓库管理工具" class="headerlink" title="安装yum仓库管理工具"></a>安装yum仓库管理工具</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y yum-utils             </span><br></pre></td></tr></table></figure>
-
+<h6 id="安装yum仓库管理工具"><a href="#安装yum仓库管理工具" class="headerlink" title="安装yum仓库管理工具"></a>安装yum仓库管理工具</h6><pre><code class="shell">yum install -y yum-utils             
+</code></pre>
 <p>下载阿里的docker-ce仓库</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo       </span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo       
+</code></pre>
 <p>如果是国外的机器，可直接添加docker官方源</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo    </span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo    
+</code></pre>
 <p>安装和启动</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install docker-ce-20.10.9 -y</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">yum install docker-ce-20.10.9 -y
+</code></pre>
 <h6 id="docker-compose"><a href="#docker-compose" class="headerlink" title="docker-compose"></a>docker-compose</h6><p><a target="_blank" rel="noopener" href="https://github.com/docker/compose/releases">https://github.com/docker/compose/releases</a> </p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest opt]# mkdir monitor &amp;&amp; cd monitor</span><br><span class="line">[root@bctest monitor]# curl -L https://github.com/docker/compose/releases/download/1.27.4/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose</span><br><span class="line"></span><br><span class="line">[root@bctest monitor]# chmod +x /usr/local/bin/docker-compose</span><br><span class="line">[root@bctest monitor]# vim /etc/docker/daemon.json </span><br><span class="line">&#123;</span><br><span class="line">&quot;registry-mirrors&quot;: [&quot;https://phyv3gnq.mirror.aliyuncs.com&quot;,&quot;https://docker.mirrors.ustc.edu.cn/&quot;,&quot;https://hub-mirror.c.163.com&quot;,&quot;https://registry.docker-cn.com&quot;]</span><br><span class="line">&#125;</span><br><span class="line">[root@bctest monitor]# systemctl enable docker</span><br><span class="line">[root@bctest monitor]# systemctl start docker</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@bctest opt]# mkdir monitor &amp;&amp; cd monitor
+[root@bctest monitor]# curl -L https://github.com/docker/compose/releases/download/1.27.4/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 
+[root@bctest monitor]# chmod +x /usr/local/bin/docker-compose
+[root@bctest monitor]# vim /etc/docker/daemon.json 
+&#123;
+&quot;registry-mirrors&quot;: [&quot;https://phyv3gnq.mirror.aliyuncs.com&quot;,&quot;https://docker.mirrors.ustc.edu.cn/&quot;,&quot;https://hub-mirror.c.163.com&quot;,&quot;https://registry.docker-cn.com&quot;]
+&#125;
+[root@bctest monitor]# systemctl enable docker
+[root@bctest monitor]# systemctl start docker
+</code></pre>
 <p># 验证安装 docker-compose –version</p>
-<h6 id="增加docker-compose文件-loki-grafana-prometheus-alertmanager-dingtalk-webhook使用docker-compose一起部署"><a href="#增加docker-compose文件-loki-grafana-prometheus-alertmanager-dingtalk-webhook使用docker-compose一起部署" class="headerlink" title="增加docker-compose文件,  loki \ grafana \prometheus \ alertmanager \ dingtalk-webhook使用docker-compose一起部署"></a>增加docker-compose文件,  loki \ grafana \prometheus \ alertmanager \ dingtalk-webhook使用docker-compose一起部署</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest monitor]# vim /opt/monitor/docker-compose.yaml</span><br><span class="line">version: &quot;3.4&quot;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line">  loki:</span><br><span class="line">    container_name: loki</span><br><span class="line">    image: grafana/loki:2.4.0</span><br><span class="line">    restart: always</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;3100:3100&quot;</span><br><span class="line">    volumes:</span><br><span class="line">      - /opt/monitor/loki/conf:/etc/loki</span><br><span class="line">      - /opt/monitor/loki/loki:/loki</span><br><span class="line">      - /etc/localtime:/etc/localtime</span><br><span class="line">    command: -config.file=/etc/loki/local-config.yaml</span><br><span class="line">    networks:</span><br><span class="line">      - loki</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  grafana:</span><br><span class="line">    container_name: grafana</span><br><span class="line">    image: grafana/grafana:9.5.5</span><br><span class="line">    restart: always</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;3000:3000&quot;</span><br><span class="line">    volumes:</span><br><span class="line">      - /etc/localtime:/etc/localtime</span><br><span class="line">    networks:</span><br><span class="line">      - loki</span><br><span class="line"></span><br><span class="line">  prometheus:</span><br><span class="line">    image: prom/prometheus</span><br><span class="line">    container_name: prometheus</span><br><span class="line">    hostname: prometheus</span><br><span class="line">    ports:</span><br><span class="line">      - 9090:9090</span><br><span class="line">    volumes:</span><br><span class="line">      - /opt/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml</span><br><span class="line">      - /opt/monitor/prometheus/rule:/opt/prometheus/rule</span><br><span class="line">    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml</span><br><span class="line">    networks:</span><br><span class="line">      - loki</span><br><span class="line">  prometheus-exporter:</span><br><span class="line">    image: prom/node-exporter</span><br><span class="line">    container_name: prometheus-exporter</span><br><span class="line">    hostname: prometheus-exporter</span><br><span class="line">    ports:</span><br><span class="line">      - 9100:9100</span><br><span class="line">    networks:</span><br><span class="line">      - loki</span><br><span class="line">  prometheus-alertmanager:</span><br><span class="line">    image: prom/alertmanager</span><br><span class="line">    container_name: alertmanager</span><br><span class="line">    hostname: alertmanager</span><br><span class="line">    ports:</span><br><span class="line">      - 9093:9093</span><br><span class="line">    volumes:</span><br><span class="line">      - /opt/monitor/alertmanager/config.yml:/etc/alertmanager/alertmanager.yml</span><br><span class="line">    networks:</span><br><span class="line">      - loki</span><br><span class="line">     </span><br><span class="line">  dingtalk-webhook:</span><br><span class="line">    image: timonwong/prometheus-webhook-dingtalk</span><br><span class="line">    container_name: dingtalk-webhook</span><br><span class="line">    hostname: dingtalk-webhook</span><br><span class="line">    restart: always</span><br><span class="line">    ports: </span><br><span class="line">      - 8060:8060</span><br><span class="line">    volumes:</span><br><span class="line">      - /opt/monitor/dingtalk-webhook/config.yml:/etc/prometheus-webhook-dingtalk/config.yml</span><br><span class="line">      - /opt/monitor/dingtalk-webhook/dingtalk.tmpl:/opt/dingtalk.tmpl</span><br><span class="line">    networks:</span><br><span class="line">      - loki</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      </span><br><span class="line">networks:</span><br><span class="line">  loki:</span><br><span class="line">    driver: bridge</span><br></pre></td></tr></table></figure>
+<h6 id="增加docker-compose文件-loki-grafana-prometheus-alertmanager-dingtalk-webhook使用docker-compose一起部署"><a href="#增加docker-compose文件-loki-grafana-prometheus-alertmanager-dingtalk-webhook使用docker-compose一起部署" class="headerlink" title="增加docker-compose文件,  loki \ grafana \prometheus \ alertmanager \ dingtalk-webhook使用docker-compose一起部署"></a>增加docker-compose文件,  loki \ grafana \prometheus \ alertmanager \ dingtalk-webhook使用docker-compose一起部署</h6><pre><code class="shell">[root@bctest monitor]# vim /opt/monitor/docker-compose.yaml
+version: &quot;3.4&quot;
+
+services:
+  loki:
+    container_name: loki
+    image: grafana/loki:2.4.0
+    restart: always
+    ports:
+      - &quot;3100:3100&quot;
+    volumes:
+      - /opt/monitor/loki/conf:/etc/loki
+      - /opt/monitor/loki/loki:/loki
+      - /etc/localtime:/etc/localtime
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki
 
 
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:9.5.5
+    restart: always
+    ports:
+      - &quot;3000:3000&quot;
+    volumes:
+      - /etc/localtime:/etc/localtime
+    networks:
+      - loki
 
-<h5 id="2、创建需要的文件夹准备配置文件和内容"><a href="#2、创建需要的文件夹准备配置文件和内容" class="headerlink" title="2、创建需要的文件夹准备配置文件和内容"></a>2、创建需要的文件夹准备配置文件和内容</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest monitor]# mkdir alertmanager dingtalk-webhook grafana  loki  node-exporter  prometheus</span><br><span class="line">[root@bctest monitor]# mkdir loki/&#123;loki,conf&#125;</span><br><span class="line">[root@bctest monitor]# chown -R 777 loki/loki  #给它权限loki的docker用户会写</span><br><span class="line">[root@bctest monitor]# mkdir prometheus/rule</span><br></pre></td></tr></table></figure>
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    hostname: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - /opt/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /opt/monitor/prometheus/rule:/opt/prometheus/rule
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - loki
+  prometheus-exporter:
+    image: prom/node-exporter
+    container_name: prometheus-exporter
+    hostname: prometheus-exporter
+    ports:
+      - 9100:9100
+    networks:
+      - loki
+  prometheus-alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    hostname: alertmanager
+    ports:
+      - 9093:9093
+    volumes:
+      - /opt/monitor/alertmanager/config.yml:/etc/alertmanager/alertmanager.yml
+    networks:
+      - loki
+     
+  dingtalk-webhook:
+    image: timonwong/prometheus-webhook-dingtalk
+    container_name: dingtalk-webhook
+    hostname: dingtalk-webhook
+    restart: always
+    ports: 
+      - 8060:8060
+    volumes:
+      - /opt/monitor/dingtalk-webhook/config.yml:/etc/prometheus-webhook-dingtalk/config.yml
+      - /opt/monitor/dingtalk-webhook/dingtalk.tmpl:/opt/dingtalk.tmpl
+    networks:
+      - loki
 
+
+      
+networks:
+  loki:
+    driver: bridge
+</code></pre>
+<h5 id="2、创建需要的文件夹准备配置文件和内容"><a href="#2、创建需要的文件夹准备配置文件和内容" class="headerlink" title="2、创建需要的文件夹准备配置文件和内容"></a>2、创建需要的文件夹准备配置文件和内容</h5><pre><code class="shell">[root@bctest monitor]# mkdir alertmanager dingtalk-webhook grafana  loki  node-exporter  prometheus
+[root@bctest monitor]# mkdir loki/&#123;loki,conf&#125;
+[root@bctest monitor]# chown -R 777 loki/loki  #给它权限loki的docker用户会写
+[root@bctest monitor]# mkdir prometheus/rule
+</code></pre>
 <p>#一般loki&#x2F;loki&#x2F;目录下会有这些文件夹，如果清除内容可删除掉这些文件夹，然后重新创建<br>cd loki&#x2F;loki<br>rm -rf .&#x2F;*<br>mkdir boltdb-shipper-active boltdb-shipper-cache chunks compactor rules wal<br>chown -R 10001.10001 .&#x2F;*</p>
-<h5 id="3、先弄loki"><a href="#3、先弄loki" class="headerlink" title="3、先弄loki"></a>3、先弄loki</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest monitor]# cd loki/conf </span><br><span class="line">[root@bctest monitor]# wget https://raw.githubusercontent.com/grafana/loki/master/cmd/loki/loki-local-config.yaml </span><br><span class="line">[root@bctest monitor]# vim loki-local-config.yaml</span><br><span class="line">auth_enabled: false</span><br><span class="line"></span><br><span class="line">server:</span><br><span class="line">  http_listen_port: 3100</span><br><span class="line"></span><br><span class="line">common:</span><br><span class="line">  path_prefix: /loki</span><br><span class="line">  storage:</span><br><span class="line">    filesystem:</span><br><span class="line">      chunks_directory: /loki/chunks</span><br><span class="line">      rules_directory: /loki/rules</span><br><span class="line">  replication_factor: 1</span><br><span class="line">  ring:</span><br><span class="line">    instance_addr: 127.0.0.1</span><br><span class="line">    kvstore:</span><br><span class="line">      store: inmemory</span><br><span class="line"></span><br><span class="line">schema_config:</span><br><span class="line">  configs:</span><br><span class="line">    - from: 2023-08-15</span><br><span class="line">      store: boltdb-shipper</span><br><span class="line">      object_store: filesystem</span><br><span class="line">      schema: v11</span><br><span class="line">      index:</span><br><span class="line">        prefix: index_</span><br><span class="line">        period: 24h</span><br><span class="line"></span><br><span class="line">table_manager:</span><br><span class="line">  retention_deletes_enabled: true</span><br><span class="line">  retention_period: 240h</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">retention.cleanup_enabled: <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">retention.max_age: 2d</span></span><br><span class="line">limits_config:</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">增加索引间隔为24小时</span></span><br><span class="line">  max_chunks_per_query: 1000000</span><br><span class="line">  max_line_size: 104857600</span><br><span class="line">  ingestion_rate_mb: 15</span><br><span class="line">  ingestion_burst_size_mb: 20</span><br><span class="line"></span><br><span class="line">ruler:</span><br><span class="line">  alertmanager_url: http://alertmanager:9093</span><br></pre></td></tr></table></figure>
+<h5 id="3、先弄loki"><a href="#3、先弄loki" class="headerlink" title="3、先弄loki"></a>3、先弄loki</h5><pre><code class="SHELL">[root@bctest monitor]# cd loki/conf 
+[root@bctest monitor]# wget https://raw.githubusercontent.com/grafana/loki/master/cmd/loki/loki-local-config.yaml 
+[root@bctest monitor]# vim loki-local-config.yaml
+auth_enabled: false
 
-<h6 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">auth_enabled: false</span><br><span class="line">server:</span><br><span class="line">  http_listen_port: 3100 # http_listen_port:配置HTTP监听端口号为3100。</span><br><span class="line">  graceful_shutdown_timeout: 60s #配置优雅停机的超时时间为6o秒。</span><br><span class="line">  http_server_read_timeout: 60s #配置HTTP服务器读取超时时间为60秒。</span><br><span class="line">  http_server_write_timeout: 60s # 配置HTTP服务器写入超时时间为60秒。</span><br><span class="line"></span><br><span class="line">ingester:   #配置Loki的ingester部分,用于接收和处理日志数据○</span><br><span class="line">  lifecycler:   #配置生命周期管理器，用于管理日志数据的生命周期。</span><br><span class="line">    address: 10.0.0.8  #配置生命周期管理器的地址</span><br><span class="line">    ring:   #配置哈希环,用于将日志数据分配给不同的Loki节点</span><br><span class="line">	  kvstore: #配置键值存储,用于存储哈希环的节点信息。</span><br><span class="line">	    store: inmemory  #配置存储引擎为inmemory:即内存中存储</span><br><span class="line">      replication_factor: 1   #配置复制因子为1，即每个节点只存储―份数据。</span><br><span class="line">	final_sleep: 0s   #配置最终休眠时间为o秒，即关闭时立即停止。</span><br><span class="line">  chunk_idle _period: 1h   #配置日志块的空闲时间为1小时。如果一个日志块在这段时间内没有收到新的日志数据，则会被刷新。</span><br><span class="line">  max_chunk_age: 1h   #配置日志块的最大年龄为1小时。当一个日志块达到这个年龄时，所有的日志数据都会被刷新。</span><br><span class="line">  chunk target_size: 2048576   #配置日志块的目标大小为2048576字节（约为1.5NB）·如果日志块的空闲时间或最大年龄先达到</span><br><span class="line">  chunk_retain_period: 30s   #配置日志块的保留时间为3o秒。这个时间必须大于索引读取缓存的TL（默认为5分钟》。</span><br><span class="line">  max_transfer_retries: 0   #配置日志块传输的最大重试次数为o，即禁用日志块传输。</span><br><span class="line"></span><br><span class="line">schema_config:    #配置Loki的schema部分，用于管理索引和存储引擎。</span><br><span class="line">  configs:   #配置索引和存储引擎的信息。</span><br><span class="line">    - from: 2020-10-24   #配置索引和存储引擎的起始时间。</span><br><span class="line">      store: boltdb-shipper   #配置存储引擎为boltdb-shipper，即使用BoltDB存储引擎。</span><br><span class="line">  	  object_store: filesystem   # 配置对象存储引擎为filesystem〉即使用文件系统存储。</span><br><span class="line">  	  schema: v11   #配置schema版本号为v11。</span><br><span class="line">      index:   #配置索引相关的信息。</span><br><span class="line">        prefix: index_   #配置索引文件的前缀为index_</span><br><span class="line">	    operiod: 24h  #配置索引文件的周期为24小时。</span><br><span class="line"></span><br><span class="line">storage_config:   #配置Loki的存储引擎相关的信息。</span><br><span class="line">  boltdb_shipper:   #配置BoltDB存储引擎的信息。</span><br><span class="line">    active _index_directory: /tmp/loki/boltdb-shipper-active   #配置活动索引文件的存储目录为/tmp/loki/boltdb-shipper-i</span><br><span class="line">    cache_location:/tmp/loki/boltdb-shipper-cache   #配置BoltDB缓存文件的存储目录为/tmp/loki/boltdb-shipper-cache。</span><br><span class="line">    cache_ttl: 240h   #配置BoltDB缓存的TTL为240小时。</span><br><span class="line">    shared_store: filesystem   # 配置共享存储引擎为filesystem，即使用文件系统存储。</span><br><span class="line">  filesystem:   #配置文件系统存储引擎的信息，即日志数据的存储目录为/tmp/loki/chunks</span><br><span class="line">    directory: /tmp/loki/chunks</span><br><span class="line"></span><br><span class="line">compactor:#配置日志压缩器的信息。</span><br><span class="line">  working_directory:/tmp/loki/boltdb-shipper-compactor  #配置工作目录为/tmp/loki/boltdb-shipper-compactoro</span><br><span class="line">  shared_store: filesystem     # 配置共享存储引擎为filesystem，即使用文件系统存储。</span><br><span class="line"></span><br><span class="line">limits_config:   #配置Loki的限制策略。</span><br><span class="line">  reject_old_samples: true   #配置是否拒绝旧的日志数据。</span><br><span class="line">  reject_old_samples_max_age: 168h   #配置拒绝旧的日志数据的最大年龄为168小时。ingestion_rate_mb: 64 #配置日志数据的最大摄入速率为64MNB/s o</span><br><span class="line">  ingestion_burst_size_mb: 128   # 配置日志数据的最大摄入突发大小为128MB o</span><br><span class="line">  max_streams_matchers_per_query: 100000   #配置每个查询的最大流匹配器数里为100000 o</span><br><span class="line">  max_entries_limit_per_query: 50000   #配置每个查询的最大条目限制为5000o o</span><br><span class="line">  </span><br><span class="line">chunk_store_config:   #配置日志数据的存储策略。</span><br><span class="line"><span class="meta prompt_">  #</span><span class="language-bash">max_look_back_period: 1440h</span></span><br><span class="line">  max_look_back_period: 240h    #配置最大回溯时间为240小时。</span><br><span class="line"></span><br><span class="line">table_manager:   #配置Loki的表管理器。</span><br><span class="line">  retention_deletes_enabled: true    #配置是否启用保留期删除。#retention _period: 1440h</span><br><span class="line">  retention_period: 240h   #配置保留期为240小时。</span><br><span class="line"></span><br><span class="line">ruler:</span><br><span class="line">  storage:</span><br><span class="line">    type: local</span><br><span class="line">    local:</span><br><span class="line">      directory: /tmp/loki/rules</span><br><span class="line">  rule_path: /tmp/loki/rules-temp</span><br><span class="line">  alertmanager_url: http://10.0.e.8:9093</span><br><span class="line">  ring:</span><br><span class="line">    kvstore:</span><br><span class="line">    store: inmemory</span><br><span class="line">  enable_api: true </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+server:
+  http_listen_port: 3100
 
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2023-08-15
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: 240h
+
+#retention.cleanup_enabled: true
+#retention.max_age: 2d
+limits_config:
+  # 增加索引间隔为24小时
+  max_chunks_per_query: 1000000
+  max_line_size: 104857600
+  ingestion_rate_mb: 15
+  ingestion_burst_size_mb: 20
+
+ruler:
+  alertmanager_url: http://alertmanager:9093
+</code></pre>
+<h6 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h6><pre><code class="shell">auth_enabled: false
+server:
+  http_listen_port: 3100 # http_listen_port:配置HTTP监听端口号为3100。
+  graceful_shutdown_timeout: 60s #配置优雅停机的超时时间为6o秒。
+  http_server_read_timeout: 60s #配置HTTP服务器读取超时时间为60秒。
+  http_server_write_timeout: 60s # 配置HTTP服务器写入超时时间为60秒。
+
+ingester:   #配置Loki的ingester部分,用于接收和处理日志数据○
+  lifecycler:   #配置生命周期管理器，用于管理日志数据的生命周期。
+    address: 10.0.0.8  #配置生命周期管理器的地址
+    ring:   #配置哈希环,用于将日志数据分配给不同的Loki节点
+      kvstore: #配置键值存储,用于存储哈希环的节点信息。
+        store: inmemory  #配置存储引擎为inmemory:即内存中存储
+      replication_factor: 1   #配置复制因子为1，即每个节点只存储―份数据。
+    final_sleep: 0s   #配置最终休眠时间为o秒，即关闭时立即停止。
+  chunk_idle _period: 1h   #配置日志块的空闲时间为1小时。如果一个日志块在这段时间内没有收到新的日志数据，则会被刷新。
+  max_chunk_age: 1h   #配置日志块的最大年龄为1小时。当一个日志块达到这个年龄时，所有的日志数据都会被刷新。
+  chunk target_size: 2048576   #配置日志块的目标大小为2048576字节（约为1.5NB）·如果日志块的空闲时间或最大年龄先达到
+  chunk_retain_period: 30s   #配置日志块的保留时间为3o秒。这个时间必须大于索引读取缓存的TL（默认为5分钟》。
+  max_transfer_retries: 0   #配置日志块传输的最大重试次数为o，即禁用日志块传输。
+
+schema_config:    #配置Loki的schema部分，用于管理索引和存储引擎。
+  configs:   #配置索引和存储引擎的信息。
+    - from: 2020-10-24   #配置索引和存储引擎的起始时间。
+      store: boltdb-shipper   #配置存储引擎为boltdb-shipper，即使用BoltDB存储引擎。
+        object_store: filesystem   # 配置对象存储引擎为filesystem〉即使用文件系统存储。
+        schema: v11   #配置schema版本号为v11。
+      index:   #配置索引相关的信息。
+        prefix: index_   #配置索引文件的前缀为index_
+        operiod: 24h  #配置索引文件的周期为24小时。
+
+storage_config:   #配置Loki的存储引擎相关的信息。
+  boltdb_shipper:   #配置BoltDB存储引擎的信息。
+    active _index_directory: /tmp/loki/boltdb-shipper-active   #配置活动索引文件的存储目录为/tmp/loki/boltdb-shipper-i
+    cache_location:/tmp/loki/boltdb-shipper-cache   #配置BoltDB缓存文件的存储目录为/tmp/loki/boltdb-shipper-cache。
+    cache_ttl: 240h   #配置BoltDB缓存的TTL为240小时。
+    shared_store: filesystem   # 配置共享存储引擎为filesystem，即使用文件系统存储。
+  filesystem:   #配置文件系统存储引擎的信息，即日志数据的存储目录为/tmp/loki/chunks
+    directory: /tmp/loki/chunks
+
+compactor:#配置日志压缩器的信息。
+  working_directory:/tmp/loki/boltdb-shipper-compactor  #配置工作目录为/tmp/loki/boltdb-shipper-compactoro
+  shared_store: filesystem     # 配置共享存储引擎为filesystem，即使用文件系统存储。
+
+limits_config:   #配置Loki的限制策略。
+  reject_old_samples: true   #配置是否拒绝旧的日志数据。
+  reject_old_samples_max_age: 168h   #配置拒绝旧的日志数据的最大年龄为168小时。ingestion_rate_mb: 64 #配置日志数据的最大摄入速率为64MNB/s o
+  ingestion_burst_size_mb: 128   # 配置日志数据的最大摄入突发大小为128MB o
+  max_streams_matchers_per_query: 100000   #配置每个查询的最大流匹配器数里为100000 o
+  max_entries_limit_per_query: 50000   #配置每个查询的最大条目限制为5000o o
+  
+chunk_store_config:   #配置日志数据的存储策略。
+  #max_look_back_period: 1440h
+  max_look_back_period: 240h    #配置最大回溯时间为240小时。
+
+table_manager:   #配置Loki的表管理器。
+  retention_deletes_enabled: true    #配置是否启用保留期删除。#retention _period: 1440h
+  retention_period: 240h   #配置保留期为240小时。
+
+ruler:
+  storage:
+    type: local
+    local:
+      directory: /tmp/loki/rules
+  rule_path: /tmp/loki/rules-temp
+  alertmanager_url: http://10.0.e.8:9093
+  ring:
+    kvstore:
+    store: inmemory
+  enable_api: true 
+</code></pre>
 <h6 id="loki清除日志可参考"><a href="#loki清除日志可参考" class="headerlink" title="loki清除日志可参考"></a>loki清除日志可参考</h6><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43757027/article/details/122327252">https://blog.csdn.net/weixin_43757027/article/details/122327252</a></p>
 <h5 id="4、grafana"><a href="#4、grafana" class="headerlink" title="4、grafana"></a>4、grafana</h5><p>可以不使用配置文件和存储，默认就好。</p>
-<h5 id="5、配置promtheus"><a href="#5、配置promtheus" class="headerlink" title="5、配置promtheus"></a>5、配置promtheus</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest monitor]# vim prometheus/prometheus.yml  #这是prometheus的配置文件</span><br><span class="line">global:</span><br><span class="line">  scrape_interval:     15s</span><br><span class="line">  evaluation_interval: 15s </span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets:</span><br><span class="line">      - alertmanager:9093</span><br><span class="line"></span><br><span class="line">rule_files:</span><br><span class="line">   - &quot;/opt/prometheus/rule/*.yaml&quot;</span><br><span class="line">scrape_configs:</span><br><span class="line">  - job_name: &#x27;Alertmanager&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;alertmanager:9093&#x27;]</span><br><span class="line"></span><br><span class="line">  - job_name: &#x27;Grafana&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;grafana:3000&#x27;]</span><br><span class="line"></span><br><span class="line">  - job_name: &quot;node_exporter&quot;</span><br><span class="line">    file_sd_configs:</span><br><span class="line">      - files: [&#x27;/opt/prometheus/rule/node.json&#x27;]</span><br><span class="line"></span><br><span class="line">[root@bctest monitor]# cat prometheus/rule/node.json   #这是把抓取服务器的基础资源数据</span><br><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.34.118:9100&quot;</span><br><span class="line">    ],  </span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.34.118&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;11.11.11.11&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;test_dev-node&quot;</span><br><span class="line">    &#125;   </span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.240:9100&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.240&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;120.12.12.12&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;release-node&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.239:9100&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.239&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;67.67.67.67&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;prod_239-node&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;targets&quot;: [</span><br><span class="line">      &quot;172.16.0.237:9100&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;labels&quot;: &#123;</span><br><span class="line">      &quot;instance&quot;: &quot;172.16.0.237&quot;,</span><br><span class="line">      &quot;Outside_IP&quot;: &quot;47.112.131.28&quot;,</span><br><span class="line">      &quot;service&quot;: &quot;prod_237-node&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[root@bctest monitor]# cat prometheus/rule/nodealert.yaml   #这是告警配置</span><br><span class="line">groups:</span><br><span class="line">- name: UP</span><br><span class="line">  rules:</span><br><span class="line">  - alert: node</span><br><span class="line">    expr: up&#123;job=&quot;node_exporter&quot;&#125; == 0</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      severity: crirical</span><br><span class="line">    annotations:</span><br><span class="line">      description: &quot; &#123;&#123; $labels.instance &#125;&#125; of job of &#123;&#123; $labels.job &#125;&#125; has been down for more than 5 minutes.&quot;</span><br><span class="line">      summary: &quot;&#123;&#123; $labels.instance &#125;&#125; down,up==&#123;&#123; $value &#125;&#125; // up=0表示监控已断开连接，机器已断开连接&quot;</span><br><span class="line">  - alert: HostMemory Usage</span><br><span class="line">    expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 &gt;  85</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Memory</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service&#125;&#125; 内存飙升 &quot;</span><br><span class="line">      description: &quot;主机内存使用率超过80%.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;&quot;</span><br><span class="line">  - alert: HostCPU Usage</span><br><span class="line">    expr: sum(avg without (cpu)(irate(node_cpu_seconds_total&#123;mode!=&#x27;idle&#x27;&#125;[5m]))) by (instance,service) &gt; 0.80</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: CPU</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; CPU飙升&quot;</span><br><span class="line">      description: &quot;主机CPU使用率超过80%.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;&quot;</span><br><span class="line">  - alert: HostLoad </span><br><span class="line">    expr: node_load5 &gt; 4</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Load</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot;&#123;&#123; $labels.service &#125;&#125; 负荷飙升&quot;</span><br><span class="line">      description: &quot; 主机负载5分钟超过4.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;&quot;</span><br><span class="line">  - alert: HostFilesystem Usage</span><br><span class="line">    expr: 1-(node_filesystem_free_bytes / node_filesystem_size_bytes) &gt;  0.8</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Disk</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 分区快满了&quot;</span><br><span class="line">      description: &quot; 主机 [ &#123;&#123; $labels.mountpoint &#125;&#125; ]分区使用超过80%.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;%&quot;</span><br><span class="line">  - alert: HostDiskio</span><br><span class="line">    expr: irate(node_disk_writes_completed_total&#123;job=~&quot;Host&quot;&#125;[1m]) &gt; 10</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Diskio</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; IO读写过大&quot;</span><br><span class="line">      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;]磁盘1分钟平均写入IO负载较高.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;iops&quot;</span><br><span class="line">  - alert: Network_receive</span><br><span class="line">    expr: irate(node_network_receive_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3 </span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Network_receive</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络进来流量飙升&quot;</span><br><span class="line">      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟平均接收流量超过3Mbps.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;</span><br><span class="line">  - alert: Network_transmit</span><br><span class="line">    expr: irate(node_network_transmit_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3</span><br><span class="line">    for: 1m</span><br><span class="line">    labels:</span><br><span class="line">      name: Network_transmit</span><br><span class="line">      severity: Warning</span><br><span class="line">    annotations:</span><br><span class="line">      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络出去流量飙升&quot;</span><br><span class="line">      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟内平均发送流量超过3Mbps.&quot;</span><br><span class="line">      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;</span><br><span class="line">[root@bctest monitor]# </span><br></pre></td></tr></table></figure>
+<h5 id="5、配置promtheus"><a href="#5、配置promtheus" class="headerlink" title="5、配置promtheus"></a>5、配置promtheus</h5><pre><code class="shell">[root@bctest monitor]# vim prometheus/prometheus.yml  #这是prometheus的配置文件
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s 
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - alertmanager:9093
 
+rule_files:
+   - &quot;/opt/prometheus/rule/*.yaml&quot;
+scrape_configs:
+  - job_name: &#39;Alertmanager&#39;
+    static_configs:
+    - targets: [&#39;alertmanager:9093&#39;]
+
+  - job_name: &#39;Grafana&#39;
+    static_configs:
+    - targets: [&#39;grafana:3000&#39;]
+
+  - job_name: &quot;node_exporter&quot;
+    file_sd_configs:
+      - files: [&#39;/opt/prometheus/rule/node.json&#39;]
+
+[root@bctest monitor]# cat prometheus/rule/node.json   #这是把抓取服务器的基础资源数据
+[
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.34.118:9100&quot;
+    ],  
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.34.118&quot;,
+      &quot;Outside_IP&quot;: &quot;11.11.11.11&quot;,
+      &quot;service&quot;: &quot;test_dev-node&quot;
+    &#125;   
+  &#125;,
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.240:9100&quot;
+    ],
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.240&quot;,
+      &quot;Outside_IP&quot;: &quot;120.12.12.12&quot;,
+      &quot;service&quot;: &quot;release-node&quot;
+    &#125;
+  &#125;,
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.239:9100&quot;
+    ],
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.239&quot;,
+      &quot;Outside_IP&quot;: &quot;67.67.67.67&quot;,
+      &quot;service&quot;: &quot;prod_239-node&quot;
+    &#125;
+  &#125;,
+  &#123;
+    &quot;targets&quot;: [
+      &quot;172.16.0.237:9100&quot;
+    ],
+    &quot;labels&quot;: &#123;
+      &quot;instance&quot;: &quot;172.16.0.237&quot;,
+      &quot;Outside_IP&quot;: &quot;47.112.131.28&quot;,
+      &quot;service&quot;: &quot;prod_237-node&quot;
+    &#125;
+  &#125;
+]
+
+
+
+[root@bctest monitor]# cat prometheus/rule/nodealert.yaml   #这是告警配置
+groups:
+- name: UP
+  rules:
+  - alert: node
+    expr: up&#123;job=&quot;node_exporter&quot;&#125; == 0
+    for: 1m
+    labels:
+      severity: crirical
+    annotations:
+      description: &quot; &#123;&#123; $labels.instance &#125;&#125; of job of &#123;&#123; $labels.job &#125;&#125; has been down for more than 5 minutes.&quot;
+      summary: &quot;&#123;&#123; $labels.instance &#125;&#125; down,up==&#123;&#123; $value &#125;&#125; // up=0表示监控已断开连接，机器已断开连接&quot;
+  - alert: HostMemory Usage
+    expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 &gt;  85
+    for: 1m
+    labels:
+      name: Memory
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service&#125;&#125; 内存飙升 &quot;
+      description: &quot;主机内存使用率超过80%.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;&quot;
+  - alert: HostCPU Usage
+    expr: sum(avg without (cpu)(irate(node_cpu_seconds_total&#123;mode!=&#39;idle&#39;&#125;[5m]))) by (instance,service) &gt; 0.80
+    for: 1m
+    labels:
+      name: CPU
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; CPU飙升&quot;
+      description: &quot;主机CPU使用率超过80%.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;&quot;
+  - alert: HostLoad 
+    expr: node_load5 &gt; 4
+    for: 1m
+    labels:
+      name: Load
+      severity: Warning
+    annotations:
+      summary: &quot;&#123;&#123; $labels.service &#125;&#125; 负荷飙升&quot;
+      description: &quot; 主机负载5分钟超过4.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;&quot;
+  - alert: HostFilesystem Usage
+    expr: 1-(node_filesystem_free_bytes / node_filesystem_size_bytes) &gt;  0.8
+    for: 1m
+    labels:
+      name: Disk
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 分区快满了&quot;
+      description: &quot; 主机 [ &#123;&#123; $labels.mountpoint &#125;&#125; ]分区使用超过80%.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;%&quot;
+  - alert: HostDiskio
+    expr: irate(node_disk_writes_completed_total&#123;job=~&quot;Host&quot;&#125;[1m]) &gt; 10
+    for: 1m
+    labels:
+      name: Diskio
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; IO读写过大&quot;
+      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;]磁盘1分钟平均写入IO负载较高.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;iops&quot;
+  - alert: Network_receive
+    expr: irate(node_network_receive_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3 
+    for: 1m
+    labels:
+      name: Network_receive
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络进来流量飙升&quot;
+      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟平均接收流量超过3Mbps.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;
+  - alert: Network_transmit
+    expr: irate(node_network_transmit_bytes_total&#123;device!~&quot;lo|bond[0-9]|cbr[0-9]|veth.*|virbr.*|ovs-system&quot;&#125;[5m]) / 1048576  &gt; 3
+    for: 1m
+    labels:
+      name: Network_transmit
+      severity: Warning
+    annotations:
+      summary: &quot; &#123;&#123; $labels.service &#125;&#125; 网络出去流量飙升&quot;
+      description: &quot; 主机 [&#123;&#123; $labels.device &#125;&#125;] 网卡5分钟内平均发送流量超过3Mbps.&quot;
+      value: &quot;&#123;&#123; $value &#125;&#125;3Mbps&quot;
+[root@bctest monitor]# 
+</code></pre>
 <h5 id="6、配置Alertmanager"><a href="#6、配置Alertmanager" class="headerlink" title="6、配置Alertmanager"></a>6、配置Alertmanager</h5><p>接下来编写告警服务的配置文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest monitor]# cat alertmanager/config.yml </span><br><span class="line">global:</span><br><span class="line">  resolve_timeout: 5m</span><br><span class="line">templates:</span><br><span class="line"> - &quot;/opt/monitor/alertrule/email.tmpl&quot;</span><br><span class="line">route:</span><br><span class="line">  group_by: [&#x27;alertname&#x27;]</span><br><span class="line">  group_wait: 5s</span><br><span class="line">  group_interval: 5s</span><br><span class="line">  repeat_interval: 5m</span><br><span class="line">  receiver: &#x27;dingtalk&#x27;</span><br><span class="line">  routes:</span><br><span class="line">  - receiver: &#x27;dingtalk&#x27;</span><br><span class="line">    match:</span><br><span class="line">      team: DevOps</span><br><span class="line">    group_wait: 10s</span><br><span class="line">    group_interval: 15s</span><br><span class="line">    repeat_interval: 3h</span><br><span class="line">  - receiver: &#x27;dingtalk.sql&#x27;</span><br><span class="line">    match:</span><br><span class="line">      job: pushgateway</span><br><span class="line">    group_wait: 10s</span><br><span class="line">    group_interval: 15s</span><br><span class="line">    repeat_interval: 3h</span><br><span class="line">receivers:</span><br><span class="line">- name: &#x27;dingtalk&#x27;</span><br><span class="line">  webhook_configs:</span><br><span class="line">  - url: &#x27;http://172.16.34.118:8060/dingtalk/webhook1/send&#x27;</span><br><span class="line">    send_resolved: true</span><br><span class="line">- name: &#x27;dingtalk.sql&#x27;</span><br><span class="line">  webhook_configs:</span><br><span class="line">  - url: &#x27;http://172.16.34.118:8060/dingtalk/webhook_mention_users/send&#x27;</span><br><span class="line">    send_resolved: true</span><br><span class="line">inhibit_rules:</span><br><span class="line">  - source_match:</span><br><span class="line">      severity: &#x27;critical&#x27;</span><br><span class="line">    target_match:</span><br><span class="line">      severity: &#x27;warning&#x27;</span><br><span class="line">    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">[root@bctest monitor]# cat alertmanager/config.yml 
+global:
+  resolve_timeout: 5m
+templates:
+ - &quot;/opt/monitor/alertrule/email.tmpl&quot;
+route:
+  group_by: [&#39;alertname&#39;]
+  group_wait: 5s
+  group_interval: 5s
+  repeat_interval: 5m
+  receiver: &#39;dingtalk&#39;
+  routes:
+  - receiver: &#39;dingtalk&#39;
+    match:
+      team: DevOps
+    group_wait: 10s
+    group_interval: 15s
+    repeat_interval: 3h
+  - receiver: &#39;dingtalk.sql&#39;
+    match:
+      job: pushgateway
+    group_wait: 10s
+    group_interval: 15s
+    repeat_interval: 3h
+receivers:
+- name: &#39;dingtalk&#39;
+  webhook_configs:
+  - url: &#39;http://172.16.34.118:8060/dingtalk/webhook1/send&#39;
+    send_resolved: true
+- name: &#39;dingtalk.sql&#39;
+  webhook_configs:
+  - url: &#39;http://172.16.34.118:8060/dingtalk/webhook_mention_users/send&#39;
+    send_resolved: true
+inhibit_rules:
+  - source_match:
+      severity: &#39;critical&#39;
+    target_match:
+      severity: &#39;warning&#39;
+    equal: [&#39;alertname&#39;, &#39;dev&#39;, &#39;instance&#39;]
+</code></pre>
+<h5 id="7、配置dingtalk-webhook"><a href="#7、配置dingtalk-webhook" class="headerlink" title="7、配置dingtalk-webhook"></a>7、配置dingtalk-webhook</h5><pre><code class="shell">[root@bctest monitor]# cat dingtalk-webhook/config.yml  #dingtalk-webhook的配置文件
+templates:
+  - /opt/dingtalk.tmpl
 
-<h5 id="7、配置dingtalk-webhook"><a href="#7、配置dingtalk-webhook" class="headerlink" title="7、配置dingtalk-webhook"></a>7、配置dingtalk-webhook</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest monitor]# cat dingtalk-webhook/config.yml  #dingtalk-webhook的配置文件</span><br><span class="line">templates:</span><br><span class="line">  - /opt/dingtalk.tmpl</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># You can also override default template using `default_message`</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># The following example to use the &#x27;legacy&#x27; template from v0.3.0</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">default_message:</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"> title: <span class="string">&#x27;&#123;&#123; template &quot;legacy.title&quot; . &#125;&#125;&#x27;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"> text: <span class="string">&#x27;&#123;&#123; template &quot;legacy.content&quot; . &#125;&#125;&#x27;</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># Targets, previously was known as &quot;profiles&quot;</span></span></span><br><span class="line">targets:</span><br><span class="line">  webhook1:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=5e579320eee2f1ef31213521142a4ca974de9af62b7a2e93ef0f961b0afdd624</span><br><span class="line">    # secret for signature</span><br><span class="line">    secret: SEC8646195e3beedcc22f09ad4dc328109547bc5d7eb2455bd89957d8413e9756a4</span><br><span class="line">    message:</span><br><span class="line">      title: &#x27;&#123;&#123; template &quot;legacy.title&quot; . &#125;&#125;&#x27;</span><br><span class="line">      text: &#x27;&#123;&#123; template &quot;legacy.content&quot; . &#125;&#125;&#x27;</span><br><span class="line">  webhook_legacy:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=5e579320eee2f1ef31213521142a4ca974de9af62b7a2e93ef0f961b0afdd624</span><br><span class="line">    # secret for signature</span><br><span class="line">    secret: SEC8646195e3beedcc22f09ad4dc328109547bc5d7eb2455bd89957d8413e9756a4</span><br><span class="line">    # Customize template content</span><br><span class="line">  webhook_mention_all:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=1f25d9698782f264bee1f5f12a7a908b6b8f242aff8e5e9e906690e4c64cba5b</span><br><span class="line">    mention:</span><br><span class="line">      all: true</span><br><span class="line">  webhook_mention_users:</span><br><span class="line">    url: https://oapi.dingtalk.com/robot/send?access_token=5e579320eee2f1ef31213521142a4ca974de9af62b7a2e93ef0f961b0afdd624</span><br><span class="line">    # secret for signature</span><br><span class="line">    secret: SEC8646195e3beedcc22f09ad4dc328109547bc5d7eb2455bd89957d8413e9756a4</span><br><span class="line">    message:</span><br><span class="line">      text: &#x27;&#123;&#123; template &quot;dingtalk.to.message&quot; . &#125;&#125;&#x27;</span><br><span class="line">      </span><br><span class="line">      </span><br><span class="line">[root@bctest monitor]# cat dingtalk-webhook/dingtalk.tmpl  #告警通知模板</span><br><span class="line">&#123;&#123; define &quot;__subject&quot; &#125;&#125;[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;] &#123;&#123; .GroupLabels.SortedPairs.Values | join &quot; &quot; &#125;&#125; &#123;&#123; if gt (len .CommonLabels) (len .GroupLabels) &#125;&#125;(&#123;&#123; with .CommonLabels.Remove .GroupLabels.Names &#125;&#125;&#123;&#123; .Values | join &quot; &quot; &#125;&#125;&#123;&#123; end &#125;&#125;)&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;__alertmanagerURL&quot; &#125;&#125;&#123;&#123; $alertURL := &quot;http://120.24.210.160:9090&quot; &#125;&#125; &#123;&#123;- $alertURL -&#125;&#125;/#/alerts?receiver=&#123;&#123; .Receiver &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123; define &quot;__text_alert_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;</span><br><span class="line">**Labels**</span><br><span class="line">&#123;&#123; range .Labels.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">**Annotations**</span><br><span class="line">&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">**Source:** [&#123;&#123; .GeneratorURL &#125;&#125;](&#123;&#123; .GeneratorURL &#125;&#125;)</span><br><span class="line">&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123; define &quot;default.__text_alert_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;</span><br><span class="line">---</span><br><span class="line">**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;</span><br><span class="line"></span><br><span class="line">**触发时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.StartsAt) &quot;Asia/Shanghai&quot; &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件信息:** </span><br><span class="line">&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件标签:**</span><br><span class="line">&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) &quot;severity&quot;) (ne (.Name) &quot;team&quot;) &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;default.__text_alertresovle_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;</span><br><span class="line">---</span><br><span class="line">**告警恢复:** &#123;&#123;   .Status &#125;&#125;</span><br><span class="line"></span><br><span class="line">**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;</span><br><span class="line"></span><br><span class="line">**触发时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.StartsAt) &quot;Asia/Shanghai&quot; &#125;&#125;</span><br><span class="line"></span><br><span class="line">**结束时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.EndsAt) &quot;Asia/Shanghai&quot; &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件信息:**</span><br><span class="line">&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">**事件标签:**</span><br><span class="line">&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) &quot;severity&quot;) (ne (.Name) &quot;team&quot;) &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;/* Default */&#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;default.title&quot; &#125;&#125;&#123;&#123; template &quot;__subject&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;default.content&quot; &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels &quot;alertname&quot; &#125;&#125;](&#123;&#123; template &quot;__alertmanagerURL&quot; . &#125;&#125;)**</span><br><span class="line">&#123;&#123; if gt (len .Alerts.Firing) 0 -&#125;&#125;</span><br><span class="line"></span><br><span class="line">![警报 图标](https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww2.sinaimg.cn%2Fbmiddle%2F006APoFYjw1fc4w13bl6zj3064064t8s.jpg&amp;refer=http%3A%2F%2Fwww.sina.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1656579096&amp;t=b481a5c9f10fbef572aef79c746869e9)</span><br><span class="line">**====侦测到故障====**</span><br><span class="line">&#123;&#123; template &quot;default.__text_alert_list&quot; .Alerts.Firing &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123; if gt (len .Alerts.Resolved) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123; template &quot;default.__text_alertresovle_list&quot; .Alerts.Resolved &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;/* Legacy */&#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;legacy.title&quot; &#125;&#125;&#123;&#123; template &quot;__subject&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;legacy.content&quot; &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels &quot;alertname&quot; &#125;&#125;](&#123;&#123; template &quot;__alertmanagerURL&quot; . &#125;&#125;)**</span><br><span class="line">&#123;&#123; template &quot;__text_alert_list&quot; .Alerts.Firing &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;/* Following names for compatibility */&#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;ding.link.title&quot; &#125;&#125;&#123;&#123; template &quot;default.title&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line">&#123;&#123; define &quot;ding.link.content&quot; &#125;&#125;&#123;&#123; template &quot;default.content&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;&#123; define &quot;dingtalk.to.message&quot; &#125;&#125;</span><br><span class="line">&#123;&#123;- if gt (len .Alerts.Firing) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;</span><br><span class="line"></span><br><span class="line">=========  监控告警 =========</span><br><span class="line">告警状态:    &#123;&#123; .Status &#125;&#125;</span><br><span class="line">告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;</span><br><span class="line">monitorResult:    &#123;&#123; range .Labels.SortedPairs  &#125;&#125;  [&#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value  | html &#125;&#125; ]</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">========= = end =  =========</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;- if gt (len .Alerts.Resolved) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;</span><br><span class="line"></span><br><span class="line">========= 告警恢复 =========</span><br><span class="line">告警状态:    &#123;&#123;   .Status &#125;&#125;</span><br><span class="line">告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;</span><br><span class="line">故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format &quot;2006-01-02 15:04:n05&quot; &#125;&#125;</span><br><span class="line">恢复时间:    &#123;&#123; ($alert.EndsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">========= = end =  =========</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+## You can also override default template using `default_message`
+## The following example to use the &#39;legacy&#39; template from v0.3.0
+#default_message:
+#  title: &#39;&#123;&#123; template "legacy.title" . &#125;&#125;&#39;
+#  text: &#39;&#123;&#123; template "legacy.content" . &#125;&#125;&#39;
 
+## Targets, previously was known as &quot;profiles&quot;
+targets:
+  webhook1:
+    url: https://oapi.dingtalk.com/robot/send?access_token=5e579320eee2f1ef31213521142a4ca974de9af62b7a2e93ef0f961b0afdd624
+    # secret for signature
+    secret: SEC8646195e3beedcc22f09ad4dc328109547bc5d7eb2455bd89957d8413e9756a4
+    message:
+      title: &#39;&#123;&#123; template "legacy.title" . &#125;&#125;&#39;
+      text: &#39;&#123;&#123; template "legacy.content" . &#125;&#125;&#39;
+  webhook_legacy:
+    url: https://oapi.dingtalk.com/robot/send?access_token=5e579320eee2f1ef31213521142a4ca974de9af62b7a2e93ef0f961b0afdd624
+    # secret for signature
+    secret: SEC8646195e3beedcc22f09ad4dc328109547bc5d7eb2455bd89957d8413e9756a4
+    # Customize template content
+  webhook_mention_all:
+    url: https://oapi.dingtalk.com/robot/send?access_token=1f25d9698782f264bee1f5f12a7a908b6b8f242aff8e5e9e906690e4c64cba5b
+    mention:
+      all: true
+  webhook_mention_users:
+    url: https://oapi.dingtalk.com/robot/send?access_token=5e579320eee2f1ef31213521142a4ca974de9af62b7a2e93ef0f961b0afdd624
+    # secret for signature
+    secret: SEC8646195e3beedcc22f09ad4dc328109547bc5d7eb2455bd89957d8413e9756a4
+    message:
+      text: &#39;&#123;&#123; template "dingtalk.to.message" . &#125;&#125;&#39;
+      
+      
+[root@bctest monitor]# cat dingtalk-webhook/dingtalk.tmpl  #告警通知模板
+&#123;&#123; define "__subject" &#125;&#125;[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status "firing" &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;] &#123;&#123; .GroupLabels.SortedPairs.Values | join " " &#125;&#125; &#123;&#123; if gt (len .CommonLabels) (len .GroupLabels) &#125;&#125;(&#123;&#123; with .CommonLabels.Remove .GroupLabels.Names &#125;&#125;&#123;&#123; .Values | join " " &#125;&#125;&#123;&#123; end &#125;&#125;)&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "__alertmanagerURL" &#125;&#125;&#123;&#123; $alertURL := "http://120.24.210.160:9090" &#125;&#125; &#123;&#123;- $alertURL -&#125;&#125;/#/alerts?receiver=&#123;&#123; .Receiver &#125;&#125;&#123;&#123; end &#125;&#125;
+
+&#123;&#123; define "__text_alert_list" &#125;&#125;&#123;&#123; range . &#125;&#125;
+**Labels**
+&#123;&#123; range .Labels.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;
+**Annotations**
+&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;
+**Source:** [&#123;&#123; .GeneratorURL &#125;&#125;](&#123;&#123; .GeneratorURL &#125;&#125;)
+&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+
+&#123;&#123; define "default.__text_alert_list" &#125;&#125;&#123;&#123; range . &#125;&#125;
+---
+**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;
+
+**触发时间:** &#123;&#123; dateInZone "2006.01.02 15:04:05" (.StartsAt) "Asia/Shanghai" &#125;&#125;
+
+**事件信息:** 
+&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+
+
+&#123;&#123; end &#125;&#125;
+
+**事件标签:**
+&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) "severity") (ne (.Name) "team") &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+&#123;&#123; define "default.__text_alertresovle_list" &#125;&#125;&#123;&#123; range . &#125;&#125;
+---
+**告警恢复:** &#123;&#123;   .Status &#125;&#125;
+
+**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;
+
+**触发时间:** &#123;&#123; dateInZone "2006.01.02 15:04:05" (.StartsAt) "Asia/Shanghai" &#125;&#125;
+
+**结束时间:** &#123;&#123; dateInZone "2006.01.02 15:04:05" (.EndsAt) "Asia/Shanghai" &#125;&#125;
+
+**事件信息:**
+&#123;&#123; range .Annotations.SortedPairs &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+
+
+&#123;&#123; end &#125;&#125;
+
+**事件标签:**
+&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) "severity") (ne (.Name) "team") &#125;&#125;&gt; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;
+&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+&#123;&#123; end &#125;&#125;
+
+&#123;&#123;/* Default */&#125;&#125;
+&#123;&#123; define "default.title" &#125;&#125;&#123;&#123; template "__subject" . &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "default.content" &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status "firing" &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels "alertname" &#125;&#125;](&#123;&#123; template "__alertmanagerURL" . &#125;&#125;)**
+&#123;&#123; if gt (len .Alerts.Firing) 0 -&#125;&#125;
+
+![警报 图标](https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww2.sinaimg.cn%2Fbmiddle%2F006APoFYjw1fc4w13bl6zj3064064t8s.jpg&amp;refer=http%3A%2F%2Fwww.sina.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1656579096&amp;t=b481a5c9f10fbef572aef79c746869e9)
+**====侦测到故障====**
+&#123;&#123; template "default.__text_alert_list" .Alerts.Firing &#125;&#125;
+
+
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123; if gt (len .Alerts.Resolved) 0 -&#125;&#125;
+&#123;&#123; template "default.__text_alertresovle_list" .Alerts.Resolved &#125;&#125;
+
+
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123;/* Legacy */&#125;&#125;
+&#123;&#123; define "legacy.title" &#125;&#125;&#123;&#123; template "__subject" . &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "legacy.content" &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status "firing" &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels "alertname" &#125;&#125;](&#123;&#123; template "__alertmanagerURL" . &#125;&#125;)**
+&#123;&#123; template "__text_alert_list" .Alerts.Firing &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123;/* Following names for compatibility */&#125;&#125;
+&#123;&#123; define "ding.link.title" &#125;&#125;&#123;&#123; template "default.title" . &#125;&#125;&#123;&#123; end &#125;&#125;
+&#123;&#123; define "ding.link.content" &#125;&#125;&#123;&#123; template "default.content" . &#125;&#125;&#123;&#123; end &#125;&#125;
+
+
+
+&#123;&#123; define "dingtalk.to.message" &#125;&#125;
+&#123;&#123;- if gt (len .Alerts.Firing) 0 -&#125;&#125;
+&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;
+
+=========  监控告警 =========
+告警状态:    &#123;&#123; .Status &#125;&#125;
+告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;
+monitorResult:    &#123;&#123; range .Labels.SortedPairs  &#125;&#125;  [&#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value  | html &#125;&#125; ]
+&#123;&#123;- end &#125;&#125;
+故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" &#125;&#125;
+========= = end =  =========
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+
+&#123;&#123;- if gt (len .Alerts.Resolved) 0 -&#125;&#125;
+&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;
+
+========= 告警恢复 =========
+告警状态:    &#123;&#123;   .Status &#125;&#125;
+告警主题:    &#123;&#123; $alert.Annotations.description &#125;&#125;
+故障时间:    &#123;&#123; ($alert.StartsAt.Add 28800e9).Format "2006-01-02 15:04:n05" &#125;&#125;
+恢复时间:    &#123;&#123; ($alert.EndsAt.Add 28800e9).Format "2006-01-02 15:04:05" &#125;&#125;
+========= = end =  =========
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+&#123;&#123;- end &#125;&#125;
+</code></pre>
 <h5 id="8、node-exporter"><a href="#8、node-exporter" class="headerlink" title="8、node-exporter"></a>8、node-exporter</h5><p>不用配置文件，默认就好</p>
 <h5 id="9、启动docker-compose"><a href="#9、启动docker-compose" class="headerlink" title="9、启动docker-compose"></a>9、启动docker-compose</h5><p>全部配置编写完成，开始启动, -d参数表示后台启动。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@bctest monitor]# docker-compose up -d</span><br><span class="line">[root@bctest monitor]# docker-compose up loki -d #如果单独重新启动新的服务可后面接服务名字，如果有数据映射需要清除数据，不然重新启动也会有老数据。</span><br><span class="line">[root@bctest monitor]# docker-compose exec -it loki /bin/sh #进入服务内查看运行状态</span><br><span class="line">[root@bctest monitor]# docker-compose logs loki --tail 30 -f  #查看最后30行日志。</span><br><span class="line">[root@bctest monitor]# docker-compose down loki  #结束掉某一个服务，如果不批名容器会把所有都结束掉</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">[root@bctest monitor]# docker-compose up -d
+[root@bctest monitor]# docker-compose up loki -d #如果单独重新启动新的服务可后面接服务名字，如果有数据映射需要清除数据，不然重新启动也会有老数据。
+[root@bctest monitor]# docker-compose exec -it loki /bin/sh #进入服务内查看运行状态
+[root@bctest monitor]# docker-compose logs loki --tail 30 -f  #查看最后30行日志。
+[root@bctest monitor]# docker-compose down loki  #结束掉某一个服务，如果不批名容器会把所有都结束掉
+</code></pre>
 <h5 id="10、部署promtail采集端。"><a href="#10、部署promtail采集端。" class="headerlink" title="10、部署promtail采集端。"></a>10、部署promtail采集端。</h5><p> promtail是采集日志的客户端</p>
 <p>这是官方配置文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://raw.githubusercontent.com/grafana/loki/main/clients/cmd/promtail/promtail-local-config.yaml</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">wget https://raw.githubusercontent.com/grafana/loki/main/clients/cmd/promtail/promtail-local-config.yaml
+</code></pre>
 <p>原来是使用docker-compose测试的本机。后面怎么测试和调试都替换不了timestamp。后面换二进制部署就立马可用。所以使用promtail最好不用docker.</p>
 <p>下载 promtail, 解压，移动到可执行目录。增加执行权限。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/grafana/loki/releases/download/v2.4.0/promtail-linux-amd64.zip</span><br><span class="line">unzip promtail-linux-amd64.zip </span><br><span class="line">mv promtail-linux-amd64 /usr/local/bin/promtail</span><br><span class="line">chmod +x /usr/local/bin/promtail</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">wget https://github.com/grafana/loki/releases/download/v2.4.0/promtail-linux-amd64.zip
+unzip promtail-linux-amd64.zip 
+mv promtail-linux-amd64 /usr/local/bin/promtail
+chmod +x /usr/local/bin/promtail
+</code></pre>
 <p>创建promtail目录，创建启动脚本。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mkdir /opt/promtail &amp;&amp; mv promtail-local-config.yaml</span><br><span class="line">cd /opt/promtial</span><br><span class="line">vim start_promtail.sh</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">nohup promtail --config.file=/opt/promtail/promtail-local-config.yaml &gt; ./promtail.log 2&gt;&amp;1 &amp;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">mkdir /opt/promtail &amp;&amp; mv promtail-local-config.yaml
+cd /opt/promtial
+vim start_promtail.sh
+#!/bin/bash
+nohup promtail --config.file=/opt/promtail/promtail-local-config.yaml &gt; ./promtail.log 2&gt;&amp;1 &amp;
+</code></pre>
 <p>完善配置文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br></pre></td><td class="code"><pre><span class="line">vim promtail-local-config.yaml</span><br><span class="line">server:</span><br><span class="line">  http_listen_port: 9080</span><br><span class="line">  grpc_listen_port: 0</span><br><span class="line"></span><br><span class="line">positions:</span><br><span class="line">  filename: /tmp/positions.yaml</span><br><span class="line"></span><br><span class="line">clients:</span><br><span class="line">  - url: http://172.16.34.118:3100/loki/api/v1/push</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">这里要修改为loki的ip,这个不能错，不然提交不了日志。</span></span><br><span class="line"></span><br><span class="line">scrape_configs:</span><br><span class="line">- job_name: prod1-iot-core</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录，这里填错也没关系，它只抓取本机的。</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-iot-core</span><br><span class="line">      instance: 47.47.47.47		#这里是增加标签，查日志时可文件查询，不加也行。看个人。</span><br><span class="line">      server: prod1				#这也是增加标签，可有可无。</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/iot/service/iot-core/logs/*.log  #这里是指定日志路径。</span><br><span class="line">  pipeline_stages:		#这代表管道处理日志，</span><br><span class="line">    - multiline:		#这是多行识别，</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;  #这里是当遇到开头为\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;，则认为是行头。</span><br><span class="line">        max_wait_time: 10s    #限制多行识别的时间。</span><br><span class="line">    - regex:       #使用正则匹配规则。</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:      #替换抓取的timstamp, 日志存在的时间可能很久，promtail默认只认采集日志时间。</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line">- job_name: prod1-iot-platform</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-iot-platform</span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/iot/service/iot-platform/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line">- job_name: prod1-iot-tenant</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-iot-tenant </span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/iot/service/iot-tenant/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line">- job_name: prod1-iot-watch</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-iot-watch</span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/iot/service/iot-watch/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">- job_name: prod1-dw-wms</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-dw-wms</span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/dw/service/wms/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line">- job_name: prod1-dw-wms-mgr</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-dw-wms-mgr</span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/dw/service/wms-mgr/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line">- job_name: prod1-open</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-open</span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/open/service/open/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line">- job_name: prod1-wms-wms</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-wms-wms</span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/wms/service/wms/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br><span class="line"></span><br><span class="line">- job_name: prod1-wms-wms-mgr</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets:</span><br><span class="line">      - 172.16.0.237 # 代表收集promtail本机的日志目录</span><br><span class="line">    labels:</span><br><span class="line">    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义</span><br><span class="line">      job: prod1-wms-wms-mgr</span><br><span class="line">      instance: 47.47.47.47</span><br><span class="line">      server: prod1</span><br><span class="line">      # 收集日志的目录</span><br><span class="line">      __path__: /data/project/wms/service/wms-mgr/logs/*.log</span><br><span class="line">  pipeline_stages:</span><br><span class="line">    - multiline:</span><br><span class="line">        firstline: &#x27;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#x27;</span><br><span class="line">        max_wait_time: 10s</span><br><span class="line">    - regex:</span><br><span class="line">        expression: &#x27;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#x27;</span><br><span class="line">    - timestamp:</span><br><span class="line">        source: time</span><br><span class="line">        format: &#x27;2006-01-02 15:04:05.999&#x27;</span><br><span class="line">        location: &#x27;Asia/Shanghai&#x27;</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">vim promtail-local-config.yaml
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://172.16.34.118:3100/loki/api/v1/push
+  # 这里要修改为loki的ip,这个不能错，不然提交不了日志。
+
+scrape_configs:
+- job_name: prod1-iot-core
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录，这里填错也没关系，它只抓取本机的。
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-iot-core
+      instance: 47.47.47.47		#这里是增加标签，查日志时可文件查询，不加也行。看个人。
+      server: prod1				#这也是增加标签，可有可无。
+      # 收集日志的目录
+      __path__: /data/project/iot/service/iot-core/logs/*.log  #这里是指定日志路径。
+  pipeline_stages:		#这代表管道处理日志，
+    - multiline:		#这是多行识别，
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;  #这里是当遇到开头为\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;，则认为是行头。
+        max_wait_time: 10s    #限制多行识别的时间。
+    - regex:       #使用正则匹配规则。
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:      #替换抓取的timstamp, 日志存在的时间可能很久，promtail默认只认采集日志时间。
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
+
+- job_name: prod1-iot-platform
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-iot-platform
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/iot/service/iot-platform/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
+
+- job_name: prod1-iot-tenant
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-iot-tenant 
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/iot/service/iot-tenant/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
+
+- job_name: prod1-iot-watch
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-iot-watch
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/iot/service/iot-watch/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
 
 
+- job_name: prod1-dw-wms
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-dw-wms
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/dw/service/wms/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
 
+- job_name: prod1-dw-wms-mgr
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-dw-wms-mgr
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/dw/service/wms-mgr/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
+
+- job_name: prod1-open
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-open
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/open/service/open/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
+
+- job_name: prod1-wms-wms
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-wms-wms
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/wms/service/wms/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
+
+- job_name: prod1-wms-wms-mgr
+  static_configs:
+  - targets:
+      - 172.16.0.237 # 代表收集promtail本机的日志目录
+    labels:
+    # 将会作为索引查询，除了&quot;__path__&quot;外，其他的&quot;key: value&quot;可以自定义
+      job: prod1-wms-wms-mgr
+      instance: 47.47.47.47
+      server: prod1
+      # 收集日志的目录
+      __path__: /data/project/wms/service/wms-mgr/logs/*.log
+  pipeline_stages:
+    - multiline:
+        firstline: &#39;^\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;&#39;
+        max_wait_time: 10s
+    - regex:
+        expression: &#39;(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+(?P&lt;level&gt;[A-Z]+)\s+(?P&lt;tread_id&gt;\d+)\s+(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)&#39;
+    - timestamp:
+        source: time
+        format: &#39;2006-01-02 15:04:05.999&#39;
+        location: &#39;Asia/Shanghai&#39;
+</code></pre>
 <h6 id="配置说明"><a href="#配置说明" class="headerlink" title="配置说明"></a>配置说明</h6><p>bc公司的部分日志是大概这样， 日期开头，接着日志等级，treaceID,  再接下来是服务名，后面就不管了，当做messages.</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">2023-09-26 10:32:58.093 DEBUG 27807 [http-nio-9510-exec-3] c.b.w.m.t.m.T.findListByOwnerUrl         143 : &lt;==      Total: 1</span><br><span class="line">2023-09-26 10:32:58.094  INFO 27807 [http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        178 : [GET]:/api/wms/tenant/info/owner,cost [4毫秒]</span><br><span class="line">2023-09-26 10:32:58.094  INFO 27807 [http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        93 : Request-Params:</span><br><span class="line">url = http://smd.wms-owner.bc166.com/api/owner/pc/login/tenantInfo</span><br><span class="line"></span><br><span class="line">2023-09-26 10:32:58.094  INFO 27807 [http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        95 : Response:</span><br><span class="line">2023-09-26 10:32:58.095 DEBUG 27807 [http-nio-9510-exec-3] c.a.a.u.m.s.m.U.insert                   143 : ==&gt;  Preparing: INSERT INTO uaa_user_operation_log ( log_type, url, method, params, request_ip, time, operate_type, user_operate, content, create_by, create_time, modify_by, modify_Time ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) </span><br><span class="line">2023-09-26 10:32:58.095 DEBUG 27807 [http-nio-9510-exec-3] c.a.a.u.m.s.m.U.insert                   143 : ==&gt; Parameters: INFO(String), /api/wms/tenant/info/owner(String), GET(String), url = http://smd.wms-owner.bc166.com/api/owner/pc/login/tenantInfo</span><br></pre></td></tr></table></figure>
+<pre><code class="shell">2023-09-26 10:32:58.093 DEBUG 27807 [http-nio-9510-exec-3] c.b.w.m.t.m.T.findListByOwnerUrl         143 : &lt;==      Total: 1
+2023-09-26 10:32:58.094  INFO 27807 [http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        178 : [GET]:/api/wms/tenant/info/owner,cost [4毫秒]
+2023-09-26 10:32:58.094  INFO 27807 [http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        93 : Request-Params:
+url = http://smd.wms-owner.bc166.com/api/owner/pc/login/tenantInfo
 
+2023-09-26 10:32:58.094  INFO 27807 [http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        95 : Response:
+2023-09-26 10:32:58.095 DEBUG 27807 [http-nio-9510-exec-3] c.a.a.u.m.s.m.U.insert                   143 : ==&gt;  Preparing: INSERT INTO uaa_user_operation_log ( log_type, url, method, params, request_ip, time, operate_type, user_operate, content, create_by, create_time, modify_by, modify_Time ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) 
+2023-09-26 10:32:58.095 DEBUG 27807 [http-nio-9510-exec-3] c.a.a.u.m.s.m.U.insert                   143 : ==&gt; Parameters: INFO(String), /api/wms/tenant/info/owner(String), GET(String), url = http://smd.wms-owner.bc166.com/api/owner/pc/login/tenantInfo
+</code></pre>
 <h6 id="正则规则，"><a href="#正则规则，" class="headerlink" title="正则规则，"></a>正则规则，</h6><p>如果需要调试正则可使用这两个网站 <a target="_blank" rel="noopener" href="https://regex101.com/">https://regex101.com/</a>   <a target="_blank" rel="noopener" href="https://regexr-cn.com/">https://regexr-cn.com/</a></p>
 <p>‘(?P<time>\d{4}-\d{2}-\d{2}\s<em>\d\d:\d\d:\d\d.\d+)\s+(?P<level>[A-Z]+)\s+(?P<tread_id>\d+)\s+(.</em>?)(?:\d{4}-\d{2}-\d{2}\s*\d{2}:\d{2}:\d{2}.\d+|$)’</p>
 <p> 把time当为参数，后面的规则匹配到的内容为参数值。后面用来替换timestamp.</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+   #匹配</span><br><span class="line"></span><br><span class="line">2023-09-26 10:32:58.093 </span><br></pre></td></tr></table></figure>
+<pre><code class="shell">(?P&lt;time&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d\d:\d\d:\d\d\.\d+)\s+   #匹配
 
-
-
+2023-09-26 10:32:58.093 
+</code></pre>
 <p>意思是 level为参数，这是日志等级， 后面的规则匹配到的内容为参数值。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(?P&lt;level&gt;[A-Z]+)\s+            #匹配</span><br><span class="line">DEBUG </span><br><span class="line">INFO </span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">(?P&lt;level&gt;[A-Z]+)\s+            #匹配
+DEBUG 
+INFO 
+</code></pre>
 <p>下面的意思是tread_id做为参数，匹配\d+ 数字N个，后面结空格或tab N个，匹配到的内容为参数值。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(?P&lt;tread_id&gt;\d+)\s+        #匹配</span><br><span class="line">27807 </span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">(?P&lt;tread_id&gt;\d+)\s+        #匹配
+27807 
+</code></pre>
 <p>后面所有的内容为最后匹配，**(.*? )*<em>表示后面所有内容，(?:\d{4}-\d{2}-\d{2}\s</em>\d{2}:\d{2}:\d{2}.\d+|$)直到遇到日期开头后结束匹配。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)                #匹配</span><br><span class="line">[http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        178 : [GET]:/api/wms/tenant/info/owner,cost [4毫秒]</span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">(.*?)(?:\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s*\d&#123;2&#125;:\d&#123;2&#125;:\d&#123;2&#125;\.\d+|$)                #匹配
+[http-nio-9510-exec-3] c.a.a.u.i.OperationLogInterceptor        178 : [GET]:/api/wms/tenant/info/owner,cost [4毫秒]
+</code></pre>
 <p>接下来的是替换timestamp, 这个timestamp默认是采集日志时间为准，但有的时候你采集之前就有好几个月的日志，所以需要把采集时间用日志里面的时间替换掉。这样就算你今天采集的也可以使用日期查询到前几个月的日志，只有你采集目录下有那天的日志就可查到。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- timestamp:       #这个意思就是替换timestamp的。</span><br><span class="line">    source: time  #这行的意思是使用哪个源替换timestamp, 后面的值是time，就是之前匹配配置的参数。</span><br><span class="line">    format: &#x27;2006-01-02 15:04:05.999&#x27;  #这行是格式化，我这边使用这个合适，其他多数使用RFC3339</span><br><span class="line">    location: &#x27;Asia/Shanghai&#x27;   #这行的意思是使用亚洲东八区的时区展示。</span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">    - timestamp:       #这个意思就是替换timestamp的。
+        source: time  #这行的意思是使用哪个源替换timestamp, 后面的值是time，就是之前匹配配置的参数。
+        format: &#39;2006-01-02 15:04:05.999&#39;  #这行是格式化，我这边使用这个合适，其他多数使用RFC3339
+        location: &#39;Asia/Shanghai&#39;   #这行的意思是使用亚洲东八区的时区展示。
+</code></pre>
 <h6 id="其他promtail配置文件可参考："><a href="#其他promtail配置文件可参考：" class="headerlink" title="其他promtail配置文件可参考："></a>其他promtail配置文件可参考：</h6><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1824988">https://cloud.tencent.com/developer/article/1824988</a></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/grafana/loki/blob/a85ce664ea3e303fbe3e9370185c3b81a3928159/docs/clients/promtail/configuration.md">https://github.com/grafana/loki/blob/a85ce664ea3e303fbe3e9370185c3b81a3928159/docs/clients/promtail/configuration.md</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.bookstack.cn/read/loki/clients-promtail-configuration.md">https://www.bookstack.cn/read/loki/clients-promtail-configuration.md</a></p>
@@ -369,19 +1682,15 @@
 <p><a target="_blank" rel="noopener" href="https://docs.youdianzhishi.com/k8s/logging/loki/promtail/">https://docs.youdianzhishi.com/k8s/logging/loki/promtail/</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/d_chunyu/article/details/117203326">https://blog.csdn.net/d_chunyu/article/details/117203326</a>   nginx日志格式采集展示参考</p>
 <h4 id="三、使用和调试"><a href="#三、使用和调试" class="headerlink" title="三、使用和调试"></a>三、使用和调试</h4><h5 id="1、调试promtail"><a href="#1、调试promtail" class="headerlink" title="1、调试promtail"></a>1、调试promtail</h5><p>如果用docker启动的要先进入docker</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it promtail bash</span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">docker exec -it promtail bash
+</code></pre>
 <p>不是docker启动就直接用命令，-server.http-listen-port 9999是监听 9999端口， –stdin可在前端调试，如果使用下面的命令就可直接进入调试模式， 然后直接把一串日志复制上去 回车，等待它处理。如果有none就说明那条没成功。如果有绿色标签出来说明成功了。 –config.file是指定配置文件，解析规则是按配置文件中的，所以这个不能少。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">promtail --stdin --dry-run --inspect -config.file=/etc/promtail/promtail-local-config.yaml -server.http-listen-port 9999</span><br></pre></td></tr></table></figure>
-
+<pre><code class="shell">promtail --stdin --dry-run --inspect -config.file=/etc/promtail/promtail-local-config.yaml -server.http-listen-port 9999
+</code></pre>
 <p><img src="/../../img/image-20230926111558652.png" alt="image-20230926111558652"></p>
 <p>当然也可以直接cat那日志让它解析,</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat log.log |promtail --stdin --dry-run --inspect -config.file=/etc/promtail/promtail-local-config.yaml -server.http-listen-port 9999</span><br></pre></td></tr></table></figure>
-
-
-
+<pre><code class="shell">cat log.log |promtail --stdin --dry-run --inspect -config.file=/etc/promtail/promtail-local-config.yaml -server.http-listen-port 9999
+</code></pre>
 <h5 id="2、查看grafana"><a href="#2、查看grafana" class="headerlink" title="2、查看grafana"></a>2、查看grafana</h5><p>这个很简单，打开网站输入<a target="_blank" rel="noopener" href="http://ip:3000/">http://ip:3000</a> 默认用户名密码是admin, admin</p>
 <p>在administration下有datasource  .  这里是增加数据源，就是连接loki和promethus.</p>
 <p>add new data source</p>
@@ -391,216 +1700,194 @@
 <p>然后prometheus因为只监控node-exporter, 所以在dashboards中要添加 node-exporter 官网ID，这个有中文的，选中文就好。 这个 Node Exporter Dashboard EN 20201010-StarsL.cn</p>
 <p>loki的日志直接 在explore这边选择loki源就可看开始查询日志了。这些很简单。可使用label filters标签过滤条件和line contains这个关键字查找过滤内容。</p>
 
-  </article>
-  <!-- tag -->
-  <div class="mt-12 pt-6 border-t border-gray-200">
-    
       
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/%E6%97%A5%E5%BF%97%E5%B9%B3%E5%8F%B0/">日志平台</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/loki/">loki</a>
-        </span>
-      
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
-          <a href="/tags/promtail/">promtail</a>
-        </span>
-      
-    
-  </div>
-  <!-- prev and next -->
-  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
-    <div>
-      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 6430186@qq.com </span>
     </div>
-    <div>
-      
-        <a href="/2023/10/09/UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9Fdocker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
-          UAT环境监控系统docker方式部署
-          <iconify-icon width="20" icon="ri:arrow-right-s-line" data-inline="false"></iconify-icon>
-        </a>
-      
-    </div>
-  </div>
-  <!-- comment -->
-  <div class="article-comments mt-12">
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
     
 
-  </div>
-</section>
-<!-- js inspect -->
-
-<script src="/lib/clipboard.min.js"></script>
-
-
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-  });
-</script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-  });
-</script>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  $(document).ready(() => {
-    const maraidConfig = {
-      theme: "default",
-      logLevel: 3,
-      flowchart: { curve: "linear" },
-      gantt: { axisFormat: "%m/%d/%Y" },
-      sequence: { actorMargin: 50 },
-    };
-    mermaid.initialize(maraidConfig);
-  });
-</script>
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 匹敌
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
 
-
-<script src="/lib/fancybox/fancybox.umd.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-    $('.post-content').each(function(i){
-      $(this).find('img').each(function(){
-        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
-        var alt = this.alt;
-        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
-        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
-      });
-      $(this).find('.fancybox').each(function(){
-        $(this).attr('rel', 'article' + i);
-      });
-    });
-
-    Fancybox.bind('[data-fancybox="gallery"]', {
-        // options
-    })
-  })
-</script>
-
-<!-- tocbot begin -->
-
-<script src="/lib/tocbot/tocbot.min.js"></script>
-
-<script>
-  $(document).ready(() => {
-      tocbot.init({
-        // Where to render the table of contents.
-        tocSelector: '.post-toc',
-        // Where to grab the headings to build the table of contents.
-        contentSelector: '.post-content',
-        // Which headings to grab inside of the contentSelector element.
-        headingSelector: 'h1, h2, h3',
-        // For headings inside relative or absolute positioned containers within content.
-        hasInnerContainers: true,
-    });
-  })
-</script>
-<!-- tocbot end -->
-
-
-  </main>
-  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
-  <!-- busuanzi -->
-  
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<!-- Busuanzi Analytics -->
-<div class="flex items-center gap-2">
-  <span>Visitors</span>
-  <span id="busuanzi_value_site_uv"></span>
-  <span>Page Views</span>
-  <span id="busuanzi_value_site_pv"></span>
+    </div>
 </div>
-<!-- End Busuanzi Analytics -->
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
 
 
-  <!-- copyright -->
-  <div class="flex items-center gap-2">
-    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
-    <span>© 2022</span>
-    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
-    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
-  </div>
-  <!-- powered by -->
-  <div class="flex items-center gap-2">
-    <span>Powered by</span>
-    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
-    <span>&</span>
-    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
-  </div>
-
-</footer>
-
-  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
-    <span class="flex justify-center items-center text-sm">
-      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
-      <span id="scrollpercent"><span>0</span> %</span>
-    </span>
-  </div>
-  
-<script src="/js/main.js"></script>
-
-
-  <script>
-    $(document).ready(function () {
-      const mapleCount = "10";
-      const speed = "0.5";
-      const mapleEl = document.getElementById("maple");
-      const maples = Array.from({ length: mapleCount }).map(() => {
-        const maple = document.createElement("div");
-        const scale = Math.random() * 0.5 + 0.5;
-        const offset = Math.random() * 2 - 1;
-        const x = Math.random() * mapleEl.clientWidth;
-        const y = -Math.random() * mapleEl.clientHeight;
-        const duration = 10 / speed;
-        const delay = -duration;
-        maple.className = "maple";
-        maple.style.width = `${24 * scale}px`;
-        maple.style.height = `${24 * scale}px`;
-        maple.style.left = `${x}px`;
-        maple.style.top = `${y}px`;
-        maple.style.setProperty("--maple-fall-offset", offset);
-        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
-        maple.style.animation = `fall ${duration}s linear infinite`;
-        maple.style.animationDelay = `${delay}s`;
-        mapleEl.appendChild(maple)
-        return maple
-      })
-    });
-  </script>
-  
-
-
-  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
 </body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
 
 </html>
