@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>部署redis5.0cluster集群 | 谁与匹敌</title>
+  <meta name="keywords" content=" 部署安装 , redis , rediscluster ">
+  <meta name="description" content="部署redis5.0cluster集群 | 谁与匹敌">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about me">
+<meta property="og:url" content="http://blog.pidi.co/about/index.html">
+<meta property="og:site_name" content="谁与匹敌">
+<meta property="og:description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-13T06:14:04.000Z">
+<meta property="article:modified_time" content="2023-12-14T00:43:51.073Z">
+<meta property="article:author" content="匹敌">
+<meta property="article:tag" content="pidi,运维，博客，IT男，匹敌">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>匹敌</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/ablewong"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:6430186@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=6430186&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(27)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="安全">
+            
+            安全
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="监控">
+            
+            监控
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="日志">
+            
+            日志
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="云平台">
+            
+            云平台
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="中间件">
+            
+            中间件
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CICD">
+            
+            CICD
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="database">
+            
+            database
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="linux">
+            
+            linux
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="27">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>阿里云</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>安全防护</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>堡垒机</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>报告</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>部署安装</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>钉钉告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>负载</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>高可用</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>故障排查</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>监控</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>流程</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>漏洞</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>木马</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志收集</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>上线规范</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>实时日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>统计</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>文档</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>消息队列</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>域名绑定</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云产品下架</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>制度</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>alertmanager</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>apache</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>blade</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cicd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dingtalk告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>docker</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>elasticsearch;elk;es</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jetlinks</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jetlinks插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>log.io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>logs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>loki</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>maven</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>maven构建</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>MFA认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock-server</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mq</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql-cli</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql8</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nas-nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nexus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nginx</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>oss</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>php</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>prometheus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>promtail</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pushgateway</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rabbitMQ</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS同步自建mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>redis</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rediscluster</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>shell</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SSL证书</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>waf</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2024/01/12/maven%E5%92%8Cnexus%E7%9A%84%E9%85%8D%E7%BD%AE/"
+           data-tag="maven,nexus,maven构建"
+           data-author="" >
+            <span class="post-title" title="maven和nexus的配置">maven和nexus的配置</span>
+            <span class="post-date" title="2024-01-12 17:11:06">2024/01/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2024/01/03/jetlinks%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2/"
+           data-tag="jetlinks,jetlinks插件"
+           data-author="" >
+            <span class="post-title" title="jetlinks自动化部署">jetlinks自动化部署</span>
+            <span class="post-date" title="2024-01-03 10:40:00">2024/01/03</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/11/28/loki-%E9%83%A8%E7%BD%B2/"
+           data-tag="日志平台,loki,promtail"
+           data-author="" >
+            <span class="post-title" title="loki_bc部署">loki_bc部署</span>
+            <span class="post-date" title="2023-11-28 20:37:00">2023/11/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2023/10/09/UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9Fdocker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,docker,prometheus,监控,告警"
+           data-author="" >
+            <span class="post-title" title="UAT环境监控系统docker方式部署">UAT环境监控系统docker方式部署</span>
+            <span class="post-date" title="2023-10-09 11:40:00">2023/10/09</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/09/23/log-io%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8/"
+           data-tag="日志,log.io,实时日志"
+           data-author="" >
+            <span class="post-title" title="log.io部署与使用">log.io部署与使用</span>
+            <span class="post-date" title="2023-09-23 19:28:00">2023/09/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2023/09/12/rabbitMQ/"
+           data-tag="部署安装,mq,rabbitMQ,消息队列"
+           data-author="" >
+            <span class="post-title" title="rabbitMQ">rabbitMQ</span>
+            <span class="post-date" title="2023-09-12 15:24:00">2023/09/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/05/06/23-5%E6%9C%88%E4%BB%BD%E4%B8%8B%E6%9E%B6%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%89%E5%85%A8%E4%BA%A7%E5%93%81/"
+           data-tag="云产品下架,waf,nginx"
+           data-author="" >
+            <span class="post-title" title="23-5月份下架阿里云安全产品">23-5月份下架阿里云安全产品</span>
+            <span class="post-date" title="2023-05-06 10:55:00">2023/05/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/02/20/%E7%94%9F%E4%BA%A7RDS%E6%97%B6%E6%97%B6%E5%90%8C%E6%AD%A5%E5%88%B0%E8%87%AA%E5%BB%BAmysql8-0/"
+           data-tag="RDS,mysql8,RDS同步自建mysql"
+           data-author="" >
+            <span class="post-title" title="生产RDS时时同步到自建mysql8.0">生产RDS时时同步到自建mysql8.0</span>
+            <span class="post-date" title="2023-02-20 20:07:00">2023/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/01/30/oss%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A%E5%8F%8A%E8%AF%81%E4%B9%A6%E6%9B%B4%E6%96%B0/"
+           data-tag="oss,域名绑定"
+           data-author="" >
+            <span class="post-title" title="oss域名绑定及证书更新">oss域名绑定及证书更新</span>
+            <span class="post-date" title="2023-01-30 10:08:00">2023/01/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/28/%E7%89%88%E6%9C%AC%E4%B8%8A%E7%BA%BF%E6%93%8D%E4%BD%9C%E8%A7%84%E8%8C%83/"
+           data-tag="文档,流程,制度,cicd,上线规范"
+           data-author="" >
+            <span class="post-title" title="版本上线操作规范">版本上线操作规范</span>
+            <span class="post-date" title="2022-09-28 10:34:00">2022/09/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/22/%E9%98%BF%E9%87%8C%E4%BA%91%E5%86%85%E7%BD%91nginx%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="nginx,阿里云,高可用,负载"
+           data-author="" >
+            <span class="post-title" title="阿里云内网nginx高可用方法">阿里云内网nginx高可用方法</span>
+            <span class="post-date" title="2022-09-22 15:49:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/22/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/"
+           data-tag="文档,流程,cicd"
+           data-author="" >
+            <span class="post-title" title="项目上线工作流程梳理">项目上线工作流程梳理</span>
+            <span class="post-date" title="2022-09-22 12:32:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/07/nas-nfs%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,nfs,nas-nfs"
+           data-author="" >
+            <span class="post-title" title="nas-nfs部署">nas-nfs部署</span>
+            <span class="post-date" title="2022-09-07 14:10:00">2022/09/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-16%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.16.1和kibana集群部署">Elasticsearch7.16.1和kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.8.1 和 kibana集群部署">Elasticsearch7.8.1 和 kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/"
+           data-tag="jenkins,jenkins插件"
+           data-author="" >
+            <span class="post-title" title="jenkins部署及插件安装">jenkins部署及插件安装</span>
+            <span class="post-date" title="2022-08-20 11:40:00">2022/08/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/07/11/%E5%85%AC%E5%8F%B8%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2/"
+           data-tag="prometheus,告警,alertmanager,dingtalk告警,钉钉告警,pushgateway"
+           data-author="" >
+            <span class="post-title" title="公司监控部署">公司监控部署</span>
+            <span class="post-date" title="2022-07-11 15:33:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/11/%E5%A0%A1%E5%9E%92%E6%9C%BAssh%E8%AE%A4%E8%AF%81%E4%B8%8D%E8%83%BD%E5%BC%80%E5%90%AFMFA/"
+           data-tag="堡垒机,云平台,MFA认证"
+           data-author="" >
+            <span class="post-title" title="堡垒机ssh认证不能开启MFA">堡垒机ssh认证不能开启MFA</span>
+            <span class="post-date" title="2022-07-11 15:19:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/07/%E5%AE%98%E7%BD%91%E6%8D%A2%E8%AF%81%E4%B9%A6/"
+           data-tag="docker,SSL证书,php,apache"
+           data-author="" >
+            <span class="post-title" title="官网换证书">官网换证书</span>
+            <span class="post-date" title="2022-07-07 17:55:00">2022/07/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/06/30/blade-user%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1/"
+           data-tag="blade,mock-server,mock认证"
+           data-author="" >
+            <span class="post-title" title="blade-user需要认证服务">blade-user需要认证服务</span>
+            <span class="post-date" title="2022-06-30 15:16:00">2022/06/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/06/10/promethues/"
+           data-tag="部署安装,docker,prometheus,监控,告警"
+           data-author="" >
+            <span class="post-title" title="promethues">promethues</span>
+            <span class="post-date" title="2022-06-10 19:07:00">2022/06/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/05/23/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/"
+           data-tag="部署安装,mysql,mysql-cli"
+           data-author="" >
+            <span class="post-title" title="AlibabaCloud安装mysql8客户端命令">AlibabaCloud安装mysql8客户端命令</span>
+            <span class="post-date" title="2022-05-23 16:40:00">2022/05/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/05/10/Spring-boot-gateway%E6%BC%8F%E6%B4%9E/"
+           data-tag="安全防护,漏洞,木马,故障排查"
+           data-author="" >
+            <span class="post-title" title="Spring_boot_gateway漏洞">Spring_boot_gateway漏洞</span>
+            <span class="post-date" title="2022-05-10 17:23:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/05/10/nginx%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/"
+           data-tag="nginx,logs,日志收集"
+           data-author="" >
+            <span class="post-title" title="nginx日志分析">nginx日志分析</span>
+            <span class="post-date" title="2022-05-10 09:19:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2022/04/21/%E8%BF%90%E7%BB%B42022%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
+           data-tag="云平台,报告,统计"
+           data-author="" >
+            <span class="post-title" title="运维2022年年度总结报告">运维2022年年度总结报告</span>
+            <span class="post-date" title="2022-04-21 11:46:00">2022/04/21</span>
+        </a>
+        
+        
+        <a  class="全部文章 database "
+           href="/2021/03/02/%E9%83%A8%E7%BD%B2redis5-0cluster%E9%9B%86%E7%BE%A4/"
+           data-tag="部署安装,redis,rediscluster"
+           data-author="" >
+            <span class="post-title" title="部署redis5.0cluster集群">部署redis5.0cluster集群</span>
+            <span class="post-date" title="2021-03-02 09:40:00">2021/03/02</span>
+        </a>
+        
+        
+        <a  class="全部文章 linux "
+           href="/2015/05/23/shell%E4%B8%89%E4%B8%AA%E7%81%AB%E6%9E%AA%E6%89%8B/"
+           data-tag="shell"
+           data-author="" >
+            <span class="post-title" title="shell三个火枪手">shell三个火枪手</span>
+            <span class="post-date" title="2015-05-23 16:40:00">2015/05/23</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-部署redis5-0cluster集群" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">部署redis5.0cluster集群</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="database">database</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">部署安装</a>
+            
+            <a class="color1">redis</a>
+            
+            <a class="color3">rediscluster</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2023-12-29 14:48:45'>2021-03-02 09:40</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83"><span class="toc-text">一、部署环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-text">二、准备工作</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81%E5%85%B3%E6%8E%89%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8Cselinux"><span class="toc-text">1、关掉防火墙和selinux</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81%E8%AE%BE%E7%BD%AE%E7%B3%BB%E7%BB%9F%E5%8F%82%E6%95%B0%E4%BC%98%E5%8C%96redis"><span class="toc-text">2、设置系统参数优化redis</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E3%80%81%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-text">3、下载安装依赖</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85redis"><span class="toc-text">三、安装redis</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81%E5%87%86%E5%A4%87%E4%B8%BB%E4%BB%8E%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-text">1、准备主从文件夹</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85redis"><span class="toc-text">2、安装redis</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="toc-text">四、加入集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E9%9B%86%E7%BE%A4%E7%AE%A1%E7%90%86"><span class="toc-text">五、集群管理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A0%E6%96%B0%E4%B8%BB%E8%8A%82%E7%82%B9"><span class="toc-text">1 添加新主节点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-hash%E6%A7%BD%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D"><span class="toc-text">2 hash槽重新分配</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E6%B7%BB%E5%8A%A0%E6%96%B0%E4%BB%8E%E8%8A%82%E7%82%B9"><span class="toc-text">3添加新从节点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E5%88%A0%E9%99%A4%E8%8A%82%E7%82%B9"><span class="toc-text">4 删除节点</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>黄建波</p>
+</blockquote>
+<h4 id="一、部署环境"><a href="#一、部署环境" class="headerlink" title="一、部署环境"></a>一、部署环境</h4><p>系统： Centos7</p>
+<p>3台服务器：192.168.2.195、192.168.2.196、192.168.2.197</p>
+<p>port: 6379 6380</p>
+<p>redis版本： redis-5.0.4.tar.gz</p>
+<h4 id="二、准备工作"><a href="#二、准备工作" class="headerlink" title="二、准备工作"></a>二、准备工作</h4><p> 3台服务器都要执行同样操作</p>
+<h5 id="1、关掉防火墙和selinux"><a href="#1、关掉防火墙和selinux" class="headerlink" title="1、关掉防火墙和selinux"></a>1、关掉防火墙和selinux</h5><pre><code class="shell">systemctl stop firewalld		#关防火墙
+systemctl disable firewalld		#设置开机不启动防火墙
+vim /etc/sysconfig/selinux		#SELINUX=disabled 改disabled为关闭 enabled是开启
+SELINUX=disabled
+</code></pre>
+<h5 id="2、设置系统参数优化redis"><a href="#2、设置系统参数优化redis" class="headerlink" title="2、设置系统参数优化redis"></a>2、设置系统参数优化redis</h5><pre><code class="shell">vim /etc/sysctl.conf		#在最后面增加两行
+vm.overcommit_memory = 1
+net.core.somaxconn = 2048
+
+sysctl -p 					# 使上面的内容生效
+</code></pre>
+<pre><code class="shell">echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled
+vim /etc/rc.d/rc.local		
+if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
+   echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled
+fi
+
+if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
+   echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag
+fi
+
+chmod +x /etc/rc.d/rc.local  # 增加可执行权限，开启就能执行
+
+vim /etc/security/limits.conf		#在最后增加下面两行，软件硬件打开文件个数，默认1024太小。
+* soft nofile 65535
+* hard nofile 65535
+</code></pre>
+<h5 id="3、下载安装依赖"><a href="#3、下载安装依赖" class="headerlink" title="3、下载安装依赖"></a>3、下载安装依赖</h5><pre><code class="shell">yum groupinstall &quot;Development tools&quot;		#安装make gcc gcc-c++ 
+wget http://download.redis.io/releases/redis-5.0.4.tar.gz		#下载redis5的安装包
+tar -xzf redis-5.0.4.tar.gz -C /opt/redis5
+</code></pre>
+<h4 id="三、安装redis"><a href="#三、安装redis" class="headerlink" title="三、安装redis"></a>三、安装redis</h4><p>三台服务器都做同样操作</p>
+<h5 id="1、准备主从文件夹"><a href="#1、准备主从文件夹" class="headerlink" title="1、准备主从文件夹"></a>1、准备主从文件夹</h5><pre><code class="shell">cd /opt/ &amp;&amp; mkdir redis_cluster  #准备集群目录
+cd redis_cluster &amp;&amp; mkdir 6379redis 6380redis	#主从目录
+</code></pre>
+<h5 id="2、安装redis"><a href="#2、安装redis" class="headerlink" title="2、安装redis"></a>2、安装redis</h5><p>这是在192.168.2.195 上操作，所以IP就是192.168.2.195。 其他服务器上的IP要改当前服务器的IP。</p>
+<pre><code class="shell">cd /opt/redis5
+make &amp;&amp; make install
+#安装好后就有redis-cli redis-server等命令了
+vim /opt/redis_cluster/6379redis/redis.conf		#redis配置文件增加以下内容，IP要改为服务器的IP
+bind 192.168.2.195
+port 6379
+daemonize yes
+pidfile /var/run/redis_6379.pid
+logfile &quot;/opt/redis_cluster/6379redis/redis.log&quot;
+appendonly yes
+appendfsync always
+cluster-enabled yes
+cluster-config-file nodes-6379.conf
+cluster-node-timeout 15000
+requirepass acredis365
+
+vim /opt/redis_cluster/6380redis/redis.conf      #redis从的配置文件。IP要改为服务器的IP
+bind 192.168.2.195				#这是监听的IP
+port 6380						#监控的端口
+daemonize yes					#放在后台运行
+pidfile /var/run/redis_6380.pid		#指定PID所在位置
+logfile &quot;/opt/redis_cluster/6380redis/redis.log&quot;	#指定日志位置
+appendonly yes								#这个是硬盘同步
+appendfsync always							#总是同步
+cluster-enabled yes							#开户集群模式
+cluster-config-file nodes-6380.conf			#集群的配置文件位置，这个配置文件是会自动生成的
+cluster-node-timeout 15000					#集群同步的超时时间
+requirepass acredis365						#redis认证密码
+</code></pre>
+<p>到这里redis部署好了，现在启动redis</p>
+<pre><code class="shell">cd /opt/redis_cluster/6379redis &amp;&amp; redis-server redis.conf
+cd /opt/redis_cluster/6380redis &amp;&amp; redis-server redis.conf
+</code></pre>
+<p>将启动写到开机自启文件中</p>
+<pre><code class="shell">vim /etc/rc.d/rc.local				#增加到最后行就行
+cd /opt/redis_cluster/6379redis &amp;&amp; redis-server redis.conf
+cd /opt/redis_cluster/6380redis &amp;&amp; redis-server redis.conf
+</code></pre>
+<h4 id="四、加入集群"><a href="#四、加入集群" class="headerlink" title="四、加入集群"></a>四、加入集群</h4><p>确认三台服务器的6379、3680端口都打开可连接</p>
+<pre><code class="shell">[root@redis195 redis_cluster]# redis-cli -h 192.168.2.195 -a acredis365 --cluster create 192.168.2.195:6379 192.168.2.196:6379 192.168.2.197:6379 192.168.2.195:6380 192.168.2.196:6380 192.168.2.197:6380 --cluster-replicas 1
+Warning: Using a password with &#39;-a&#39; or &#39;-u&#39; option on the command line interface may not be safe.
+&gt;&gt;&gt; Performing hash slots allocation on 6 nodes...
+Master[0] -&gt; Slots 0 - 5460
+Master[1] -&gt; Slots 5461 - 10922
+Master[2] -&gt; Slots 10923 - 16383
+Adding replica 192.168.2.196:6380 to 192.168.2.195:6379
+Adding replica 192.168.2.197:6380 to 192.168.2.196:6379
+Adding replica 192.168.2.195:6380 to 192.168.2.197:6379
+M: faa0c82094a3c5c07cdd14db7f53196441434a33 192.168.2.195:6379
+   slots:[0-5460] (5461 slots) master
+M: 26b4bff2982e05a1bd052bb122adc58846210e24 192.168.2.196:6379
+   slots:[5461-10922] (5462 slots) master
+M: 49dca6a880dbcc791c6801dc2870657ce8a5a135 192.168.2.197:6379
+   slots:[10923-16383] (5461 slots) master
+S: 3ba9818ed372439063f7ad3249d69874be8a2ce4 192.168.2.195:6380
+   replicates 49dca6a880dbcc791c6801dc2870657ce8a5a135
+S: fdd4e0f6e629a90318334234a03e3fe7e339f0c8 192.168.2.196:6380
+   replicates faa0c82094a3c5c07cdd14db7f53196441434a33
+S: c6ea81e1c8134803f17ae1caaba44eeefbe6f313 192.168.2.197:6380
+   replicates 26b4bff2982e05a1bd052bb122adc58846210e24
+Can I set the above configuration? (type &#39;yes&#39; to accept): yes
+&gt;&gt;&gt; Nodes configuration updated
+&gt;&gt;&gt; Assign a different config epoch to each node
+&gt;&gt;&gt; Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+...
+&gt;&gt;&gt; Performing Cluster Check (using node 192.168.2.195:6379)
+M: faa0c82094a3c5c07cdd14db7f53196441434a33 192.168.2.195:6379
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+M: 26b4bff2982e05a1bd052bb122adc58846210e24 192.168.2.196:6379
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+S: c6ea81e1c8134803f17ae1caaba44eeefbe6f313 192.168.2.197:6380
+   slots: (0 slots) slave
+   replicates 26b4bff2982e05a1bd052bb122adc58846210e24
+S: 3ba9818ed372439063f7ad3249d69874be8a2ce4 192.168.2.195:6380
+   slots: (0 slots) slave
+   replicates 49dca6a880dbcc791c6801dc2870657ce8a5a135
+S: fdd4e0f6e629a90318334234a03e3fe7e339f0c8 192.168.2.196:6380
+   slots: (0 slots) slave
+   replicates faa0c82094a3c5c07cdd14db7f53196441434a33
+M: 49dca6a880dbcc791c6801dc2870657ce8a5a135 192.168.2.197:6379
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+</code></pre>
+<p>redis-cli -h 192.168.2.195 -a acredis365 –cluster create 192.168.2.195:6379 192.168.2.196:6379 192.168.2.197:6379 192.168.2.195:6380 192.168.2.196:6380 192.168.2.197:6380 –cluster-replicas 1</p>
+<p>cluster-replicas 1 表示主从以1:1加入集群，前三个服务器为主，后三个服务器为从。</p>
+<p>查看集群状态</p>
+<pre><code class="shell">redis-cli --cluster info 192.168.2.195:6379 -a acredis365
+faa0c82094a3c5c07cdd14db7f53196441434a33 192.168.2.195:6379@16379 master - 0 1676538762000 1 connected 0-5460
+3ba9818ed372439063f7ad3249d69874be8a2ce4 192.168.2.195:6380@16380 slave 49dca6a880dbcc791c6801dc2870657ce8a5a135 0 1676538765997 4 connected
+fdd4e0f6e629a90318334234a03e3fe7e339f0c8 192.168.2.196:6380@16380 slave faa0c82094a3c5c07cdd14db7f53196441434a33 0 1676538764994 5 connected
+c6ea81e1c8134803f17ae1caaba44eeefbe6f313 192.168.2.197:6380@16380 slave 26b4bff2982e05a1bd052bb122adc58846210e24 0 1676538762984 6 connected
+26b4bff2982e05a1bd052bb122adc58846210e24 192.168.2.196:6379@16379 myself,master - 0 1676538763000 2 connected 5461-10922
+49dca6a880dbcc791c6801dc2870657ce8a5a135 192.168.2.197:6379@16379 master - 0 1676538764000 3 connected 10923-16383
+</code></pre>
+<p>在195的redis上增加内容，到196的redis上查</p>
+<pre><code class="shell">redis-cli -c -h 192.168.2.195 -a acredis365
+192.168.2.195:6379&gt;set hello world
+</code></pre>
+<pre><code class="shell">redis-cli -c -h 192.168.2.196 -a acredis365
+192.168.2.196:6379&gt; keys *
+(empty list or set)
+192.168.2.196:6379&gt; get hello
+-&gt; Redirected to slot [866] located at 192.168.2.195:6379
+&quot;world&quot;
+192.168.2.195:6379&gt; 
+</code></pre>
+<p>刚开始keys *没查到，吓我一跳，找了半天原因，原来需要get指定固定内容，不然执行的时候会只查当前 节点的分片下的内容。因为集群默认做分片存储。</p>
+<p>如果哪个节点断开，查到的nodes信息会是这样 0@0 slave,fail disconnected 等</p>
+<pre><code class="shell">192.168.2.195:6379&gt; cluster nodes
+26b4bff2982e05a1bd052bb122adc58846210e24 192.168.2.196:6379@16379 master - 0 1676538542206 2 connected 5461-10922
+faa0c82094a3c5c07cdd14db7f53196441434a33 192.168.2.195:6379@16379 myself,master - 0 1676538538000 1 connected 0-5460
+c6ea81e1c8134803f17ae1caaba44eeefbe6f313 :0@0 slave,fail,noaddr 26b4bff2982e05a1bd052bb122adc58846210e24 1676538444988 1676538444000 6 disconnected
+3ba9818ed372439063f7ad3249d69874be8a2ce4 192.168.2.195:6380@16380 slave 49dca6a880dbcc791c6801dc2870657ce8a5a135 0 1676538543211 4 connected
+fdd4e0f6e629a90318334234a03e3fe7e339f0c8 192.168.2.196:6380@16380 slave faa0c82094a3c5c07cdd14db7f53196441434a33 0 1676538542000 5 connected
+49dca6a880dbcc791c6801dc2870657ce8a5a135 :0@0 master,fail,noaddr - 1676538495288 1676538494000 3 disconnected 10923-16383
+</code></pre>
+<p>集群信息查看</p>
+<pre><code class="shell">[root@redis195 redis_cluster]# redis-cli --cluster info 192.168.2.195:6379 -a acredis365
+Warning: Using a password with &#39;-a&#39; or &#39;-u&#39; option on the command line interface may not be safe.
+192.168.2.195:6379 (faa0c820...) -&gt; 0 keys | 5461 slots | 1 slaves.
+192.168.2.196:6379 (26b4bff2...) -&gt; 0 keys | 5462 slots | 1 slaves.
+192.168.2.197:6379 (49dca6a8...) -&gt; 0 keys | 5461 slots | 1 slaves.
+#也可以登陆后执行cluster info查看
+192.168.2.195:6379&gt; cluster info
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:6
+cluster_my_epoch:1
+cluster_stats_messages_ping_sent:73
+cluster_stats_messages_pong_sent:75
+cluster_stats_messages_sent:148
+cluster_stats_messages_ping_received:70
+cluster_stats_messages_pong_received:73
+cluster_stats_messages_meet_received:5
+cluster_stats_messages_received:148
+</code></pre>
+<p>还有个事要注意，登陆时 加入 -a会一直使用这个密码登陆所有集群，但登陆某节点后使用auth登陆的，要查内容在其他节点就查不到，需要认证才能查到。</p>
+<pre><code class="shell">192.168.2.196:6379&gt; get hello
+-&gt; Redirected to slot [866] located at 192.168.2.195:6379
+(error) NOAUTH Authentication required.					#跳转到195上了，但没给结果，提示没认证
+192.168.2.195:6379&gt; get hello
+(error) NOAUTH Authentication required.
+192.168.2.195:6379&gt; auth acredis365						#登陆认证密码
+OK
+192.168.2.195:6379&gt; get hello							#现在就可以拿到结果了。
+&quot;world&quot;
+</code></pre>
+<h4 id="五、集群管理"><a href="#五、集群管理" class="headerlink" title="五、集群管理"></a>五、集群管理</h4><h5 id="1-添加新主节点"><a href="#1-添加新主节点" class="headerlink" title="1 添加新主节点"></a>1 添加新主节点</h5><pre><code class="bash">redis-cli --cluster add-node new_host:new_port existing_host:existing_port --cluster-master-id node_id
+</code></pre>
+<h5 id="2-hash槽重新分配"><a href="#2-hash槽重新分配" class="headerlink" title="2 hash槽重新分配"></a>2 hash槽重新分配</h5><p>添加完新节点后，需要对新添加的主节点进行hash槽重新分配，这样该主节点才能存储数据，redis共有16384个槽。</p>
+<pre><code class="bash">redis-cli --cluster reshard host:port --cluster-from node_id --cluster-to node_id --cluster-slots &lt;args&gt; --cluster-yes
+</code></pre>
+<h5 id="3添加新从节点"><a href="#3添加新从节点" class="headerlink" title="3添加新从节点"></a>3添加新从节点</h5><pre><code class="bash">redis-cli --cluster add-node new_host:new_port existing_host:existing_port --cluster-slave --cluster-master-id node_id
+</code></pre>
+<h5 id="4-删除节点"><a href="#4-删除节点" class="headerlink" title="4 删除节点"></a>4 删除节点</h5><pre><code class="bash">redis-cli --cluster  del-node host:port node_id
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 6430186@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 匹敌
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

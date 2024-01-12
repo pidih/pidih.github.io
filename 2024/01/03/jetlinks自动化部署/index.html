@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>jetlinks自动化部署 | 谁与匹敌</title>
+  <meta name="keywords" content=" jetlinks , jetlinks插件 ">
+  <meta name="description" content="jetlinks自动化部署 | 谁与匹敌">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about me">
+<meta property="og:url" content="http://blog.pidi.co/about/index.html">
+<meta property="og:site_name" content="谁与匹敌">
+<meta property="og:description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-13T06:14:04.000Z">
+<meta property="article:modified_time" content="2023-12-14T00:43:51.073Z">
+<meta property="article:author" content="匹敌">
+<meta property="article:tag" content="pidi,运维，博客，IT男，匹敌">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>匹敌</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/ablewong"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:6430186@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=6430186&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(27)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="安全">
+            
+            安全
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="监控">
+            
+            监控
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="日志">
+            
+            日志
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="云平台">
+            
+            云平台
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="中间件">
+            
+            中间件
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CICD">
+            
+            CICD
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="database">
+            
+            database
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="linux">
+            
+            linux
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="27">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>阿里云</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>安全防护</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>堡垒机</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>报告</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>部署安装</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>钉钉告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>负载</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>高可用</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>故障排查</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>监控</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>流程</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>漏洞</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>木马</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>日志收集</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>上线规范</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>实时日志</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>统计</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>文档</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>消息队列</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>域名绑定</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云产品下架</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>云平台</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>制度</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>alertmanager</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>apache</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>blade</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>cicd</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>dingtalk告警</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>docker</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>elasticsearch;elk;es</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jenkins插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jetlinks</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>jetlinks插件</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>log.io</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>logs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>loki</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>maven</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>maven构建</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>MFA认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock-server</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mock认证</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mq</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql-cli</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>mysql8</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nas-nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nexus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nfs</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>nginx</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>oss</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>php</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>prometheus</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>promtail</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>pushgateway</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rabbitMQ</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>RDS同步自建mysql</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>redis</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>rediscluster</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>shell</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SSL证书</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>waf</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2024/01/12/maven%E5%92%8Cnexus%E7%9A%84%E9%85%8D%E7%BD%AE/"
+           data-tag="maven,nexus,maven构建"
+           data-author="" >
+            <span class="post-title" title="maven和nexus的配置">maven和nexus的配置</span>
+            <span class="post-date" title="2024-01-12 17:11:06">2024/01/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2024/01/03/jetlinks%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2/"
+           data-tag="jetlinks,jetlinks插件"
+           data-author="" >
+            <span class="post-title" title="jetlinks自动化部署">jetlinks自动化部署</span>
+            <span class="post-date" title="2024-01-03 10:40:00">2024/01/03</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/11/28/loki-%E9%83%A8%E7%BD%B2/"
+           data-tag="日志平台,loki,promtail"
+           data-author="" >
+            <span class="post-title" title="loki_bc部署">loki_bc部署</span>
+            <span class="post-date" title="2023-11-28 20:37:00">2023/11/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2023/10/09/UAT%E7%8E%AF%E5%A2%83%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9Fdocker%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,docker,prometheus,监控,告警"
+           data-author="" >
+            <span class="post-title" title="UAT环境监控系统docker方式部署">UAT环境监控系统docker方式部署</span>
+            <span class="post-date" title="2023-10-09 11:40:00">2023/10/09</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2023/09/23/log-io%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8/"
+           data-tag="日志,log.io,实时日志"
+           data-author="" >
+            <span class="post-title" title="log.io部署与使用">log.io部署与使用</span>
+            <span class="post-date" title="2023-09-23 19:28:00">2023/09/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2023/09/12/rabbitMQ/"
+           data-tag="部署安装,mq,rabbitMQ,消息队列"
+           data-author="" >
+            <span class="post-title" title="rabbitMQ">rabbitMQ</span>
+            <span class="post-date" title="2023-09-12 15:24:00">2023/09/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/05/06/23-5%E6%9C%88%E4%BB%BD%E4%B8%8B%E6%9E%B6%E9%98%BF%E9%87%8C%E4%BA%91%E5%AE%89%E5%85%A8%E4%BA%A7%E5%93%81/"
+           data-tag="云产品下架,waf,nginx"
+           data-author="" >
+            <span class="post-title" title="23-5月份下架阿里云安全产品">23-5月份下架阿里云安全产品</span>
+            <span class="post-date" title="2023-05-06 10:55:00">2023/05/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/02/20/%E7%94%9F%E4%BA%A7RDS%E6%97%B6%E6%97%B6%E5%90%8C%E6%AD%A5%E5%88%B0%E8%87%AA%E5%BB%BAmysql8-0/"
+           data-tag="RDS,mysql8,RDS同步自建mysql"
+           data-author="" >
+            <span class="post-title" title="生产RDS时时同步到自建mysql8.0">生产RDS时时同步到自建mysql8.0</span>
+            <span class="post-date" title="2023-02-20 20:07:00">2023/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2023/01/30/oss%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A%E5%8F%8A%E8%AF%81%E4%B9%A6%E6%9B%B4%E6%96%B0/"
+           data-tag="oss,域名绑定"
+           data-author="" >
+            <span class="post-title" title="oss域名绑定及证书更新">oss域名绑定及证书更新</span>
+            <span class="post-date" title="2023-01-30 10:08:00">2023/01/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/28/%E7%89%88%E6%9C%AC%E4%B8%8A%E7%BA%BF%E6%93%8D%E4%BD%9C%E8%A7%84%E8%8C%83/"
+           data-tag="文档,流程,制度,cicd,上线规范"
+           data-author="" >
+            <span class="post-title" title="版本上线操作规范">版本上线操作规范</span>
+            <span class="post-date" title="2022-09-28 10:34:00">2022/09/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/22/%E9%98%BF%E9%87%8C%E4%BA%91%E5%86%85%E7%BD%91nginx%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%B3%95/"
+           data-tag="nginx,阿里云,高可用,负载"
+           data-author="" >
+            <span class="post-title" title="阿里云内网nginx高可用方法">阿里云内网nginx高可用方法</span>
+            <span class="post-date" title="2022-09-22 15:49:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/09/22/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86/"
+           data-tag="文档,流程,cicd"
+           data-author="" >
+            <span class="post-title" title="项目上线工作流程梳理">项目上线工作流程梳理</span>
+            <span class="post-date" title="2022-09-22 12:32:00">2022/09/22</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/09/07/nas-nfs%E9%83%A8%E7%BD%B2/"
+           data-tag="部署安装,nfs,nas-nfs"
+           data-author="" >
+            <span class="post-title" title="nas-nfs部署">nas-nfs部署</span>
+            <span class="post-date" title="2022-09-07 14:10:00">2022/09/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-16%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.16.1和kibana集群部署">Elasticsearch7.16.1和kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/09/04/elasticsearch7-8-1%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"
+           data-tag="elasticsearch;elk;es"
+           data-author="" >
+            <span class="post-title" title="Elasticsearch7.8.1 和 kibana集群部署">Elasticsearch7.8.1 和 kibana集群部署</span>
+            <span class="post-date" title="2022-09-04 15:45:00">2022/09/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 CICD "
+           href="/2022/08/20/jenkins%E9%83%A8%E7%BD%B2%E5%8F%8A%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/"
+           data-tag="jenkins,jenkins插件"
+           data-author="" >
+            <span class="post-title" title="jenkins部署及插件安装">jenkins部署及插件安装</span>
+            <span class="post-date" title="2022-08-20 11:40:00">2022/08/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/07/11/%E5%85%AC%E5%8F%B8%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2/"
+           data-tag="prometheus,告警,alertmanager,dingtalk告警,钉钉告警,pushgateway"
+           data-author="" >
+            <span class="post-title" title="公司监控部署">公司监控部署</span>
+            <span class="post-date" title="2022-07-11 15:33:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/11/%E5%A0%A1%E5%9E%92%E6%9C%BAssh%E8%AE%A4%E8%AF%81%E4%B8%8D%E8%83%BD%E5%BC%80%E5%90%AFMFA/"
+           data-tag="堡垒机,云平台,MFA认证"
+           data-author="" >
+            <span class="post-title" title="堡垒机ssh认证不能开启MFA">堡垒机ssh认证不能开启MFA</span>
+            <span class="post-date" title="2022-07-11 15:19:00">2022/07/11</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/07/07/%E5%AE%98%E7%BD%91%E6%8D%A2%E8%AF%81%E4%B9%A6/"
+           data-tag="docker,SSL证书,php,apache"
+           data-author="" >
+            <span class="post-title" title="官网换证书">官网换证书</span>
+            <span class="post-date" title="2022-07-07 17:55:00">2022/07/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/06/30/blade-user%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1/"
+           data-tag="blade,mock-server,mock认证"
+           data-author="" >
+            <span class="post-title" title="blade-user需要认证服务">blade-user需要认证服务</span>
+            <span class="post-date" title="2022-06-30 15:16:00">2022/06/30</span>
+        </a>
+        
+        
+        <a  class="全部文章 监控 "
+           href="/2022/06/10/promethues/"
+           data-tag="部署安装,docker,prometheus,监控,告警"
+           data-author="" >
+            <span class="post-title" title="promethues">promethues</span>
+            <span class="post-date" title="2022-06-10 19:07:00">2022/06/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 中间件 "
+           href="/2022/05/23/AlibabaCloud%E5%AE%89%E8%A3%85mysql8%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%BD%E4%BB%A4/"
+           data-tag="部署安装,mysql,mysql-cli"
+           data-author="" >
+            <span class="post-title" title="AlibabaCloud安装mysql8客户端命令">AlibabaCloud安装mysql8客户端命令</span>
+            <span class="post-date" title="2022-05-23 16:40:00">2022/05/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 安全 "
+           href="/2022/05/10/Spring-boot-gateway%E6%BC%8F%E6%B4%9E/"
+           data-tag="安全防护,漏洞,木马,故障排查"
+           data-author="" >
+            <span class="post-title" title="Spring_boot_gateway漏洞">Spring_boot_gateway漏洞</span>
+            <span class="post-date" title="2022-05-10 17:23:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 日志 "
+           href="/2022/05/10/nginx%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/"
+           data-tag="nginx,logs,日志收集"
+           data-author="" >
+            <span class="post-title" title="nginx日志分析">nginx日志分析</span>
+            <span class="post-date" title="2022-05-10 09:19:00">2022/05/10</span>
+        </a>
+        
+        
+        <a  class="全部文章 云平台 "
+           href="/2022/04/21/%E8%BF%90%E7%BB%B42022%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
+           data-tag="云平台,报告,统计"
+           data-author="" >
+            <span class="post-title" title="运维2022年年度总结报告">运维2022年年度总结报告</span>
+            <span class="post-date" title="2022-04-21 11:46:00">2022/04/21</span>
+        </a>
+        
+        
+        <a  class="全部文章 database "
+           href="/2021/03/02/%E9%83%A8%E7%BD%B2redis5-0cluster%E9%9B%86%E7%BE%A4/"
+           data-tag="部署安装,redis,rediscluster"
+           data-author="" >
+            <span class="post-title" title="部署redis5.0cluster集群">部署redis5.0cluster集群</span>
+            <span class="post-date" title="2021-03-02 09:40:00">2021/03/02</span>
+        </a>
+        
+        
+        <a  class="全部文章 linux "
+           href="/2015/05/23/shell%E4%B8%89%E4%B8%AA%E7%81%AB%E6%9E%AA%E6%89%8B/"
+           data-tag="shell"
+           data-author="" >
+            <span class="post-title" title="shell三个火枪手">shell三个火枪手</span>
+            <span class="post-date" title="2015-05-23 16:40:00">2015/05/23</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-jetlinks自动化部署" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">jetlinks自动化部署</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="CICD">CICD</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color4">jetlinks</a>
+            
+            <a class="color1">jetlinks插件</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2024-01-11 11:56:08'>2024-01-03 10:40</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E7%8E%AF%E5%A2%83"><span class="toc-text">准备环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85docker"><span class="toc-text">1. 安装docker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%89%E8%A3%85docker-compose"><span class="toc-text">2. 安装docker-compose</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85mysql"><span class="toc-text">3. 安装mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%AE%89%E8%A3%85redis"><span class="toc-text">4. 安装redis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%AE%89%E8%A3%85jdk"><span class="toc-text">5. 安装jdk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%AE%89%E8%A3%85maven"><span class="toc-text">6. 安装maven</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%AE%89%E8%A3%85nodejs"><span class="toc-text">7. 安装nodejs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%AE%89%E8%A3%85git"><span class="toc-text">8. 安装git</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2jetlinks"><span class="toc-text">部署jetlinks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%8B%E8%BD%BDjetlinks%E6%BA%90%E7%A0%81"><span class="toc-text">1. 下载jetlinks源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%BC%96%E8%AF%91%E6%BA%90%E7%A0%81"><span class="toc-text">2. 编译源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%90%AF%E5%8A%A8jetlinks"><span class="toc-text">3. 启动jetlinks</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%AE%BF%E9%97%AE%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0"><span class="toc-text">4. 访问管理后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%81%9C%E6%AD%A2jetlinks"><span class="toc-text">5. 停止jetlinks</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E6%8F%92%E4%BB%B6"><span class="toc-text">部署插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%8B%E8%BD%BD%E6%8F%92%E4%BB%B6%E6%BA%90%E7%A0%81"><span class="toc-text">1. 下载插件源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%BC%96%E8%AF%91%E6%8F%92%E4%BB%B6"><span class="toc-text">2. 编译插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%90%AF%E5%8A%A8%E6%8F%92%E4%BB%B6"><span class="toc-text">3. 启动插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%81%9C%E6%AD%A2%E6%8F%92%E4%BB%B6"><span class="toc-text">4. 停止插件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E7%94%A8%E6%88%B7"><span class="toc-text">部署用户</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%99%BB%E5%BD%95%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0"><span class="toc-text">1. 登录管理后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7"><span class="toc-text">2. 创建用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%99%BB%E5%BD%95"><span class="toc-text">3. 登录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E8%AE%BE%E5%A4%87"><span class="toc-text">部署设备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%99%BB%E5%BD%95%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0-1"><span class="toc-text">1. 登录管理后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E8%AE%BE%E5%A4%87"><span class="toc-text">2. 创建设备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AE%BE%E5%A4%87%E8%AF%A6%E6%83%85"><span class="toc-text">3. 设备详情</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E4%BA%A7%E5%93%81"><span class="toc-text">部署产品</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%99%BB%E5%BD%95%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0-2"><span class="toc-text">1. 登录管理后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81"><span class="toc-text">2. 创建产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85"><span class="toc-text">3. 产品详情</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E8%A7%84%E5%88%99"><span class="toc-text">部署规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%99%BB%E5%BD%95%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0-3"><span class="toc-text">1. 登录管理后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E8%A7%84%E5%88%99"><span class="toc-text">2. 创建规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%A7%84%E5%88%99%E8%AF%A6%E6%83%85"><span class="toc-text">3. 规则详情</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jetlinks%E7%9A%84jenkins%E8%87%AA%E5%8A%A8%E5%8C%96"><span class="toc-text">jetlinks的jenkins自动化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9jetlinks%E7%9A%84%E5%8E%9F%E7%94%9Fpom%E6%96%87%E4%BB%B6"><span class="toc-text">1. 修改jetlinks的原生pom文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81%E5%9C%A8pom%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84properties%E6%A8%A1%E5%9D%97%E6%B7%BB%E5%8A%A0%E4%BB%A5%E4%B8%8B%E5%86%85%E5%AE%B9"><span class="toc-text">1、在pom文件中的properties模块添加以下内容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%E3%80%81%E5%9C%A8pluginManagement%E6%A8%A1%E5%9D%97%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BB%A5%E4%B8%8B%E5%86%85%E5%AE%B9"><span class="toc-text">3、在pluginManagement模块中添加以下内容</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%9C%A8jenkins%E4%B8%8A%E5%88%9B%E5%BB%BA%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%A1%B9%E7%9B%AE"><span class="toc-text">2. 在jenkins上创建流水线项目</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文主要介绍jetlinks自动化部署的流程，主要分为以下几步：</p>
+<ol>
+<li>准备环境</li>
+<li>部署jetlinks</li>
+<li>部署插件</li>
+<li>部署用户</li>
+<li>部署设备</li>
+<li>部署产品</li>
+<li>部署规则</li>
+</ol>
+<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><h3 id="1-安装docker"><a href="#1-安装docker" class="headerlink" title="1. 安装docker"></a>1. 安装docker</h3><pre><code class="bash">sudo apt-get install docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+</code></pre>
+<h3 id="2-安装docker-compose"><a href="#2-安装docker-compose" class="headerlink" title="2. 安装docker-compose"></a>2. 安装docker-compose</h3><pre><code class="bash">sudo apt-get install docker-compose
+</code></pre>
+<h3 id="3-安装mysql"><a href="#3-安装mysql" class="headerlink" title="3. 安装mysql"></a>3. 安装mysql</h3><pre><code class="bash">sudo apt-get install mysql-server           # 安装mysql
+sudo mysql_secure_installation            # 安全设置
+sudo systemctl start mysql                  # 启动mysql
+sudo systemctl enable mysql                 # 开机启动mysql
+</code></pre>
+<h3 id="4-安装redis"><a href="#4-安装redis" class="headerlink" title="4. 安装redis"></a>4. 安装redis</h3><pre><code class="bash">sudo apt-get install redis-server            # 安装redis
+sudo systemctl start redis                  # 启动redis
+sudo systemctl enable redis                 # 开机启动redis 
+</code></pre>
+<h3 id="5-安装jdk"><a href="#5-安装jdk" class="headerlink" title="5. 安装jdk"></a>5. 安装jdk</h3><pre><code class="bash">sudo apt-get install openjdk-8-jdk
+</code></pre>
+<h3 id="6-安装maven"><a href="#6-安装maven" class="headerlink" title="6. 安装maven"></a>6. 安装maven</h3><pre><code class="bash">sudo apt-get install maven
+</code></pre>
+<h3 id="7-安装nodejs"><a href="#7-安装nodejs" class="headerlink" title="7. 安装nodejs"></a>7. 安装nodejs</h3><pre><code class="bash">sudo apt-get install nodejs
+</code></pre>
+<h3 id="8-安装git"><a href="#8-安装git" class="headerlink" title="8. 安装git"></a>8. 安装git</h3><pre><code class="bash">sudo apt-get install git
+</code></pre>
+<h2 id="部署jetlinks"><a href="#部署jetlinks" class="headerlink" title="部署jetlinks"></a>部署jetlinks</h2><h3 id="1-下载jetlinks源码"><a href="#1-下载jetlinks源码" class="headerlink" title="1. 下载jetlinks源码"></a>1. 下载jetlinks源码</h3><pre><code class="bash">git clone https://github.com/jetlinks/jetlinks-community.git
+</code></pre>
+<h3 id="2-编译源码"><a href="#2-编译源码" class="headerlink" title="2. 编译源码"></a>2. 编译源码</h3><pre><code class="bash">cd jetlinks-community
+mvn clean install -DskipTests
+</code></pre>
+<h3 id="3-启动jetlinks"><a href="#3-启动jetlinks" class="headerlink" title="3. 启动jetlinks"></a>3. 启动jetlinks</h3><pre><code class="bash">cd jetlinks-community/jetlinks-manager/target
+java -jar jetlinks-manager.jar
+</code></pre>
+<h3 id="4-访问管理后台"><a href="#4-访问管理后台" class="headerlink" title="4. 访问管理后台"></a>4. 访问管理后台</h3><p>访问<a target="_blank" rel="noopener" href="http://localhost:9000/">http://localhost:9000</a></p>
+<p>默认账号：admin<br>默认密码：123456</p>
+<h3 id="5-停止jetlinks"><a href="#5-停止jetlinks" class="headerlink" title="5. 停止jetlinks"></a>5. 停止jetlinks</h3><pre><code class="bash">cd jetlinks-community/jetlinks-manager/target
+java -jar jetlinks-manager.jar --stop
+</code></pre>
+<h2 id="部署插件"><a href="#部署插件" class="headerlink" title="部署插件"></a>部署插件</h2><h3 id="1-下载插件源码"><a href="#1-下载插件源码" class="headerlink" title="1. 下载插件源码"></a>1. 下载插件源码</h3><pre><code class="bash">git clone https://github.com/jetlinks/jetlinks-community.git
+</code></pre>
+<h3 id="2-编译插件"><a href="#2-编译插件" class="headerlink" title="2. 编译插件"></a>2. 编译插件</h3><pre><code class="bash">cd jetlinks-community/jetlinks-plugin
+mvn clean install -DskipTests
+</code></pre>
+<h3 id="3-启动插件"><a href="#3-启动插件" class="headerlink" title="3. 启动插件"></a>3. 启动插件</h3><pre><code class="bash">cd jetlinks-community/jetlinks-plugin/target
+java -jar jetlinks-plugin.jar
+</code></pre>
+<h3 id="4-停止插件"><a href="#4-停止插件" class="headerlink" title="4. 停止插件"></a>4. 停止插件</h3><pre><code class="bash">cd jetlinks-community/jetlinks-plugin/target
+java -jar jetlinks-plugin.jar --stop
+</code></pre>
+<h2 id="部署用户"><a href="#部署用户" class="headerlink" title="部署用户"></a>部署用户</h2><h3 id="1-登录管理后台"><a href="#1-登录管理后台" class="headerlink" title="1. 登录管理后台"></a>1. 登录管理后台</h3><p>访问<a target="_blank" rel="noopener" href="http://localhost:9000/">http://localhost:9000</a></p>
+<p>默认账号：admin<br>默认密码：123456</p>
+<h3 id="2-创建用户"><a href="#2-创建用户" class="headerlink" title="2. 创建用户"></a>2. 创建用户</h3><p>点击左侧菜单栏的用户管理，点击创建用户按钮，输入用户名和密码，点击保存按钮。</p>
+<h3 id="3-登录"><a href="#3-登录" class="headerlink" title="3. 登录"></a>3. 登录</h3><p>使用刚才创建的用户名和密码登录管理后台。</p>
+<h2 id="部署设备"><a href="#部署设备" class="headerlink" title="部署设备"></a>部署设备</h2><h3 id="1-登录管理后台-1"><a href="#1-登录管理后台-1" class="headerlink" title="1. 登录管理后台"></a>1. 登录管理后台</h3><p>访问<a target="_blank" rel="noopener" href="http://localhost:9000/">http://localhost:9000</a><br>默认账号：admin<br>默认密码：123456</p>
+<h3 id="2-创建设备"><a href="#2-创建设备" class="headerlink" title="2. 创建设备"></a>2. 创建设备</h3><p>点击左侧菜单栏的设备管理，点击创建设备按钮，输入设备名称，点击保存按钮。</p>
+<h3 id="3-设备详情"><a href="#3-设备详情" class="headerlink" title="3. 设备详情"></a>3. 设备详情</h3><p>点击刚才创建的设备名称，可以看到设备详情。</p>
+<h2 id="部署产品"><a href="#部署产品" class="headerlink" title="部署产品"></a>部署产品</h2><h3 id="1-登录管理后台-2"><a href="#1-登录管理后台-2" class="headerlink" title="1. 登录管理后台"></a>1. 登录管理后台</h3><p>访问<a target="_blank" rel="noopener" href="http://localhost:9000/">http://localhost:9000</a><br>默认账号：admin<br>默认密码：123456</p>
+<h3 id="2-创建产品"><a href="#2-创建产品" class="headerlink" title="2. 创建产品"></a>2. 创建产品</h3><p>点击左侧菜单栏的产品管理，点击创建产品按钮，输入产品名称，点击保存按钮。</p>
+<h3 id="3-产品详情"><a href="#3-产品详情" class="headerlink" title="3. 产品详情"></a>3. 产品详情</h3><p>点击刚才创建的产品名称，可以看到产品详情。</p>
+<h2 id="部署规则"><a href="#部署规则" class="headerlink" title="部署规则"></a>部署规则</h2><h3 id="1-登录管理后台-3"><a href="#1-登录管理后台-3" class="headerlink" title="1. 登录管理后台"></a>1. 登录管理后台</h3><p>访问<a target="_blank" rel="noopener" href="http://localhost:9000/">http://localhost:9000</a><br>默认账号：admin<br>默认密码：123456</p>
+<h3 id="2-创建规则"><a href="#2-创建规则" class="headerlink" title="2. 创建规则"></a>2. 创建规则</h3><p>点击左侧菜单栏的规则管理，点击创建规则按钮，输入规则名称，点击保存按钮。</p>
+<h3 id="3-规则详情"><a href="#3-规则详情" class="headerlink" title="3. 规则详情"></a>3. 规则详情</h3><p>点击刚刚创建的规则名称，可以看到规则详情。</p>
+<h2 id="jetlinks的jenkins自动化"><a href="#jetlinks的jenkins自动化" class="headerlink" title="jetlinks的jenkins自动化"></a>jetlinks的jenkins自动化</h2><h3 id="1-修改jetlinks的原生pom文件"><a href="#1-修改jetlinks的原生pom文件" class="headerlink" title="1. 修改jetlinks的原生pom文件"></a>1. 修改jetlinks的原生pom文件</h3><p>jetlins需要映射的端口<br>ports:<br>    - “8838:8848” # API端口<br>    - “1883-1890:1883-1890” # 预留<br>    - “8800-8810:8800-8810” # 预留<br>    - “5060-5061:5060-5061” # 预留</p>
+<p>另外我们需要将pom文件改成直接maven后可以推送到harbor仓库的方式</p>
+<h4 id="1、在pom文件中的properties模块添加以下内容"><a href="#1、在pom文件中的properties模块添加以下内容" class="headerlink" title="1、在pom文件中的properties模块添加以下内容"></a>1、在pom文件中的properties模块添加以下内容</h4><pre><code class="xml">    &lt;properties&gt;
+        &lt;!-- 推荐使用Harbor --&gt;
+        &lt;docker.registry.url&gt;registry.cn-shenzhen.aliyuncs.com&lt;/docker.registry.url&gt;
+        &lt;docker.registry.host&gt;http://$&#123;docker.registry.url&#125;:2375&lt;/docker.registry.host&gt;
+        &lt;docker.username&gt;ancangshuju&lt;/docker.username&gt;
+        &lt;docker.password&gt;Docker365acd.com&lt;/docker.password&gt;
+        &lt;docker.namespace&gt;aciot-blade&lt;/docker.namespace&gt;
+        &lt;docker.plugin.version&gt;1.4.13&lt;/docker.plugin.version&gt;
+    &lt;/properties&gt;
+```xml
+#### 2、在build模块中添加以下内容
+```xml
+&lt;build&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+            &lt;artifactId&gt;maven-deploy-plugin&lt;/artifactId&gt;
+            &lt;version&gt;2.8.2&lt;/version&gt;
+            &lt;configuration&gt;
+                &lt;skip&gt;true&lt;/skip&gt;
+            &lt;/configuration&gt;
+        &lt;/plugin&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+
+            &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+            &lt;version&gt;3.8.0&lt;/version&gt;
+            &lt;configuration&gt;
+                &lt;source&gt;1.8&lt;/source&gt;
+                &lt;target&gt;1.8&lt;/target&gt;
+            &lt;/configuration&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;
+</code></pre>
+<h4 id="3、在pluginManagement模块中添加以下内容"><a href="#3、在pluginManagement模块中添加以下内容" class="headerlink" title="3、在pluginManagement模块中添加以下内容"></a>3、在pluginManagement模块中添加以下内容</h4><pre><code class="xml">&lt;build&gt;
+    &lt;/pluginManagement&gt;
+                    &lt;plugin&gt;
+                    &lt;groupId&gt;com.spotify&lt;/groupId&gt;
+                    &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;
+                    &lt;version&gt;$&#123;docker.plugin.version&#125;&lt;/version&gt;
+                    &lt;configuration&gt;
+                        &lt;username&gt;$&#123;docker.username&#125;&lt;/username&gt;
+                        &lt;password&gt;$&#123;docker.password&#125;&lt;/password&gt;
+                        &lt;repository&gt;$&#123;docker.registry.url&#125;/$&#123;docker.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;
+                        &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;
+                        &lt;useMavenSettingsForAuth&gt;true&lt;/useMavenSettingsForAuth&gt;
+                        &lt;buildArgs&gt;
+                            &lt;JAR_FILE&gt;target/$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;
+                        &lt;/buildArgs&gt;
+                    &lt;/configuration&gt;
+                    &lt;!--子服务添加如下配置，运行 mvn deploy 命令便会自动打包镜像--&gt;
+                    &lt;!--&lt;executions&gt;
+                        &lt;execution&gt;
+                            &lt;id&gt;default&lt;/id&gt;
+                            &lt;goals&gt;
+                                &lt;goal&gt;build&lt;/goal&gt;
+                                &lt;goal&gt;push&lt;/goal&gt;
+                            &lt;/goals&gt;
+                        &lt;/execution&gt;
+                    &lt;/executions&gt;--&gt;
+                &lt;/plugin&gt;
+        &lt;/pluginManagement&gt;
+&lt;/build&gt;
+</code></pre>
+<h3 id="2-在jenkins上创建流水线项目"><a href="#2-在jenkins上创建流水线项目" class="headerlink" title="2. 在jenkins上创建流水线项目"></a>2. 在jenkins上创建流水线项目</h3><pre><code class="shell">def servicesPort = [&quot;blade-gateway&quot;:88,&quot;blade-auth&quot;:8100,&quot;blade-system&quot;:8106,&quot;blade-resource&quot;:8010,&quot;blade-swagger&quot;:18000,&quot;blade-admin&quot;:7002,&quot;blade-desk&quot;:8105,&quot;blade-log&quot;:8103]
+def selectProjectName = [&quot;blade-auth&quot;,&quot;blade-gateway&quot;,&quot;blade-ops/blade-admin&quot;,&quot;blade-ops/blade-resource&quot;,&quot;blade-ops/blade-swagger&quot;,&quot;blade-service/blade-desk&quot;,&quot;blade-service/blade-system&quot;,&quot;blade-ops/blade-log&quot;]
+def AllProjectName = [&quot;blade-gateway&quot;,&quot;blade-auth&quot;,&quot;blade-system&quot;,&quot;blade-desk&quot;,&quot;blade-admin&quot;,&quot;blade-swagger&quot;,&quot;blade-resource&quot;,&quot;blade-log&quot;]
+pipeline &#123;
+    agent any
+    environment &#123;
+        git_url=&quot;http://git.365acd.com/newiotgroup/jetlinks-community.git&quot;
+        scannerHome=&quot;/opt/sonar-scanner4.7&quot;
+        scan_project=&quot;jetlins&quot;
+        app_name=&quot;jetlinks&quot;
+        _tags=sh(script: &quot;echo `date &#39;+%s&#39;`&quot;, returnStdout: true).trim()
+        
+    &#125;
+    parameters &#123;
+        gitParameter (branch:&#39;&#39;, branchFilter: &#39;origin/(.*)&#39;, defaultValue: &#39;master&#39;, description: &#39;选择将要构建的分支&#39;, name: &#39;BRANCH&#39;, quickFilterEnabled: true, selectedValue: &#39;TOP&#39;, sortMode: &#39;DESCENDING_SMART&#39;, tagFilter: &#39;*&#39;, type: &#39;PT_BRANCH_TAG&#39;, useRepository: env.GIT_URL)
+    &#125;
+    
+    stages &#123;
+        stage(&#39;clean&#39;) &#123;
+            steps &#123;
+            echo &quot;-------------------------------------start clean-------------------------------------&quot;   
+            cleanWs(
+                cleanWhenAborted: true, 
+                cleanWhenFailure: true, 
+                cleanWhenNotBuilt: true, 
+                cleanWhenSuccess: true, 
+                cleanWhenUnstable: true, 
+                cleanupMatrixParent: true, 
+                disableDeferredWipeout: true, //# 这个选项是关闭延时删除，立即删除。
+                deleteDirs: true
+                )
+             echo &quot;-------------------------------------successful clean-------------------------------------&quot;   
+            &#125;
+        &#125;
+        stage(&#39;git&#39;) &#123;
+            steps &#123;
+                echo &quot;-------------------------------------start git  -------------------------------------&quot; 
+                checkout([$class: &#39;GitSCM&#39;, branches: [[name: &quot;$BRANCH&quot;]],  userRemoteConfigs: [[credentialsId: &#39;jenkinsgit&#39;, url: &quot;$&#123;git_url&#125;&quot;]]])
+                echo &quot;-----------------------------------checkout successful ****-------------------------------------&quot; 
+            &#125;
+        &#125;
+        
+        stage(&#39;docker build&#39;) &#123;
+            steps &#123;
+                echo &quot;-------------------------------------start maven-------------------------------------&quot;
+                
+                sh &quot;find ./ -name Dockerfile  -type f|xargs  sed -i  &#39;s/test/dev/g&#39; &quot;
+                sh &quot;mvn install -Dmaven.test.skip=true&quot;
+                script &#123;
+                for(int i=0; i&lt;selectProjectName.size(); i++)&#123;
+                  def currentProjectName = selectProjectName[i];
+                  sh &quot;/data/script/change_tags.sh $&#123;_tags&#125; $&#123;currentProjectName&#125;&quot;;
+                  sh &quot;mvn -f $&#123;currentProjectName&#125;/pom.xml dockerfile:build dockerfile:push&quot;;
+                  echo &quot;$&#123;currentProjectName&#125;完成镜像制作&quot;
+                &#125;
+                &#125;
+                echo &quot;-------------------------------------maven build successful-------------------------------------&quot;
+            &#125;
+        &#125;
+        
+        stage(&#39;deploy to server&#39;)&#123;
+            steps&#123;
+                script&#123;
+                    echo &quot; -------------------------------------start upload-------------------------------------&quot;
+                    //清空deploy下的$&#123;app_name&#125;.jar 
+                    for(int i=0;i&lt;AllProjectName.size();i++)&#123;
+                      def currentProjectName = AllProjectName[i];
+                      def port=servicesPort[currentProjectName];
+                      sh &quot;&quot;&quot;/usr/bin/ansible dev_aciot -m shell -a &quot;docker pull 192.168.2.208/aciot-blade/$&#123;currentProjectName&#125;:$&#123;_tags&#125;&quot; &quot;&quot;&quot; 
+                      sh &quot;&quot;&quot;/usr/bin/ansible dev_aciot -m shell -a &quot;docker stop $&#123;currentProjectName&#125; &amp;&amp; docker rm $&#123;currentProjectName&#125; || echo &#39;skip &#39;&quot; &quot;&quot;&quot; ;
+                      sh &quot;&quot;&quot;/usr/bin/ansible dev_aciot -m shell -a &quot;docker run --name $&#123;currentProjectName&#125; -p $&#123;port&#125;:$&#123;port&#125; -d 192.168.2.208/aciot-blade/$&#123;currentProjectName&#125;:$&#123;_tags&#125;&quot; &quot;&quot;&quot; 
+                    &#125;
+                    
+                    echo &quot;-------------------------------------upload successful-------------------------------------&quot;
+                 
+                &#125;
+            &#125;
+        &#125;
+    &#125;
+    
+    post &#123;
+        failure &#123;
+            wrap([$class: &#39;BuildUser&#39;]) &#123;
+                dingtalk(
+                    robot: &#39;zhuyuanzhang&#39;,
+                    type: &#39;MARKDOWN&#39;,
+                    text: [&quot;### 项目信息&quot;,
+                        &#39;---&#39;,
+                        &quot;- 项目主体: CheckCheck&quot;,
+                        &quot;- 子项目: 斗地主&quot;,
+                        &quot;![ddz](https://img95.699pic.com/xsj/06/os/zs.jpg)&quot;,
+                        &quot;&quot;,
+                        &#39;---&#39;,
+                        &quot;### 构建信息&quot;,
+                        &#39;---&#39;,
+                        &quot;- 构建编号: &lt;font color=#dd3238&gt;$&#123;BUILD_ID&#125;&lt;/font&gt;&quot;,
+                        &quot;- 构建状态: **&lt;font color=#dd3238&gt;$&#123;currentBuild.result&#125;&lt;/font&gt;**&quot;,
+                        &quot;- 项目地址: $&#123;BUILD_URL&#125;&quot;,
+                        &quot;- 构建日志: $&#123;BUILD_URL&#125;console&quot;,
+                        &quot;&quot;,
+                        &#39;---&#39;,
+                        &quot;### 执行人&quot;,
+                        &#39;---&#39;,
+                        &quot;- $&#123;env.BUILD_USER&#125;&quot;,
+                        &quot;&quot;,
+                        &#39;---&#39;,
+                        &quot;### 持续时间&quot;,
+                        &#39;---&#39;,
+                        &quot;- $&#123;currentBuild.durationString&#125;&quot;,
+                        &quot;&quot;,
+                        &#39;---&#39;]
+                )
+            &#125;
+        &#125;
+    &#125;
+    
+&#125;   
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 6430186@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 匹敌
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
