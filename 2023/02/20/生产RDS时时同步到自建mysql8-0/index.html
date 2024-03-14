@@ -6,15 +6,15 @@
   <meta name="keywords" content=" RDS , mysql8 , RDS同步自建mysql ">
   <meta name="description" content="生产RDS时时同步到自建mysql8.0 | 谁与匹敌">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta name="description" content="PIDI的个人博客">
 <meta property="og:type" content="website">
-<meta property="og:title" content="about me">
-<meta property="og:url" content="http://blog.pidi.co/about/index.html">
+<meta property="og:title" content="tags">
+<meta property="og:url" content="http://blog.pidi.co/tags/index.html">
 <meta property="og:site_name" content="谁与匹敌">
-<meta property="og:description" content="关于我作为一个出身微末的人，我深感自己的幸运，因为我生活在华夏五千多年历史中最好的时代。即使在我孩童时期，我也从未经历过饥寒之苦。回首往事，我意识到自己从小就显得愚钝，但我却未曾停止过努力，像一只掉队的丑小鸭。经过半生的匆匆岁月，我终于努力赚得了一份家业。 我想写下这篇关于我和创建匹敌博客的初衷的文章，主要是为了表达我内心深处的不服输的精神，并激发读者们的斗志。我相信，每个人都有无限的潜力，只要我">
+<meta property="og:description" content="PIDI的个人博客">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-12-13T06:14:04.000Z">
-<meta property="article:modified_time" content="2023-12-14T00:43:51.073Z">
+<meta property="article:published_time" content="2021-12-12T02:04:30.000Z">
+<meta property="article:modified_time" content="2023-12-12T02:36:18.116Z">
 <meta property="article:author" content="匹敌">
 <meta property="article:tag" content="pidi,运维，博客，IT男，匹敌">
 <meta name="twitter:card" content="summary">
@@ -130,7 +130,7 @@
     <li>
         <div class="all active" data-rel="全部文章">全部文章
             
-                <small>(27)</small>
+                <small>(28)</small>
             
         </div>
     </li>
@@ -187,7 +187,22 @@
         <div data-rel="云平台">
             
             云平台
-            <small>(4)</small>
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="制度和文档">
+            
+            制度和文档
+            <small>(2)</small>
         </div>
         
     </li>
@@ -275,7 +290,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="27">
+<input type="hidden" id="yelog_site_posts_number" value="28">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -593,6 +608,15 @@
     <nav id="title-list-nav">
         
         
+        <a  class="全部文章 制度和文档 "
+           href="/2024/01/15/%E8%BF%90%E7%BB%B42023%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
+           data-tag="报告,统计"
+           data-author="" >
+            <span class="post-title" title="运维2023年年度总结报告">运维2023年年度总结报告</span>
+            <span class="post-date" title="2024-01-15 18:32:21">2024/01/15</span>
+        </a>
+        
+        
         <a  class="全部文章 日志 "
            href="/2024/01/12/maven%E5%92%8Cnexus%E7%9A%84%E9%85%8D%E7%BD%AE/"
            data-tag="maven,nexus,maven构建"
@@ -809,7 +833,7 @@
         </a>
         
         
-        <a  class="全部文章 云平台 "
+        <a  class="全部文章 制度和文档 "
            href="/2022/04/21/%E8%BF%90%E7%BB%B42022%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A/"
            data-tag="云平台,报告,统计"
            data-author="" >
@@ -884,7 +908,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2023-12-19 11:37:13'>2023-02-20 20:07</time>
+            发布时间 : <time class="date" title='最后更新: 2024-01-22 19:57:39'>2023-02-20 20:07</time>
         
     </div>
     <div class="article-meta">
@@ -1626,6 +1650,32 @@ mysql&gt; start slave;
 Query OK, 0 rows affected, 1 warning (0.04 sec)
 
 mysql&gt;  show slave status\G;
+</code></pre>
+<p>解决同步1032错误，使用select * from performance_schema.replication_applier_status_by_worker\G;<br>查到同步错误信息分解如下：<br>1、Worker 1 failed executing transaction ‘8f4bc7e7-ce09-11ec-8d9f-00163e0ef90f:2606831’ at source log mysql-bin.002500, end_log_pos 4366308：这表示在执行事务时遇到了问题，具体事务的位置在mysql-bin.002500日志文件的4366308位置。<br>2、Can’t find record in ‘xxl_job_log’, Error_code: 1032：这表示在尝试执行Delete_rows_v1事件时，无法在xxl_job_log表中找到相应的记录。Error_code: 1032是MySQL的错误代码，表示“没有记录”。<br>3、handler error HA_ERR_KEY_NOT_FOUND：这是MySQL的错误代码，表示“找不到键”。<br>这个问题的原因可能是：<br>在主服务器上执行了一个删除操作，但该操作所对应的记录在目标服务器上的xxl_job_log表中不存在。这可能是由于数据不一致或数据已经从主服务器上删除，但还没有同步到目标服务器上。<br>另一个可能的原因是，目标服务器上的数据与主服务器上的数据不同步，可能是因为网络中断、复制线程停止等原因导致数据没有完全同步。</p>
+<pre><code class="shell">select * from performance_schema.replication_applier_status_by_worker\G;
+*************************** 1. row ***************************
+                                           CHANNEL_NAME: 
+                                              WORKER_ID: 1
+                                              THREAD_ID: NULL
+                                          SERVICE_STATE: OFF
+                                      LAST_ERROR_NUMBER: 1032
+                                     LAST_ERROR_MESSAGE: Worker 1 failed executing transaction &#39;8f4bc7e7-ce09-11ec-8d9f-00163e0ef90f:2606831&#39; at source log mysql-bin.002500, end_log_pos 4366308; Could not execute Delete_rows_v1 event on table wrp_xxljob.xxl_job_log; Can&#39;t find record in &#39;xxl_job_log&#39;, Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event&#39;s source log mysql-bin.002500, end_log_pos 4366308
+                                   LAST_ERROR_TIMESTAMP: 2024-01-22 11:02:27.161954
+                               LAST_APPLIED_TRANSACTION: 
+</code></pre>
+<p>最终解决办法： 在my.conf配置中增加跳过1032和1062错误，重启mysqld后，就已经自己同步了。</p>
+<pre><code class="shell">vim /etc/my.conf
+[mysqld]  #在这个配置框架内
+slave-skip-errors = 1062,1032  #增加路过1032和1062错误
+</code></pre>
+<pre><code class="shell">systemctl restart mysqld
+</code></pre>
+<p>在MySQL中，1032和1062错误通常是因为主服务器上的数据与从服务器上的数据不一致导致的。</p>
+<p>不小心手动失误删除了一个备份的binlog, 需要在阿里云上重新下载<br>nohup wget -c -t 0 “备份文件下载地” -O 下载的目标路径及文件名 &gt; 下载输出日志到对应文件 &amp;<br>例如： </p>
+<pre><code class="shell">nohup wget -c -t 0 &quot;阿里云下载内网binlog地址&quot; -o mysqlbinlog2500.sql &gt; /tmp/binlog.log &amp;
+</code></pre>
+<p>下载完后使用mysqlbinlog工具进行解析，解析出需要的sql语句，然后在目标服务器上执行即可。</p>
+<pre><code class="shell">mysqlbinlog mysqlbinlog2500.sql &gt; /data/crond/mysqlbinlog/mysqlbinlog2500.sql
 </code></pre>
 
       
